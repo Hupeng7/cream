@@ -1,0 +1,32 @@
+server:
+  port: 2002
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:2000/eureka/
+  instance:
+    prefer-ip-address: true
+spring:
+  profiles:
+    active: dev
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+#  zipkin:
+#    base-url: http://localhost:9411
+  sleuth:
+    sampler:
+      percentage: 1.0
+feign:
+  hystrix:
+    enabled: true
+
+
+logging:
+  level:
+    root: info
+    org.springframework.cloud.sleuth: Debug
+

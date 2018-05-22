@@ -1,0 +1,25 @@
+server:
+  port: 2003
+spring:
+  profiles:
+    active: dev
+  application:
+    name: dashboard-service
+#  rabbitmq:
+#    host: localhost
+#    port: 5672
+#    username: guest
+#    password: guest
+#Eureke 客户端注册服务相关配置
+#eureka:
+#  client:
+#    serviceUrl:
+#      defaultZone: http://localhost:2000/eureka
+#  instance:
+#    prefer-ip-address: true
+#turbine:
+#  app-config: user-service,order-service
+#  cluster-name-expression: "'default'"
+
+
+
