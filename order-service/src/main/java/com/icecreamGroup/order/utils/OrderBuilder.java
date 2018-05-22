@@ -1,45 +1,21 @@
-package com.icecreamGoup.major;
-
+package com.icecreamGroup.order.utils;
 
 import com.icecreamGroup.common.model.Order;
-import com.icecreamGroup.order.OrderServiceApplication;
-import com.icecreamGroup.order.Mapper.OrderMapper;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = OrderServiceApplication.class)
-public class OrderTest {
-
-    @Autowired
-    OrderMapper orderMapper;
+public class OrderBuilder {
 
 
-    @Test
-    public void get(){
-        orderMapper.get("001120171228000000127");
-    }
-
-    @Test
-    public void insert(){
-        orderMapper.insertSelective(buildOrder());
-    }
-
-
-    public Order buildOrder(){
+    public static Order buildOrder(){
         Order order = new Order();
         order.setSid(1);
         order.setUid(2082501);
         order.setCreater(-1);
         order.setAmount(new BigDecimal(1));
-        order.setOrderNo("001120180119000018699");
+        order.setOrderNo("001120180119000018889");
         order.setGoodsId("000005");
         order.setGoodsPrice(new BigDecimal(3500));
         order.setAccount("-1");
@@ -53,6 +29,4 @@ public class OrderTest {
         order.setMtime(second1.intValue());
         return order;
     }
-
-
 }
