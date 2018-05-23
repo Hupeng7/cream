@@ -16,4 +16,6 @@ public interface OrderFeignClient {
     @RequestMapping("order/detail/{orderNo}")
     Order getOrderByOrderNo(@PathVariable("orderNo") String orderNo);
 
+    @RequestMapping("order/insert")
+    int insert();
 }

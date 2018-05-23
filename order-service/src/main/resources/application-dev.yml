@@ -25,30 +25,34 @@ spring:
       #解决Mysql 8小时断开空闲连接的问题
       validationQuery: SELECT 'x'
       time-between-eviction-runs-millis: 60000
-
-
+  redis:
+    host: 10.40.254.59:6379
+    port: 6379
+    password:
+    pool:
+      max-active: 10
+      max-idle: 5
+      max-wait: -1
+      min-idle: 0
+    timeout: 0
   #消息总线相关配置
   rabbitmq:
     host: localhost
     port: 5672
     username: guest
     password: guest
-
-
 #  zipkin:
 #    base-url: http://10.40.254.35:9411
   #链路追踪采样率，默认0.1 即10次请求只记录一次
   sleuth:
     sampler:
       percentage: 1.0
-
 #  配置中心
 #  cloud:
 #    config:
 #      uri: http://localhost:2005/
 #      label: master
 #      profile: dev
-
 
 #mybatis mapper.xml文件扫描
 mybatis:
@@ -74,6 +78,16 @@ management:
 feign:
   hystrix:
     enabled: true
+
+#LCN相关配置
+init-db: true
+ribbon:
+  NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
+  MaxAutoRetriesNextServer: 0
+
+tm:
+  manager.url: http://10.40.255.238:8899/tx/manager/
+
 
 
 

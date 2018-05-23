@@ -13,4 +13,9 @@ public class OrderFeignFallBack implements OrderFeignClient {
         order.setSid(1111111);
         return order;
     }
+
+    @Override
+    public int insert() {
+        return 0;
+    }
 }

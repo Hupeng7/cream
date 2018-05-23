@@ -41,8 +41,8 @@ public class OrderController {
      * 测试订单插入
      */
     @RequestMapping("insert")
-    public void insert(){
-        int count = orderService.insert();
+    public int insert(){
+        return orderService.insert();
 
     }
 
