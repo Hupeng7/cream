@@ -7,7 +7,7 @@
     <groupId>com.adinnet-cream.eureka</groupId>
     <artifactId>eureka-server</artifactId>
     <version>1.0-SNAPSHOT</version>
-
+    <packaging>jar</packaging>
     <parent>
         <groupId>com.adinnet-cream</groupId>
         <artifactId>cream</artifactId>
@@ -21,4 +21,15 @@
             <version>1.4.3.RELEASE</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <finalName>${project.artifactId}.${project.version}</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
