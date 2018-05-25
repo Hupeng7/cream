@@ -2,29 +2,34 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
-    <groupId>com.adinnet-cream.zuul</groupId>
-    <artifactId>zuul</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
     <parent>
-        <groupId>com.adinnet-cream</groupId>
-        <artifactId>cream</artifactId>
+        <artifactId>server-basic</artifactId>
+        <groupId>com.adinnet-cream.basic</groupId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>jar</packaging>
+    <groupId>com.adinnet-cream.basic.config-server</groupId>
+    <artifactId>config-server</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-zuul</artifactId>
+            <artifactId>spring-cloud-config-server</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-eureka</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-bus-amqp</artifactId>
+        </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>

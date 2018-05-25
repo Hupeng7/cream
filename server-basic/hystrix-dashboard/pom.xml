@@ -4,13 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.adinnet-cream.hydashboard</groupId>
+    <groupId>com.adinnet-cream.basic.hydashboard</groupId>
     <artifactId>hystrix-dashboard</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <parent>
-        <groupId>com.adinnet-cream</groupId>
-        <artifactId>cream</artifactId>
+        <groupId>com.adinnet-cream.basic</groupId>
+        <artifactId>server-basic</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
     <dependencies>

@@ -2,25 +2,26 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.adinnet-cream.basic.eureka</groupId>
+    <artifactId>eureka-server</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
     <parent>
-        <artifactId>cream</artifactId>
-        <groupId>com.adinnet-cream</groupId>
+        <groupId>com.adinnet-cream.basic</groupId>
+        <artifactId>server-basic</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>com.adinnet-cream-turbine</groupId>
-    <artifactId>turbine-server</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-turbine-stream</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-stream-rabbit</artifactId>
+            <artifactId>spring-cloud-starter-eureka-server</artifactId>
+            <version>1.4.3.RELEASE</version>
         </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -29,4 +30,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>

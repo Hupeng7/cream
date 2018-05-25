@@ -7,16 +7,9 @@
     <artifactId>cream</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <modules>
-        <module>eureka-server</module>
-        <module>hystrix-dashboard</module>
-        <module>order-service</module>
-        <module>user-service</module>
-        <module>zuul</module>
         <module>common</module>
-        <module>config-server</module>
-        <module>zipkin-server</module>
-        <module>comments-service</module>
-        <module>turbine-server</module>
+        <module>service-box</module>
+        <module>server-basic</module>
     </modules>
     <packaging>pom</packaging>
 

@@ -4,26 +4,28 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.adinnet-cream.eureka</groupId>
-    <artifactId>eureka-server</artifactId>
+    <groupId>com.adinnet-cream.basic.zuul</groupId>
+    <artifactId>zuul</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <parent>
-        <groupId>com.adinnet-cream</groupId>
-        <artifactId>cream</artifactId>
+        <groupId>com.adinnet-cream.basic</groupId>
+        <artifactId>server-basic</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-eureka-server</artifactId>
-            <version>1.4.3.RELEASE</version>
+            <artifactId>spring-cloud-starter-zuul</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-eureka</artifactId>
         </dependency>
     </dependencies>
 
     <build>
-        <finalName>${project.artifactId}.${project.version}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -31,5 +33,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
