@@ -18,5 +18,5 @@ import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 @EnableFeignClients
 public class OrderServiceApplication {
 
-    public static void main(String[] args){SpringApplication.run(OrderServiceApplication.class);}
+    public static void main(String[] args){SpringApplication.run(OrderServiceApplication.class,args);}
 }

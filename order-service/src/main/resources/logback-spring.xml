@@ -12,17 +12,6 @@
     <!-- 控制台的日志输出样式 -->
     <property name="CONSOLE_LOG_PATTERN"
               value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}" />
-    <!-- 控制台输出 -->
-    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>INFO</level>
-        </filter>
-        <!-- 日志输出编码 -->
-        <encoder>
-            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
-            <charset>utf8</charset>
-        </encoder>
-    </appender>
 
     <!-- 为logstash输出的JSON格式的Appender -->
     <appender name="logstash"
@@ -60,52 +49,34 @@
         </encoder>
     </appender>
 
-    <springProfile name="dev,test">
-        <!-- info日志 测试环境-->
-        <appender name="fileInfoLog-dev" class="ch.qos.logback.core.rolling.RollingFileAppender">
-            <!-- 过滤日志 -->
-            <filter class="ch.qos.logback.classic.filter.LevelFilter">
-                <level>ERROR</level>
-                <onMatch>DENY</onMatch>  <!-- 如果命中就禁止这条日志 -->
-                <onMismatch>ACCEPT</onMismatch>  <!-- 如果没有命中就使用这条规则 -->
-            </filter>
-
-            <encoder>
-                <pattern>
-                    %msg%n
-                </pattern>
-            </encoder>
-            <!-- 滚动策略 -->
-            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-                <!-- 设置info日志路径 -->
-                <fileNamePattern>D:\\order-log\\order-info.%d.log</fileNamePattern>
-            </rollingPolicy>
-        </appender>
-    </springProfile>
-    <!-- error日志 -->
-    <springProfile name="dev,test">
-        <appender name="fileErrorLog-dev" class="ch.qos.logback.core.rolling.RollingFileAppender">
-            <!-- 过滤日志 -->
+    <!--开发环境，只输出日志到控制台-->
+        <!-- 控制台输出 -->
+        <appender name="console-dev" class="ch.qos.logback.core.ConsoleAppender">
             <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-                <level>ERROR</level>
+                <level>INFO</level>
             </filter>
-
+            <!-- 日志输出编码 -->
             <encoder>
-                <pattern>
-                    %msg%n
-                </pattern>
+                <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+                <charset>utf8</charset>
             </encoder>
-            <!-- 滚动策略 -->
-            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-                <!-- 设置error日志路径 -->
-                <fileNamePattern>D:\\order-log\\order-error.%d.log</fileNamePattern>
-            </rollingPolicy>
         </appender>
-    </springProfile>
 
-    <springProfile name="prd">
-        <!-- info日志 linux-->
-        <appender name="fileInfoLog-prd" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!-- 测试环境，只打印到控制台 -->
+        <!-- 控制台输出 -->
+        <appender name="console-test" class="ch.qos.logback.core.ConsoleAppender">
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                <level>INFO</level>
+            </filter>
+            <!-- 日志输出编码 -->
+            <encoder>
+                <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+                <charset>utf8</charset>
+            </encoder>
+        </appender>
+
+
+        <appender name="prd-order-info" class="ch.qos.logback.core.rolling.RollingFileAppender">
             <!-- 过滤日志 -->
             <filter class="ch.qos.logback.classic.filter.LevelFilter">
                 <level>ERROR</level>
@@ -124,15 +95,41 @@
                 <fileNamePattern>D:\\order-log-prd\\order-info.%d.log</fileNamePattern>
             </rollingPolicy>
         </appender>
-    </springProfile>
+
+    <appender name="prd-order-debug" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 过滤日志 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>DENY</onMatch>  <!-- 如果命中就禁止这条日志 -->
+            <onMismatch>ACCEPT</onMismatch>  <!-- 如果没有命中就使用这条规则 -->
+        </filter>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>DENY</onMatch>  <!-- 如果命中就禁止这条日志 -->
+            <onMismatch>ACCEPT</onMismatch>  <!-- 如果没有命中就使用这条规则 -->
+        </filter>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>WARN</level>
+            <onMatch>DENY</onMatch>  <!-- 如果命中就禁止这条日志 -->
+            <onMismatch>ACCEPT</onMismatch>  <!-- 如果没有命中就使用这条规则 -->
+        </filter>
+        <encoder>
+            <pattern>
+                %msg%n
+            </pattern>
+        </encoder>
+        <!-- 滚动策略 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 设置info日志路径 -->
+            <fileNamePattern>D:\\order-log-prd\\order-debug.%d.log</fileNamePattern>
+        </rollingPolicy>
+    </appender>
     <!-- error日志 -->
-    <springProfile name="prd">
-    <appender name="fileErrorLog-prd" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="prd-order-error" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!-- 过滤日志 -->
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>ERROR</level>
         </filter>
-
         <encoder>
             <pattern>
                 %msg%n
@@ -144,29 +141,33 @@
             <fileNamePattern>D:\\order-log-prd\\order-error.%d.log</fileNamePattern>
         </rollingPolicy>
     </appender>
-    </springProfile>
 
     <!--不同环境下的日志输出位置-->
-    <springProfile name="dev,test">
+    <springProfile name="dev">
         <root level="info">
-            <appender-ref ref="console"/>
             <appender-ref ref="logstash" />
-            <appender-ref ref="fileInfoLog-dev"/>
-            <appender-ref ref="fileErrorLog-dev"/>
+            <appender-ref ref="console-dev"/>
+        </root>
+    </springProfile>
+    <springProfile name="test">
+        <root level="info">
+            <appender-ref ref="logstash" />
+            <appender-ref ref="console-test"/>
         </root>
     </springProfile>
 
     <springProfile name="prd">
         <root level="info">
-            <appender-ref ref="console"/>
+            <appender-ref ref="console-dev"/>
             <appender-ref ref="logstash" />
-            <appender-ref ref="fileInfoLog-prd"/>
-            <appender-ref ref="fileErrorLog-prd"/>
+            <appender-ref ref="prd-order-info"/>
+            <appender-ref ref="prd-order-error"/>
+            <appender-ref ref="prd-order-debug"/>
         </root>
     </springProfile>
     <!-- 日志输出级别 -->
-    <root level="INFO">
+   <!-- <root level="INFO">
         <appender-ref ref="console" />
         <appender-ref ref="logstash" />
-    </root>
+    </root>-->
 </configuration>
