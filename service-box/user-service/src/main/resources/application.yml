@@ -52,6 +52,7 @@ logging:
     root: info
     com.codingapi: debug
     com.icecreamGroup.user.Mapper: debug
+    com.icecreamGroup.user.feignClients.OrderFeignClient: DEBUG
 
 
 #LCN相关配置
