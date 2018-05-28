@@ -28,7 +28,6 @@ public class UserService {
            log.info("插入成功");
         else
             log.error("插入失败");
-        int a = 100/0;
         return 0;
     }
 }

@@ -50,8 +50,8 @@ mybatis:
 logging:
   level:
     root: info
-    org.springframework.cloud.sleuth: Debug
     com.codingapi: debug
+    com.icecreamGroup.user.Mapper: debug
 
 
 #LCN相关配置

@@ -60,7 +60,8 @@ eureka:
 logging:
   level:
     root: info
-    org.springframework.cloud.sleuth: Debug
+    com.icecreamGroup.order.Mapper: debug
+  path: logback-spring.xml
 
 #关闭security相关验证
 management:
