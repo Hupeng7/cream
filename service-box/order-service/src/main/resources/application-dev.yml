@@ -46,22 +46,17 @@ spring:
 #      label: master
 #      profile: dev
 
-#mybatis mapper.xml文件扫描
-mybatis:
-  mapper-locations: 'classpath*:/Mapper/*.xml'
-
 #Eureke 客户端注册服务相关配置
 eureka:
   client:
     serviceUrl:
       defaultZone: http://localhost:2000/eureka
 
-#链路追踪相关配置
+#logback相关配置
 logging:
   level:
-    root: info
     com.icecreamGroup.order.Mapper: debug
-  path: logback-spring.xml
+
 
 #关闭security相关验证
 management:

@@ -2,9 +2,11 @@ package com.icecreamGroup.common.model;
 
 import lombok.Data;
 
+import javax.persistence.Table;
 import java.math.BigDecimal;
 
 @Data
+@Table(name = "order_info")
 public class Order {
 
     /**

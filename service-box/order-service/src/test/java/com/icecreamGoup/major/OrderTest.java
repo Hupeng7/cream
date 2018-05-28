@@ -22,10 +22,6 @@ public class OrderTest {
     OrderMapper orderMapper;
 
 
-    @Test
-    public void get(){
-        orderMapper.get("001120171228000000127");
-    }
 
     @Test
     public void insert(){

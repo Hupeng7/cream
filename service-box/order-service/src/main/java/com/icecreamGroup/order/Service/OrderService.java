@@ -4,10 +4,14 @@ import com.codingapi.tx.annotation.ITxTransaction;
 import com.icecreamGroup.order.Mapper.OrderMapper;
 import com.icecreamGroup.common.model.Order;
 import com.icecreamGroup.order.utils.OrderBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
+@Slf4j
 @Service
 public class OrderService implements ITxTransaction {
 
@@ -15,7 +19,11 @@ public class OrderService implements ITxTransaction {
     private OrderMapper orderMapper;
 
     public Order getOrderByOrderNo(String orderNo){
-        return orderMapper.get(orderNo);
+        Order order = new Order();
+        order.setOrderNo(orderNo);
+        Order order1 = orderMapper.selectOne(order);
+        log.info("tk-mapper:{}"+order1);
+        return order1;
     }
 
     @Transactional
