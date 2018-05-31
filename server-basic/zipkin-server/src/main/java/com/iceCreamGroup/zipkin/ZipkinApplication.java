@@ -3,10 +3,10 @@ package com.iceCreamGroup.zipkin;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.sleuth.zipkin.stream.EnableZipkinStreamServer;
+import zipkin.server.EnableZipkinServer;
 
 @SpringBootApplication
-@EnableZipkinStreamServer
+@EnableZipkinServer
 public class ZipkinApplication {
 
     public static void main(String[] args){

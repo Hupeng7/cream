@@ -1,10 +1,10 @@
 spring:
   #消息总线相关
   rabbitmq:
-    host: 10.40.254.35
+    host: 10.40.253.210
     port: 5672
-    username: guest
-    addresses: guest
+    username: admin
+    addresses: 123456
 
   application:
     name: config-server
@@ -16,7 +16,6 @@ spring:
           uri: https://github.com/newOneObject/springCloud
           username: newOneObject
           password: ${cipher}2648aade332bc5ce2d253a05d62f8c64e7e53e946c0eedf299895ede2394eb1a
-          search-paths: config-repo
           force-pull: true
           clone-on-start: true
 #关闭配置中心的security验证（后续配置变动可以去掉，主要是非对称加密相关）

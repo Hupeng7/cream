@@ -12,7 +12,7 @@ spring:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://localhost:2000/eureka/
+      defaultZone: http://10.40.253.210:2000/eureka/
 
 #配置zuul网关#
 zuul:

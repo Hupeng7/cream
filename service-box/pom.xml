@@ -19,4 +19,13 @@
         <module>comment-service</module>
     </modules>
 
+    <dependencies>
+        <!--logStash日志收集-->
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>4.6</version>
+        </dependency>
+    </dependencies>
+
 </project>

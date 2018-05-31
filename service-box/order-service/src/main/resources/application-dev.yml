@@ -1,3 +1,4 @@
+
 spring:
   profiles:
     active: dev
@@ -18,7 +19,7 @@ spring:
       validationQuery: SELECT 'x'
       time-between-eviction-runs-millis: 60000
   redis:
-    host: 10.40.254.59:6379
+    host: 10.40.254.59
     port: 6379
     password:
     pool:
@@ -29,33 +30,34 @@ spring:
     timeout: 0
   #消息总线相关配置
   rabbitmq:
-    host: localhost
+    host: 10.40.253.210
     port: 5672
-    username: guest
-    password: guest
-#  zipkin:
-#    base-url: http://10.40.254.35:9411
+    username: admin
+    password: 123456
+  zipkin:
+    base-url: http://10.40.253.210:9411
   #链路追踪采样率，默认0.1 即10次请求只记录一次
   sleuth:
     sampler:
       percentage: 1.0
 #  配置中心
-#  cloud:
-#    config:
-#      uri: http://localhost:2005/
-#      label: master
-#      profile: dev
+  cloud:
+    config:
+      uri: http://10.40.253.210:2005/
+      label: master
+      profile: dev
 
 #Eureke 客户端注册服务相关配置
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://localhost:2000/eureka
+      defaultZone: http://10.40.253.210:2000/eureka
 
 #logback相关配置
 logging:
   level:
     com.icecreamGroup.order.Mapper: debug
+    org.springframwork.cloud.sleuth: debug
 
 
 #关闭security相关验证
@@ -75,6 +77,8 @@ ribbon:
 
 tm:
   manager.url: http://10.40.255.238:8899/tx/manager/
+server:
+  port: 19998
 
 
 

@@ -6,8 +6,8 @@ spring:
   profiles:
     active: dev
   rabbitmq:
-    host: localhost
+    host: 10.40.253.210
     port: 5672
-    username: guest
-    password: guest
+    username: admin
+    password: 123456
 

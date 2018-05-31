@@ -10,7 +10,6 @@ spring:
     username: guest
     password: guest
   sleuth:
-    annotation:
-      enabled: false
+    enabled: false
     sampler:
       percentage: 1.0
