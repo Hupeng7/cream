@@ -1,6 +1,5 @@
 server:
   port: 2002
-
 eureka:
   client:
     serviceUrl:
@@ -11,7 +10,7 @@ spring:
   profiles:
     active: dev
   rabbitmq:
-    host: 10.40.253.210
+    host: 10.40.254.35
     port: 5672
     username: admin
     password: 123456

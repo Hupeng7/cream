@@ -6,20 +6,7 @@ spring:
   application:
     name: dashboard-service
   rabbitmq:
-    host: localhost
+    username: admin
+    password: 123456
     port: 5672
-    username: guest
-    password: guest
-#Eureke 客户端注册服务相关配置
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://10.40.253.210:2000/eureka
-  instance:
-    prefer-ip-address: true
-turbine:
-#  app-config: user-service,order-service
-#  cluster-name-expression: "'default'"
-
-
-
+    host: 10.40.254.35

@@ -8,14 +8,17 @@ spring:
   rabbitmq:
       host: localhost
       port: 5672
-      username: guest
-      password: guest
+      username: admin
+      password: 123456
+  zipkin:
+    base-url: http://10.40.253.210:9411/
   sleuth:
     sampler:
       percentage: 1.0
-
 eureka:
   client:
     serviceUrl:
       defaultZone: http://10.40.253.210:2000/eureka
+  instance:
+    prefer-ip-address: true
 

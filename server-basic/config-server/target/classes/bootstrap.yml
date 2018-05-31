@@ -1,10 +1,10 @@
 spring:
   #消息总线相关
   rabbitmq:
-    host: localhost
+    host: 10.40.253.210
     port: 5672
-    username: guest
-    addresses: guest
+    username: admin
+    password: 123456
 
   application:
     name: config-server

@@ -8,8 +8,5 @@ spring:
     port: 5672
     username: admin
     password: 123456
-    host: 10.40.253.210
-  sleuth:
-    enabled: false
-    sampler:
-      percentage: 1.0
+    host: 10.40.254.35
+

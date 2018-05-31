@@ -8,7 +8,6 @@ import org.springframework.cloud.netflix.hystrix.dashboard.EnableHystrixDashboar
 /**
  * @author mr_h
  * 监控平台
- * 实现实时的集群监控
  * @version 1.0
  */
 @SpringBootApplication
