@@ -1,4 +1,4 @@
-package com.icecreamGroup.order.Mapper;
+package com.icecreamGroup.order.mapper;
 
 
 import com.icecreamGroup.common.model.Order;

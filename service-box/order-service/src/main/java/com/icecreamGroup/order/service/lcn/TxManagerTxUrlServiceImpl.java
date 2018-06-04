@@ -1,4 +1,4 @@
-package com.icecreamGroup.order.Service.lcn;
+package com.icecreamGroup.order.service.lcn;
 
 import com.codingapi.tx.config.service.TxManagerTxUrlService;
 import lombok.extern.slf4j.Slf4j;
