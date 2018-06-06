@@ -1,4 +1,4 @@
-package com.icecreamGroup.order.FeignClient;
+package com.icecreamGroup.order.feignclient;
 
 public class GoodsFeignClient {
 }

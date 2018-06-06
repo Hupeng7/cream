@@ -1,4 +1,4 @@
-package com.icecreamGroup.user.Mapper;
+package com.icecreamGroup.user.mapper;
 
 import com.icecreamGroup.common.model.User;
 import org.apache.ibatis.annotations.Mapper;

@@ -3,7 +3,7 @@ server:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://10.40.255.238:2000/eureka/
+      defaultZone: http://10.40.253.210:2000/eureka/
   instance:
     prefer-ip-address: true
 spring:
@@ -34,17 +34,24 @@ spring:
     base-url: http://10.40.253.210:9411
   sleuth:
     sampler:
-      percentage: 1.0
+      percentage: 0.5
 
 #开启feign客户端路由
 feign:
   hystrix:
     enabled: true
+#设置断路器默认超时时间
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMillisecondes: 5000
 
 #日志处理/链路日志处理
 logging:
   level:
-    root: info
     com.codingapi: debug
     com.icecreamGroup.user.Mapper: debug
     com.icecreamGroup.user.feignClients.OrderFeignClient: debug
@@ -57,7 +64,8 @@ ribbon:
   MaxAutoRetriesNextServer: 0
 
 tm:
-  manager.url: http://10.40.255.238:8899/tx/manager/
+  manager:
+    url: http://10.40.255.238:8899/tx/manager/
 
 
 

@@ -1,7 +1,7 @@
-package com.icecreamGroup.user.Controller;
+package com.icecreamGroup.user.controller;
 
 import com.icecreamGroup.common.model.Order;
-import com.icecreamGroup.user.Service.UserService;
+import com.icecreamGroup.user.service.UserService;
 import com.icecreamGroup.user.feignClients.CommentsClient;
 import com.icecreamGroup.user.feignClients.OrderFeignClient;
 import lombok.extern.slf4j.Slf4j;

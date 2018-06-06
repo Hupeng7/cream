@@ -1,4 +1,4 @@
-package com.icecreamGroup.user.Service.lcn;
+package com.icecreamGroup.user.lcn;
 
 import com.codingapi.tx.config.service.TxManagerTxUrlService;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ public class TxManagerTxUrlServiceImpl implements TxManagerTxUrlService{
 
     @Override
     public String getTxUrl() {
-       log.info("load tm.manager.url ");
+       log.info("load tm.manager.url");
         return url;
     }
 }

@@ -2,8 +2,10 @@ package com.icecreamGroup.user.feignClients.FeiginFallBack;
 
 import com.icecreamGroup.common.model.Order;
 import com.icecreamGroup.user.feignClients.OrderFeignClient;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class OrderFeignFallBack implements OrderFeignClient {
 
@@ -16,6 +18,7 @@ public class OrderFeignFallBack implements OrderFeignClient {
 
     @Override
     public int insert() {
-        return 0;
+        log.info("访问超时或者调用服务返回异常，进入断路器逻辑");
+        throw new RuntimeException("order-service处理失败，进入回退并开启断路由！");
     }
 }

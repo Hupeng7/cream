@@ -1,7 +1,8 @@
-package com.icecreamGroup.user.Service;
+package com.icecreamGroup.user.service;
 
 import com.codingapi.tx.annotation.TxTransaction;
-import com.icecreamGroup.user.Mapper.UserMapper;
+import com.icecreamGroup.user.mapper.UserMapper;
+import com.icecreamGroup.user.feignClients.CommentsClient;
 import com.icecreamGroup.user.feignClients.OrderFeignClient;
 import com.icecreamGroup.user.utils.UserBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -12,12 +13,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 public class UserService {
-
     @Autowired
-    private UserMapper userMapper;
+    private CommentsClient commentsClient;
 
     @Autowired
     private OrderFeignClient orderFeignClient;
+
+    @Autowired
+    private UserMapper userMapper;
 
     @TxTransaction(isStart = true)
     @Transactional

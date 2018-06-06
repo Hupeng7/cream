@@ -1,4 +1,4 @@
-package com.icecreamGroup.comment.Controller;
+package com.icecreamGroup.comment.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;

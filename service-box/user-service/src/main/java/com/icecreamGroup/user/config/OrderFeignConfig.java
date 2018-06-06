@@ -1,4 +1,4 @@
-package com.icecreamGroup.user.Config.Jwt;
+package com.icecreamGroup.user.config;
 
 import feign.Logger;
 import org.springframework.context.annotation.Bean;

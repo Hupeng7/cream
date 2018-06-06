@@ -1,9 +1,10 @@
 package com.icecreamGroup.user.feignClients;
 
 import com.icecreamGroup.common.model.Order;
-import com.icecreamGroup.user.Config.Jwt.OrderFeignConfig;
+import com.icecreamGroup.user.config.OrderFeignConfig;
 import com.icecreamGroup.user.feignClients.FeiginFallBack.OrderFeignFallBack;
 import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -12,8 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * name:调用的服务在Eureka上面的虚拟主机名
  * fallback: 此服务调用不成功的降级处理
  */
+@Component
 @FeignClient(name ="order-service",
-             configuration =OrderFeignConfig.class ,
+             configuration =OrderFeignConfig.class,
              fallback = OrderFeignFallBack.class)
 public interface OrderFeignClient {
     @RequestMapping("order/detail/{orderNo}")

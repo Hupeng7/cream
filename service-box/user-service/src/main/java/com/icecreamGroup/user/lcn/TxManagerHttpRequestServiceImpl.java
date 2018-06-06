@@ -1,4 +1,4 @@
-package com.icecreamGroup.user.Service.lcn;
+package com.icecreamGroup.user.lcn;
 
 import com.codingapi.tx.netty.service.TxManagerHttpRequestService;
 import com.lorne.core.framework.utils.http.HttpUtils;

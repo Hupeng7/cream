@@ -1,6 +1,5 @@
-package com.icecreamGroup.order.Controller;
+package com.icecreamGroup.order.controller;
 
-import com.icecreamGroup.order.FeignClient.CommentsClient;
 import com.icecreamGroup.common.model.Order;
 import com.icecreamGroup.order.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
@@ -17,33 +16,16 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
-    @Autowired
-    private CommentsClient commentsClient;
-
-    @RequestMapping("comments")
-    public String getComments(){
-          return commentsClient.backComments();
-    }
-
-    @RequestMapping("zuul")
-    public String zuul(){
-        return "zuul 测试";
-    }
-
-    
+    //测试查询订单
     @RequestMapping("/detail/{orderNo}")
     public Order getOrderByOrderNo(@PathVariable("orderNo") String orderNo){
-
         return orderService.getOrderByOrderNo(orderNo);
     }
 
-    /**
-     * 测试订单插入
-     */
+    //测试订单插入
     @RequestMapping("insert")
     public int insert(){
         return orderService.insert();
-
     }
 
 
