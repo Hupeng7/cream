@@ -1,4 +1,4 @@
-package com.icecreamGroup.order.utils;
+package com.icecreamGroup.order.utils.builder;
 
 import com.icecreamGroup.common.model.Appkeys;
 import com.icecreamGroup.common.model.Order;

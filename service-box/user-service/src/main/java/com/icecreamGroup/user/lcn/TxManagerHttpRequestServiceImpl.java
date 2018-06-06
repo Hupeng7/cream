@@ -6,7 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 /**
- * create by lorne on 2017/11/18
+ * @version 1.0
+ * @author mr_h
+ * create by MR_H on 2017/11/18
+ * LCN分布式事务相关
  */
 @Slf4j
 @Service

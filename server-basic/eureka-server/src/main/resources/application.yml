@@ -3,7 +3,7 @@ server:
 
 eureka:
   instance:
-    host-name: icecreamGroupEurekaServer
+    hostname: icecreamGroupEurekaServer
   client:
     registerWithEureka: false
     fetchRegistry: false

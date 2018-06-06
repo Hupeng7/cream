@@ -1,4 +1,4 @@
-package com.icecreamGroup.order.Config.Druid;
+package com.icecreamGroup.order.config.druid;
 
 import com.alibaba.druid.support.http.StatViewServlet;
 

@@ -3,12 +3,12 @@ package com.icecreamGroup.order.service;
 import com.codingapi.tx.annotation.ITxTransaction;
 import com.icecreamGroup.order.mapper.OrderMapper;
 import com.icecreamGroup.common.model.Order;
-import com.icecreamGroup.order.utils.OrderBuilder;
+import com.icecreamGroup.order.utils.builder.OrderBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 @Slf4j
 @Service
@@ -27,6 +27,6 @@ public class OrderService implements ITxTransaction {
 
     @Transactional
     public int insert(){
-        return orderMapper.insertSelective(OrderBuilder.buildOrder());
+        return orderMapper.insertSelective(null);
     }
 }

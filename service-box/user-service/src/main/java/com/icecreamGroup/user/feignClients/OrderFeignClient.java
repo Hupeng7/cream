@@ -14,10 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * fallback: 此服务调用不成功的降级处理
  */
 @Component
-@FeignClient(name ="order-service",
-             configuration =OrderFeignConfig.class,
-             fallback = OrderFeignFallBack.class)
+@FeignClient(name ="order-service", configuration =OrderFeignConfig.class, fallback = OrderFeignFallBack.class)
 public interface OrderFeignClient {
+
     @RequestMapping("order/detail/{orderNo}")
     Order getOrderByOrderNo(@PathVariable("orderNo") String orderNo);
 

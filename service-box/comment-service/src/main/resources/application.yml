@@ -1,3 +1,4 @@
+#端口号
 server:
   port: 2007
 spring:
@@ -5,20 +6,25 @@ spring:
     active: dev
   application:
     name: comment-service
+  #消息总线相关
   rabbitmq:
       host: 10.40.254.59
       port: 5672
       username: admin
       password: 123456
+  #链路追踪 http模式
   zipkin:
     base-url: http://10.40.253.210:9411/
+  #链路追踪采样率
   sleuth:
     sampler:
       percentage: 1.0
+#eureka客户端相关配置
 eureka:
   client:
     serviceUrl:
       defaultZone: http://10.40.253.210:2000/eureka
   instance:
+    #是否使用IP注册
     prefer-ip-address: true
 

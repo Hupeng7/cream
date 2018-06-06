@@ -29,11 +29,6 @@ public class UserController {
         return orderFeignClient.getOrderByOrderNo(orderNo);
     }
 
-    @RequestMapping("zuul")
-    public String zuul(){
-        return "zuul 测试2";
-    }
-
     @RequestMapping("user-comment")
     public String selectCommentList(){
         return commentsClient.backComments();

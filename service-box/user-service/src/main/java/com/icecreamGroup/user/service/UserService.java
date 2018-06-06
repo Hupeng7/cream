@@ -13,8 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 public class UserService {
-    @Autowired
-    private CommentsClient commentsClient;
 
     @Autowired
     private OrderFeignClient orderFeignClient;

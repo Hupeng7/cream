@@ -1,4 +1,4 @@
-package com.icecreamGroup.order.service.lcn;
+package com.icecreamGroup.order.lcn;
 
 import com.codingapi.tx.config.service.TxManagerTxUrlService;
 import lombok.extern.slf4j.Slf4j;
@@ -6,7 +6,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
- * create by lorne on 2017/11/18
+ * @version 1.0
+ * @author  MR_H
+ * LCN分布式事务相关
+ * create by mr_h on 2018/6/6
  */
 @Slf4j
 @Service
