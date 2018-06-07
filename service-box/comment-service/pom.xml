@@ -37,7 +37,11 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-netflix-hystrix-amqp</artifactId>
         </dependency>
-
+        <!--hystrix断路-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-hystrix</artifactId>
+        </dependency>
         <!--springBoot项目的监控-->
         <dependency>
             <groupId>org.springframework.boot</groupId>

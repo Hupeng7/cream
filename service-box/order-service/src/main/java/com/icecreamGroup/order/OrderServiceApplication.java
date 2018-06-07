@@ -19,7 +19,9 @@ import org.springframework.cloud.netflix.hystrix.EnableHystrix;
  */
 @EnableFeignClients
 @ServletComponentScan
-@SpringCloudApplication
+@SpringBootApplication
+@EnableHystrix
+@EnableDiscoveryClient
 public class OrderServiceApplication {
 
     public static void main(String[] args){SpringApplication.run(OrderServiceApplication.class,args);}

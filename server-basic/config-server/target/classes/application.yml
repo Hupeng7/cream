@@ -1,6 +1,8 @@
+#端口号
 server:
-  port: 8888
+  port: 2005
 
+#eureka服务地址
 eureka:
   client:
     serviceUrl:

@@ -11,7 +11,10 @@ import org.springframework.cloud.netflix.hystrix.EnableHystrix;
  * springCloudApplication
  * 包含断路器，服务注册，boot项目依赖
  */
-@SpringCloudApplication
+@SpringBootApplication
+@EnableDiscoveryClient
+@EnableFeignClients
+@EnableHystrix
 public class CommentApplication {
     public static void main(String[] args){
         SpringApplication.run(CommentApplication.class);

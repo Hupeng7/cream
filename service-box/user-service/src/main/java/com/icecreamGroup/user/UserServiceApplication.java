@@ -13,7 +13,9 @@ import org.springframework.cloud.netflix.hystrix.EnableHystrix;
  * @author  mr_h
  */
 @EnableFeignClients
-@SpringCloudApplication
+@EnableHystrix
+@EnableDiscoveryClient
+@SpringBootApplication
 public class UserServiceApplication {
     public static void main(String[] args){SpringApplication.run(UserServiceApplication.class);}
 }
