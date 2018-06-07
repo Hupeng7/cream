@@ -53,7 +53,7 @@ hystrix:
 logging:
   level:
     com.codingapi: debug
-    com.icecreamGroup.user.Mapper: debug
+    com.icecreamGroup.user.mapper: debug
     com.icecreamGroup.user.feignClients.OrderFeignClient: debug
 
 

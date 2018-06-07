@@ -7,7 +7,7 @@ public class UserBuilder {
     public static User buildUser(){
         User user = new User();
         user.setId(2);
-        user.setName("四六");
+        user.setName("wwowow");
         user.setPassword("123");
         return user;
     }

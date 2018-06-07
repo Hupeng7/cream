@@ -27,6 +27,6 @@ public class OrderService implements ITxTransaction {
 
     @Transactional
     public int insert(){
-        return orderMapper.insertSelective(null);
+        return orderMapper.insertSelective(OrderBuilder.buildOrder());
     }
 }

@@ -20,7 +20,7 @@ public enum ResultEnum {
     NOT_FOUND(404, "您的访问地址可能在火星上哦"),
     AUTH_ERROR(401, "拒绝木星人，出门左转身份登记"),
     ERROR_UNKOWN(500, "服务器正在与水星黑客展开殊死搏斗，请过几分钟再试"),
-    PARAMS_ERROR(205, "坐飞船不能带牛奶哦，请检查参数~"),
+    PARAMS_ERROR(205, "星际航班上不能带核弹哦，请检查参数~"),
     DATA_ERROR(1001,"数据转换错误");
 
     private Integer code;

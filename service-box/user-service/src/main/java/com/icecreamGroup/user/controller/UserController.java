@@ -1,7 +1,6 @@
 package com.icecreamGroup.user.controller;
 
 import com.icecreamGroup.common.model.Order;
-import com.icecreamGroup.common.util.exception.RemoteCallException;
 import com.icecreamGroup.common.util.res.ResultUtil;
 import com.icecreamGroup.common.util.res.ResultVO;
 import com.icecreamGroup.user.service.UserService;
@@ -31,27 +30,28 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+
     @RequestMapping("user-order/{orderNo}")
     public ResultVO<Order> selectOrderByUserId(@NonNull @PathVariable("orderNo") String orderNo) {
         try {
             Order order = orderFeignClient.getOrderByOrderNo(orderNo);
             if (order != null) return ResultUtil.success(order);
-        } catch (RemoteCallException e) {
-            log.error("调用远程服务出现异常且没有进入断路由,错误原因是{}", e.getMessage());
+        } catch (Exception e) {
+            log.error("查询失败,错误原因是{}", e.getMessage());
+            return ResultUtil.error(US_QUERY_FAILED_CODE,US_QUERY_FAILED);
         }
-        return ResultUtil.error(QUERY_NO_RESULT_CODE,QUERY_NO_RESULT);
+        return ResultUtil.error(US_QUERY_NO_RESULT_CODE,US_QUERY_NO_RESULT);
     }
 
     @RequestMapping("tx")
     public ResultVO<Integer> insert() {
         try {
             Integer count = userService.insert();
-            if (count > 0)
-                ResultUtil.success(count);
+            if (count > 0) return ResultUtil.success(count);
         } catch (Exception e) {
-            log.error("调用远程服务insert()出现异常,错误原因是{}", e.getMessage());
+            log.error("插入失败，原因为{}", e.getMessage());
         }
-        return ResultUtil.error(INSERT_FAILED_CODE, INSERT_FAILED);
+        return ResultUtil.error(US_INSERT_FAILED_CODE, US_INSERT_FAILED);
     }
 
     @RequestMapping("user-comment")

@@ -1,5 +1,6 @@
 package com.icecreamGroup.user.aspect;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.log4j.Logger;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
@@ -13,12 +14,18 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 
+/**
+ * @author MR_H
+ * @version 1.0
+ * 描述: 拦截请求
+ * 获取请求参数并打印日志
+ */
 @Aspect
 @Order(1)
 @Component
+@Slf4j
 public class WebLogAspect {
 
-    private Logger logger = Logger.getLogger(getClass());
 
     @Pointcut("execution(*  com.icecreamGroup.user.controller.*.*(..))")
     public void webLog(){}
@@ -28,13 +35,12 @@ public class WebLogAspect {
         // 接收到请求，记录请求内容
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = attributes.getRequest();
-
         // 记录下请求内容
-        logger.info("URL : " + request.getRequestURL().toString());
-        logger.info("HTTP_METHOD : " + request.getMethod());
-        logger.info("IP : " + request.getRemoteAddr());
-        logger.info("CLASS_METHOD : " + joinPoint.getSignature().getDeclaringTypeName() + "." + joinPoint.getSignature().getName());
-        logger.info("ARGS : " + Arrays.toString(joinPoint.getArgs()));
+        log.info("URL : " + request.getRequestURL().toString());
+        log.info("HTTP_METHOD : " + request.getMethod());
+        log.info("IP : " + request.getRemoteAddr());
+        log.info("CLASS_METHOD : " + joinPoint.getSignature().getDeclaringTypeName() + "." + joinPoint.getSignature().getName());
+        log.info("ARGS : " + Arrays.toString(joinPoint.getArgs()));
 
     }
 
