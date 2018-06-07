@@ -1,6 +1,7 @@
 package com.icecreamGroup.user.feignClients;
 
 import com.icecreamGroup.common.model.Order;
+import com.icecreamGroup.common.util.exception.RemoteCallException;
 import com.icecreamGroup.user.config.OrderFeignConfig;
 import com.icecreamGroup.user.feignClients.FeiginFallBack.OrderFeignFallBack;
 import org.springframework.cloud.netflix.feign.FeignClient;
@@ -18,8 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public interface OrderFeignClient {
 
     @RequestMapping("order/detail/{orderNo}")
-    Order getOrderByOrderNo(@PathVariable("orderNo") String orderNo);
+    Order getOrderByOrderNo(@PathVariable("orderNo") String orderNo) throws RemoteCallException;
 
     @RequestMapping("order/insert")
-    int insert();
+    int insert() throws RemoteCallException;
 }

@@ -1,6 +1,7 @@
 package com.icecreamGroup.user.service;
 
 import com.codingapi.tx.annotation.TxTransaction;
+import com.icecreamGroup.common.util.exception.RemoteCallException;
 import com.icecreamGroup.user.mapper.UserMapper;
 import com.icecreamGroup.user.feignClients.CommentsClient;
 import com.icecreamGroup.user.feignClients.OrderFeignClient;
@@ -22,13 +23,14 @@ public class UserService {
 
     @TxTransaction(isStart = true)
     @Transactional
-    public Integer insert(){
-        int count1 = userMapper.insertSelective(UserBuilder.buildUser());
-        int count2 = orderFeignClient.insert();
-        if(count1>0&&count2>0)
-           log.info("插入成功");
-        else
+    public Integer insert() throws RemoteCallException {
+        if(userMapper.insertSelective(UserBuilder.buildUser())>0 &&
+                orderFeignClient.insert()>0) {
+            log.info("插入成功");
+            return 1;
+        } else {
             log.error("插入失败");
-        return 0;
+            return 0;
+        }
     }
 }
