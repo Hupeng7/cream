@@ -27,6 +27,17 @@ zuul:
       path: /comment-api/**
       serviceId: comment-service
 
+
+#设置断路器默认超时时间
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMillisecondes: 5000
+
+
 #ribbon:
 #  eureka:
 #    enabled: false

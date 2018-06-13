@@ -11,6 +11,8 @@ import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 
 /**
  * @author  mr_h
+ * @version 1.0
+ * 用户服务
  */
 @EnableFeignClients
 @EnableHystrix

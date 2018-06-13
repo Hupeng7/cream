@@ -6,16 +6,16 @@ package com.icecreamGroup.common.util.res;
 public class ResultUtil {
     /**
      * 返回成功
-     * @param data
+     * @param result
      * @param <T>
      * @return
      */
-    public static<T> ResultVO success(T data) {
+    public static<T> ResultVO success(T result) {
         ResultVO resultVO = new ResultVO();
         ResultEnum successEnum = ResultEnum.SUCCESS;
         resultVO.setCode(successEnum.getCode());
         resultVO.setMsg(successEnum.getMsg());
-        resultVO.setData(data);
+        resultVO.setResult(result);
         return resultVO;
     }
 
@@ -30,12 +30,12 @@ public class ResultUtil {
 
     /**
      * 返回错误
-     * @param data
+     * @param result
      * @return
      */
-    public static<T> ResultVO error(T data,ResultEnum resultEnum) {
+    public static<T> ResultVO error(T result,ResultEnum resultEnum) {
         ResultVO resultVO = new ResultVO();
-        resultVO.setData(data);
+        resultVO.setResult(result);
         resultVO.setCode(resultEnum.getCode());
         resultVO.setMsg(resultEnum.getMsg());
         return resultVO;
