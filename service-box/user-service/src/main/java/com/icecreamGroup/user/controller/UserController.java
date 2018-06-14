@@ -1,10 +1,15 @@
 package com.icecreamGroup.user.controller;
 
 import com.icecreamGroup.common.model.Order;
+import com.icecreamGroup.common.model.ThirdPartyLoginParam;
 import com.icecreamGroup.common.model.UserNameAndPasswordLogin;
 import com.icecreamGroup.common.util.res.ResultEnum;
 import com.icecreamGroup.common.util.res.ResultUtil;
 import com.icecreamGroup.common.util.res.ResultVO;
+import com.icecreamGroup.user.config.login.AppIdConfig;
+import com.icecreamGroup.user.exception.QQLoginException;
+import com.icecreamGroup.user.exception.WechatLoginException;
+import com.icecreamGroup.user.exception.WeiboLoginException;
 import com.icecreamGroup.user.service.UserService;
 import com.icecreamGroup.user.feignClients.CommentsClient;
 import com.icecreamGroup.user.feignClients.OrderFeignClient;
@@ -12,9 +17,13 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
 
 import static com.icecreamGroup.common.util.constant.ConstantVal.*;
 
@@ -32,6 +41,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private AppIdConfig appIdConfig;
 
     @RequestMapping("user-comment")
     public String selectCommentList() {
@@ -64,6 +76,8 @@ public class UserController {
         return ResultUtil.error(US_INSERT_FAILED_CODE, US_INSERT_FAILED);
     }
 
+
+    //登陆相关start------------------------------------------------------------------------------>
      /**
      * @param username 用户名
      * @param password 密码
@@ -83,9 +97,42 @@ public class UserController {
                 return ResultUtil.error(null,ResultEnum.USER_USERNAME_OR_PASSWORD_ERROR);
             }
         } catch (Exception e) {
-            log.error("请检查用户名或密码");
-            e.printStackTrace();
+            log.error("查询用户/创建token出错，原因：{}",e.getCause());
+            return ResultUtil.error(null,ResultEnum.ERROR_UNKNOWN);
+        }
+    }
+
+    /**
+     * @param thirdPartyLoginParam
+     * {@link ThirdPartyLoginParam}
+     * @return ResultVO
+     * 第三方登陆  QQ/微信/微博
+     */
+    @RequestMapping("thirdPartyLogin")
+    public ResultVO<String> thirdPartyLogin(@RequestBody @Valid ThirdPartyLoginParam thirdPartyLoginParam,
+                                            BindingResult bindingResult){
+        if(bindingResult.hasErrors()){
+            log.info("基础参数不合法:"+bindingResult.getFieldError()  .getDefaultMessage());
+            return ResultUtil.error(11011,"非法的参数："+bindingResult.getFieldError().getDefaultMessage());
+        }
+        try {
+            Object object = userService.thirdLogin(thirdPartyLoginParam);
+        } catch ( RuntimeException|WechatLoginException
+                |WeiboLoginException|QQLoginException e) {
+            if(e instanceof WeiboLoginException){
+                WeiboLoginException tokenException =(WeiboLoginException)e;
+                log.warn(tokenException.getMessage(), tokenException.getErrorCode());
+                return ResultUtil.error(null,ResultEnum.ILLGAL_WEIBO_PARAMS);
+            }else if(e instanceof RuntimeException){
+                log.warn("运行时发生未知异常",((RuntimeException) e).getMessage());
+                return ResultUtil.error(null,ResultEnum.ERROR_UNKNOWN);
+            }else {
+                log.error("系统异常");
+            }
         }
         return null;
     }
+    //登陆相关end------------------------------------------------------------------------------>
+
+
 }

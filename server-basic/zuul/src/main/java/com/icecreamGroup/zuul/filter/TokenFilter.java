@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 @Slf4j
 @Component
 @ResponseBody
-public class TokenCreateAndCheckFilter extends ZuulFilter{
+public class TokenFilter extends ZuulFilter{
 
     @Override
     public String filterType() {
@@ -43,40 +43,45 @@ public class TokenCreateAndCheckFilter extends ZuulFilter{
     /**
      * @return
      * 过滤器核心逻辑
-     * 除了login* 拦截所有请求
+     * 过滤除login*外所有请求
      * 验证是否有token或者token是否正确或者token是否将要过期
      * 验证失败，返回401
-     * 验证成功，返回200
+     * 验证成功，放行
      */
     @Override
     public ResultVO run() {
         RequestContext ctx = RequestContext.getCurrentContext();
         HttpServletRequest request = ctx.getRequest();
         log.info(String.format("%s request to %s",request.getMethod(), request.getRequestURL().toString()));
+        //根据前端token存放位置去获取 如header body url等
         String token = request.getParameter("token");
         if(token==null){
             //如果token没有,不允许访问api
             log.error("token is null ...");
             setResponse(ctx);
         }else {
-            //用户有token，则验证token，是否存在这个token或者是否将要过期
+            //有token，则验证token，是否存在这个token或者是否将要过期
             log.info("token:"+token);
             Boolean flag;
-            if(token.startsWith("customer")) {
-                flag = JwtHelper.parseJWT(token.replace("customer",""), "customer");
-            }else {
-                flag = JwtHelper.parseJWT(token.replace("star",""), "star");
-            }
-            log.info("parseJwt result--{}",flag);
-            if(flag){
-                return ResultUtil.success(ResultEnum.SUCCESS);
-            }else{
+            try {
+                if (token.startsWith("customer")) {
+                    flag = JwtHelper.parseJWT(token.replace("customer", ""), "customer");
+                } else {
+                    flag = JwtHelper.parseJWT(token.replace("star", ""), "star");
+                }
+                log.info("parseJwt result--{}", flag);
+                if (flag) {
+                    return ResultUtil.success(ResultEnum.SUCCESS);
+                } else {
+                    setResponse(ctx);
+                }
+            }catch (RuntimeException e){
                 setResponse(ctx);
             }
+
         }
         return null;
     }
-
 
     //设置过滤器返回内容
     public void setResponse(RequestContext context){

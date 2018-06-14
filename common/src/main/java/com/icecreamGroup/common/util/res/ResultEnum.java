@@ -19,9 +19,12 @@ public enum ResultEnum {
     SUCCESS(200, "请求成功呢！好棒"),
     NOT_FOUND(404, "您的访问地址可能在火星上哦"),
     AUTH_ERROR(401, "拒绝木星人，出门左转身份登记"),
-    ERROR_UNKOWN(500, "服务器正在与水星黑客展开殊死搏斗，请过几分钟再试"),
+    ERROR_UNKNOWN(500, "服务器正在与水星黑客展开殊死搏斗，请过几分钟再试"),
     PARAMS_ERROR(205, "星际航班上不能带核弹哦，请检查参数~"),
     USER_USERNAME_OR_PASSWORD_ERROR(11010,"请输入有效用户名和密码"),
+    ILLGAL_WEIBO_PARAMS(11011,"微博登陆时,accessToken/uid为空"),
+    ILLGAL_QQ_PARAMS(11012,"QQ登陆时，openId/accessToken/appId为空"),
+    ILLGAL_WECHAT_PARAMS(11013,"微信登陆时,code为空"),
     DATA_ERROR(1001,"数据转换错误");
 
     private Integer code;

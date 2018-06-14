@@ -67,5 +67,14 @@ tm:
   manager:
     url: http://10.40.255.238:8899/tx/manager/
 
+#配置【QQ/微信/微博】的appId与secret
+login:
+     QQappId: 1106041043
+     QQsecret: jReqWlUw3105tGBZ
+     WechatAppId: wxe0341da5922122cb
+     WechatSecret: 97ccc6b8eb73638550137a2f74e5de94
+     WeiboAppId: 1528767946
+     WeiboSecret: 6ef467d04e49ac00b694e829a60fd0cc
+
 
 
