@@ -75,6 +75,7 @@ login:
      WechatSecret: 97ccc6b8eb73638550137a2f74e5de94
      WeiboAppId: 1528767946
      WeiboSecret: 6ef467d04e49ac00b694e829a60fd0cc
+     weibo-open-api-url: https://api.weibo.com/2/users/show.json
 
 
 

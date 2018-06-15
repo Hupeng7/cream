@@ -23,4 +23,6 @@ public interface ConstantVal {
     String US_UPDATE_FAILED="更新失败";
     String US_DELETE_FAILED= "删除失败";
 
+    String WEIBO_OPEN_API_URL="login.weibo-open-api-url";
+
 }

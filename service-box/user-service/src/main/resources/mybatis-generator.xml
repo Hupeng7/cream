@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+    <context id="DB2Tables"    targetRuntime="MyBatis3">
+        <!--上下文对象（全局）-->
+        <commentGenerator>
+            <!--是否取消注释-->
+            <property name="suppressDate" value="true"/>
+            <!--是否生成注释代时间戳-->
+            <property name="suppressAllComments" value="true"/>
+        </commentGenerator>
+        <!--数据库链接地址账号密码-->
+        <jdbcConnection
+                driverClass="com.mysql.jdbc.Driver"
+                connectionURL="jdbc:mysql://10.40.254.59:4000/xgq"
+                userId="root"
+                password="2018">
+        </jdbcConnection>
+        <!--类型转换-->
+        <javaTypeResolver>
+            <!--是否使用BigDecimals false可转换为Integer,Long等类型-->
+            <property name="forceBigDecimals" value="false"/>
+            <!--是否针对String类型的字段在set的时候进行trim调用-->
+            <property name="trimStrings" value="true"/>
+        </javaTypeResolver>
+
+        <!--生成Model类存放位置-->
+        <javaModelGenerator targetPackage="com.icecreamGroup.common.model" targetProject="src/main/java">
+            <property name="enableSubPackages" value="true"/>
+            <property name="trimStrings" value="true"/>
+        </javaModelGenerator>
+        <!--生成映射文件存放位置-->
+        <!--<sqlMapGenerator targetPackage="Mapper" targetProject="src/main/resources">
+            <property name="enableSubPackages" value="true"/>
+        </sqlMapGenerator>-->
+        <!--生成Dao类存放位置-->
+        <!-- 客户端代码，生成易于使用的针对Model对象和XML配置文件 的代码
+                type="ANNOTATEDMAPPER",生成Java Model 和基于注解的Mapper对象
+                type="MIXEDMAPPER",生成基于注解的Java Model 和相应的Mapper对象
+                type="XMLMAPPER",生成SQLMap XML文件和独立的Mapper接口
+        -->
+        <!--<javaClientGenerator type="XMLMAPPER" targetPackage="com.icecreamGroup.eurekaserver.Mapper" targetProject="src/main/java">
+            <property name="enableSubPackages" value="true"/>
+        </javaClientGenerator>-->
+        <!--生成对应表及类名-->
+        <table tableName="user_register"
+               domainObjectName="userRegister"
+               enableCountByExample="false"
+               enableUpdateByExample="false"
+               enableDeleteByExample="false"
+               enableSelectByExample="false"
+               selectByExampleQueryId="false"/>
+    </context>
+</generatorConfiguration>

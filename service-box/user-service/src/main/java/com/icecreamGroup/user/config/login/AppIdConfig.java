@@ -26,4 +26,6 @@ public class AppIdConfig {
     private String WeiboAppId;
 
     private String WeiboSecret;
+
+    private String weiboOpenApiUrl;
 }

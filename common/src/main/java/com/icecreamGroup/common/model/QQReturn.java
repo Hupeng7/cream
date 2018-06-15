@@ -9,7 +9,7 @@ import lombok.Data;
  * create by Mr_h on 2018/6/14 0014
  */
 @Data
-public class ThirdPartyHTTPReturn {
+public class QQReturn {
 
     private Integer ret;//返回码
     private String msg; //返回信息

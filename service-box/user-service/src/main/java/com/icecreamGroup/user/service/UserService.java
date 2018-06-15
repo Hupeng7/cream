@@ -1,24 +1,28 @@
 package com.icecreamGroup.user.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.codingapi.tx.annotation.TxTransaction;
-import com.icecreamGroup.common.model.ThirdPartyLoginParam;
-import com.icecreamGroup.common.model.User;
-import com.icecreamGroup.common.model.UserNameAndPasswordLogin;
-import com.icecreamGroup.common.model.UserStar;
+import com.icecreamGroup.common.model.*;
+import com.icecreamGroup.common.util.constant.ConstantVal;
+import com.icecreamGroup.common.util.json.JsonUtil;
 import com.icecreamGroup.common.util.jwt.JwtHelper;
-import com.icecreamGroup.common.util.res.ResultEnum;
 import com.icecreamGroup.user.config.login.AppIdConfig;
-import com.icecreamGroup.user.exception.QQLoginException;
-import com.icecreamGroup.user.exception.WechatLoginException;
-import com.icecreamGroup.user.exception.WeiboLoginException;
+import com.icecreamGroup.user.mapper.UserAuthMapper;
 import com.icecreamGroup.user.mapper.UserMapper;
 import com.icecreamGroup.user.feignClients.OrderFeignClient;
+import com.icecreamGroup.user.mapper.UserRegisterMapper;
 import com.icecreamGroup.user.mapper.UserStarMapper;
 import com.icecreamGroup.user.utils.UserBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
+
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -32,6 +36,15 @@ public class UserService {
 
     @Autowired
     private UserStarMapper userStarMapper;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Autowired
+    private UserAuthMapper userAuthMapper;
+
+    @Autowired
+    private UserRegisterMapper userRegisterMapper;
 
     @Autowired
     private AppIdConfig appIdConfig;
@@ -66,8 +79,8 @@ public class UserService {
             }
         }else {
             User args= new User();
-            args.setName(loginArgs.getUserName());
-            args.setPassword(loginArgs.getPassword());
+            args.setNickname(loginArgs.getUserName());
+            //args.setPassword(loginArgs.getPassword());
             User user = userMapper.selectOne(args);
             if(user!=null){
                 //查出user,生成token
@@ -77,54 +90,132 @@ public class UserService {
                 return "";
             }
         }
-
     }
 
-    public Object thirdLogin(ThirdPartyLoginParam thirdPartyLoginParam) throws WeiboLoginException,QQLoginException,WechatLoginException{
-        Integer type = thirdPartyLoginParam.getIdentityType();
-        switch (type){
-            //wechat
+
+    public ThirdPartyLoginReturn oauthLogin(ThirdPartyLoginParam thirdPartyLoginParam){
+        boolean check = checkType(thirdPartyLoginParam);
+        if(!check)return null;
+
+        //先去user_auth表中查询，如果存在直接返回
+        UserAuth userAuth = getUserAuth(thirdPartyLoginParam.getUid(),thirdPartyLoginParam.getIdentityType());
+        if(userAuth==null){
+            //获取第三方用户数据
+            ThirdPartUserInfo thirdPartUserInfo = getUserInfoByThirdPartyAPi(
+                    thirdPartyLoginParam.getAccessToken(),thirdPartyLoginParam.getUid(),
+                    thirdPartyLoginParam.getIdentityType()
+            );
+            //注册用户并返回token
+            String token = registerUser(thirdPartUserInfo);
+            return new ThirdPartyLoginReturn(thirdPartUserInfo.getName(),thirdPartUserInfo.getUrl(),
+                    token);
+        }else {
+            //直接从记录(数据库)中返回数据
+            return getUserInfoByRecord(userAuth);
+        }
+    }
+
+    private ThirdPartyLoginReturn getUserInfoByRecord(UserAuth userAuth) {
+        ThirdPartyLoginReturn thirdPartyLoginReturn = new ThirdPartyLoginReturn();
+        User userSelect = new User();
+        userSelect.setId(userAuth.getUid());
+        User user = userMapper.selectOne(userSelect);
+        thirdPartyLoginReturn.setToken(JwtHelper.createJWT(3600000000L, "customer", user));
+        thirdPartyLoginReturn.setName(user.getNickname());
+        thirdPartyLoginReturn.setUrl(user.getAvatar());
+        return thirdPartyLoginReturn;
+    }
+
+
+    //获取第三方授权表
+    private UserAuth getUserAuth(String uid, Integer type) {
+        UserAuth select = new UserAuth();
+        select.setIdentifier(uid);
+        select.setIdentityType(type);
+        return userAuthMapper.selectOne(select);
+    }
+
+    private boolean checkType(ThirdPartyLoginParam thirdPartyLoginParam){
+        String uid = thirdPartyLoginParam.getUid();
+        String accessToken = thirdPartyLoginParam.getAccessToken();
+        switch (thirdPartyLoginParam.getIdentityType()){
+            //微信
             case 3:
-                wechatLogin(thirdPartyLoginParam.getAccessToken(),thirdPartyLoginParam.getUid());
-                break;
-            //weibo
+                return false;
+            //微博
             case 4:
-                weiboLogin(thirdPartyLoginParam.getAccessToken(),thirdPartyLoginParam.getUid());
-                break;
+                if(!(uid==null||"".equals(uid)||accessToken==null||"".equals(accessToken)))
+                    return true;
             //QQ
             case 5:
-                QQlogin(thirdPartyLoginParam.getAccessToken(),thirdPartyLoginParam.getUid());
-                break;
-            default:
-               log.info("未知的type类型，type:{}",type);
+                return false;
+        }
+        return false;
+    }
+
+
+    //插入user、user_auth、user_register表数据
+    @Transactional
+    private String registerUser(ThirdPartUserInfo thirdPartUserInfo){
+        User user = new User();
+        user.setNickname(thirdPartUserInfo.getName());
+        user.setAvatar(thirdPartUserInfo.getUrl());
+        Long time = LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
+        user.setCtime(time.intValue());
+        user.setMtime(time.intValue());
+        user.setLastlogintime(time.intValue());
+        int userCount = userMapper.insertSelective(user);
+        if(userCount<=0)return null;
+        UserAuth userAuth = new UserAuth();
+        userAuth.setIdentityType(thirdPartUserInfo.getType());
+        userAuth.setUid(user.getId());
+        userAuth.setIdentifier(thirdPartUserInfo.getUid());
+        int userAuthCount = userAuthMapper.insertSelective(userAuth);
+        UserRegister userRegister = new UserRegister();
+        userRegister.setUid(user.getId());
+        userRegister.setRegister(thirdPartUserInfo.getUid());
+        int userRegisterCount = userRegisterMapper.insertSelective(userRegister);
+        if(userAuthCount>0&&userRegisterCount>0) {
+            return JwtHelper.createJWT(3600000000L, "customer", user);
         }
         return null;
     }
-    //qq登陆
-    private void QQlogin(String token,String uid)throws QQLoginException{
-        String qAppid = appIdConfig.getQQappId();
-        String qQsecret = appIdConfig.getQQsecret();
-        if(token==null||uid==null||"".equals(token)||"".equals(uid)){
-            throw new QQLoginException(ResultEnum.ILLGAL_QQ_PARAMS);
+
+    private ThirdPartUserInfo getUserInfoByThirdPartyAPi(String accessToken,String uid,Integer type){
+        switch (type){
+            //请求微信接口
+            case 3:
+                return getUserInfoByWechat();
+            //请求微博接口
+            case 4:
+                return getUserInfoByWeibo(accessToken,uid,type);
+            case 5:
+                return getUserInfoByQQ();
+            default:
+                log.error("未知type");
+                break;
         }
-
-    }
-    //微信登陆
-    private void wechatLogin(String token,String uid)throws WechatLoginException {
-        String wechatAppId = appIdConfig.getWechatAppId();
-        String wechatSecret = appIdConfig.getWechatSecret();
-        if(token==null||uid==null||"".equals(token)||"".equals(uid)){
-            throw new WechatLoginException(ResultEnum.ILLGAL_WECHAT_PARAMS);
-        }
+        return null;
     }
 
-    //微博登陆
-    private void weiboLogin(String token,String uid) throws WeiboLoginException {
-      if(token==null||uid==null||"".equals(token)||"".equals(uid)){
-          throw new WeiboLoginException(ResultEnum.ILLGAL_WEIBO_PARAMS);
-      }
+    private ThirdPartUserInfo getUserInfoByWechat() {
+         return null;
+    }
 
+    private ThirdPartUserInfo getUserInfoByWeibo(String token,String uid,Integer type) {
+        ThirdPartUserInfo thirdPartUserInfo =new ThirdPartUserInfo();
+        String url = appIdConfig.getWeiboOpenApiUrl()+"?access_token=" + token + "&uid=" + uid;
+        String str = restTemplate.getForObject(url, JSONObject.class, String.class).toString();
+        Map map = JsonUtil.jsonToMap(str);
+        thirdPartUserInfo.setName(map.get("name") != null ? map.get("name").toString() : "");
+        thirdPartUserInfo.setUrl(map.get("profile_image_url") != null ? map.get("profile_image_url").toString() : "");
+        thirdPartUserInfo.setUid(uid);
+        thirdPartUserInfo.setType(type);
+        return thirdPartUserInfo;
+    }
 
+    private ThirdPartUserInfo getUserInfoByQQ() {
+       return null;
     }
 
 }

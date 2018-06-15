@@ -2,14 +2,12 @@ package com.icecreamGroup.user.controller;
 
 import com.icecreamGroup.common.model.Order;
 import com.icecreamGroup.common.model.ThirdPartyLoginParam;
+import com.icecreamGroup.common.model.ThirdPartyLoginReturn;
 import com.icecreamGroup.common.model.UserNameAndPasswordLogin;
 import com.icecreamGroup.common.util.res.ResultEnum;
 import com.icecreamGroup.common.util.res.ResultUtil;
 import com.icecreamGroup.common.util.res.ResultVO;
 import com.icecreamGroup.user.config.login.AppIdConfig;
-import com.icecreamGroup.user.exception.QQLoginException;
-import com.icecreamGroup.user.exception.WechatLoginException;
-import com.icecreamGroup.user.exception.WeiboLoginException;
 import com.icecreamGroup.user.service.UserService;
 import com.icecreamGroup.user.feignClients.CommentsClient;
 import com.icecreamGroup.user.feignClients.OrderFeignClient;
@@ -109,28 +107,23 @@ public class UserController {
      * 第三方登陆  QQ/微信/微博
      */
     @RequestMapping("thirdPartyLogin")
-    public ResultVO<String> thirdPartyLogin(@RequestBody @Valid ThirdPartyLoginParam thirdPartyLoginParam,
-                                            BindingResult bindingResult){
+    public ResultVO<ThirdPartyLoginReturn> thirdPartyLogin(@RequestBody @Valid ThirdPartyLoginParam thirdPartyLoginParam,
+                                                           BindingResult bindingResult){
         if(bindingResult.hasErrors()){
             log.info("基础参数不合法:"+bindingResult.getFieldError()  .getDefaultMessage());
             return ResultUtil.error(11011,"非法的参数："+bindingResult.getFieldError().getDefaultMessage());
         }
         try {
-            Object object = userService.thirdLogin(thirdPartyLoginParam);
-        } catch ( RuntimeException|WechatLoginException
-                |WeiboLoginException|QQLoginException e) {
-            if(e instanceof WeiboLoginException){
-                WeiboLoginException tokenException =(WeiboLoginException)e;
-                log.warn(tokenException.getMessage(), tokenException.getErrorCode());
-                return ResultUtil.error(null,ResultEnum.ILLGAL_WEIBO_PARAMS);
-            }else if(e instanceof RuntimeException){
-                log.warn("运行时发生未知异常",((RuntimeException) e).getMessage());
-                return ResultUtil.error(null,ResultEnum.ERROR_UNKNOWN);
+            ThirdPartyLoginReturn thirdPartyLoginReturn = userService.oauthLogin(thirdPartyLoginParam);
+            if(thirdPartyLoginReturn!=null){
+                return ResultUtil.success(thirdPartyLoginReturn);
             }else {
-                log.error("系统异常");
+                return ResultUtil.error(null,ResultEnum.ERROR_UNKNOWN);
             }
+        } catch (Exception e) {
+            log.info("第三方登陆出错,错误原因{}",e.getStackTrace());
+            return ResultUtil.error(null,ResultEnum.ERROR_UNKNOWN);
         }
-        return null;
     }
     //登陆相关end------------------------------------------------------------------------------>
 
