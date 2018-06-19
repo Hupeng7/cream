@@ -14,12 +14,10 @@ import com.icecreamGroup.user.feignClients.OrderFeignClient;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -122,6 +120,27 @@ public class UserController {
             }
         } catch (Exception e) {
             log.info("第三方登陆出错,错误原因{}",e.getStackTrace());
+            return ResultUtil.error(null,ResultEnum.ERROR_UNKNOWN);
+        }
+    }
+
+
+    /**
+     * 发送验证码
+     * @param phone 手机号码
+     * @return ResultVo
+     */
+    @RequestMapping(value = "getCode",method = RequestMethod.GET)
+    public ResultVO<String> getCode(String phone){
+        try {
+            Boolean flag = userService.sendCode(phone);
+            if(flag){
+                return ResultUtil.success(flag);
+            }else
+                return ResultUtil.error(null,ResultEnum.SMS_CODE_SEND_FAILED);
+        } catch (Exception e) {
+            log.info("发送验证码出错，错误是{}",e.getStackTrace());
+            e.printStackTrace();
             return ResultUtil.error(null,ResultEnum.ERROR_UNKNOWN);
         }
     }

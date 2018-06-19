@@ -25,6 +25,7 @@ public enum ResultEnum {
     ILLGAL_WEIBO_PARAMS(11011,"微博登陆时,accessToken/uid为空"),
     ILLGAL_QQ_PARAMS(11012,"QQ登陆时，openId/accessToken/appId为空"),
     ILLGAL_WECHAT_PARAMS(11013,"微信登陆时,code为空"),
+    SMS_CODE_SEND_FAILED(11014,"验证码发送失败"),
     DATA_ERROR(1001,"数据转换错误");
 
     private Integer code;

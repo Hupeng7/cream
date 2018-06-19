@@ -22,7 +22,15 @@ public interface ConstantVal {
     String US_INSERT_FAILED = "插入失败";
     String US_UPDATE_FAILED="更新失败";
     String US_DELETE_FAILED= "删除失败";
-
     String WEIBO_OPEN_API_URL="login.weibo-open-api-url";
+
+
+    /**
+     * sms
+     */
+    String SMS_CHUANGLAN_ACCOUNT="sms.chuanglan.account";
+    String SMS_CHUANGLAN_PASSWORD="sms.chuanglan.password";
+    String SMS_CHUANGLAN_URL= "sms.chuanglan.url";
+    String SMS_CHUANGLAN_CODE_TIMEOUT ="sms.chuanglan.code-time-out";
 
 }

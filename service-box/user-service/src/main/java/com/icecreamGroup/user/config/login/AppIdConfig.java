@@ -28,4 +28,14 @@ public class AppIdConfig {
     private String WeiboSecret;
 
     private String weiboOpenApiUrl;
+
+    private String WechatGrantType;
+
+    private String wxOpenApiUrl;
+
+    private String wxOpenApiUrl2;
+
+    private String qqOpenApiUrl;
+
+    private String qqOpenApiUrl2;
 }

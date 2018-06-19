@@ -1,6 +1,7 @@
 package com.icecreamGroup.user;
 
 
+import com.alibaba.fastjson.parser.ParserConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -11,6 +12,8 @@ import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -29,6 +32,7 @@ public class UserServiceApplication {
     public RestTemplate restTemplate(){
         return new RestTemplate();
     }
+
 
     public static void main(String[] args){SpringApplication.run(UserServiceApplication.class);}
 }

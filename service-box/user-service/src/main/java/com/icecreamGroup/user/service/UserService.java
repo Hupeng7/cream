@@ -12,8 +12,10 @@ import com.icecreamGroup.user.mapper.UserMapper;
 import com.icecreamGroup.user.feignClients.OrderFeignClient;
 import com.icecreamGroup.user.mapper.UserRegisterMapper;
 import com.icecreamGroup.user.mapper.UserStarMapper;
+import com.icecreamGroup.user.sms.SmsSender;
 import com.icecreamGroup.user.utils.UserBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,7 @@ import java.util.Map;
 
 @Slf4j
 @Service
+@SuppressWarnings("all")
 public class UserService {
 
     @Autowired
@@ -49,6 +52,8 @@ public class UserService {
     @Autowired
     private AppIdConfig appIdConfig;
 
+    @Autowired
+    private SmsSender smsSender;
 
     @TxTransaction(isStart = true)
     @Transactional
@@ -64,52 +69,47 @@ public class UserService {
         }
     }
 
-    public String login(UserNameAndPasswordLogin loginArgs){
-        if(loginArgs.getType()==1) {
+    public String login(UserNameAndPasswordLogin loginArgs) {
+        if (loginArgs.getType() == 1) {
             UserStar args = new UserStar();
             args.setName(loginArgs.getUserName());
             args.setPassword(loginArgs.getPassword());
-            UserStar star= userStarMapper.selectOne(args);
-            if(star!=null){
+            UserStar star = userStarMapper.selectOne(args);
+            if (star != null) {
                 //查出user,生成token
-                return JwtHelper.createJWTForStar(3600000000L,"star",star);
-            }else {
+                return JwtHelper.createJWTForStar(3600000000L, "star", star);
+            } else {
                 //查不出user,拒绝登陆
                 return "";
             }
-        }else {
-            User args= new User();
+        } else {
+            User args = new User();
             args.setNickname(loginArgs.getUserName());
             //args.setPassword(loginArgs.getPassword());
             User user = userMapper.selectOne(args);
-            if(user!=null){
+            if (user != null) {
                 //查出user,生成token
-                return JwtHelper.createJWT(3600000000L,"customer",user);
-            }else {
+                return JwtHelper.createJWT(3600000000L, "customer", user);
+            } else {
                 //查不出user,拒绝登陆
                 return "";
             }
         }
     }
 
-
-    public ThirdPartyLoginReturn oauthLogin(ThirdPartyLoginParam thirdPartyLoginParam){
+    public ThirdPartyLoginReturn oauthLogin(ThirdPartyLoginParam thirdPartyLoginParam) {
         boolean check = checkType(thirdPartyLoginParam);
-        if(!check)return null;
-
+        if (!check) return null;
         //先去user_auth表中查询，如果存在直接返回
-        UserAuth userAuth = getUserAuth(thirdPartyLoginParam.getUid(),thirdPartyLoginParam.getIdentityType());
-        if(userAuth==null){
+        UserAuth userAuth = getUserAuth(thirdPartyLoginParam.getUid(), thirdPartyLoginParam.getIdentityType());
+        if (userAuth == null) {
             //获取第三方用户数据
-            ThirdPartUserInfo thirdPartUserInfo = getUserInfoByThirdPartyAPi(
-                    thirdPartyLoginParam.getAccessToken(),thirdPartyLoginParam.getUid(),
-                    thirdPartyLoginParam.getIdentityType()
-            );
+            ThirdPartUserInfo thirdPartUserInfo = getUserInfoByThirdPartyAPi(thirdPartyLoginParam);
             //注册用户并返回token
             String token = registerUser(thirdPartUserInfo);
-            return new ThirdPartyLoginReturn(thirdPartUserInfo.getName(),thirdPartUserInfo.getUrl(),
+            return new ThirdPartyLoginReturn(thirdPartUserInfo.getName(), thirdPartUserInfo.getUrl(),
                     token);
-        }else {
+        } else {
             //直接从记录(数据库)中返回数据
             return getUserInfoByRecord(userAuth);
         }
@@ -126,37 +126,37 @@ public class UserService {
         return thirdPartyLoginReturn;
     }
 
-
-    //获取第三方授权表
-    private UserAuth getUserAuth(String uid, Integer type) {
+    //获取授权表
+    private   UserAuth getUserAuth(String uid, Integer type) {
         UserAuth select = new UserAuth();
         select.setIdentifier(uid);
         select.setIdentityType(type);
         return userAuthMapper.selectOne(select);
     }
 
-    private boolean checkType(ThirdPartyLoginParam thirdPartyLoginParam){
-        String uid = thirdPartyLoginParam.getUid();
-        String accessToken = thirdPartyLoginParam.getAccessToken();
-        switch (thirdPartyLoginParam.getIdentityType()){
+    private boolean checkType(ThirdPartyLoginParam thirdPartyLoginParam) {
+        switch (thirdPartyLoginParam.getIdentityType()) {
             //微信
             case 3:
-                return false;
-            //微博
-            case 4:
-                if(!(uid==null||"".equals(uid)||accessToken==null||"".equals(accessToken)))
+                String code = thirdPartyLoginParam.getCode();
+                if (!(code == null || "".equals(code)))
                     return true;
-            //QQ
+                //微博
+            case 4:
+                String uid = thirdPartyLoginParam.getUid();
+                String accessToken = thirdPartyLoginParam.getAccessToken();
+                if (!(uid == null || "".equals(uid) || accessToken == null || "".equals(accessToken)))
+                    return true;
+                //QQ
             case 5:
                 return false;
         }
         return false;
     }
 
-
     //插入user、user_auth、user_register表数据
     @Transactional
-    private String registerUser(ThirdPartUserInfo thirdPartUserInfo){
+    public String registerUser(ThirdPartUserInfo thirdPartUserInfo) {
         User user = new User();
         user.setNickname(thirdPartUserInfo.getName());
         user.setAvatar(thirdPartUserInfo.getUrl());
@@ -165,32 +165,38 @@ public class UserService {
         user.setMtime(time.intValue());
         user.setLastlogintime(time.intValue());
         int userCount = userMapper.insertSelective(user);
-        if(userCount<=0)return null;
+        if (userCount <= 0) return null;
         UserAuth userAuth = new UserAuth();
         userAuth.setIdentityType(thirdPartUserInfo.getType());
         userAuth.setUid(user.getId());
-        userAuth.setIdentifier(thirdPartUserInfo.getUid());
+        if (thirdPartUserInfo.getType() == 4) {
+            userAuth.setIdentifier(thirdPartUserInfo.getUid());
+        } else {
+            userAuth.setIdentifier(thirdPartUserInfo.getOpenId());
+        }
         int userAuthCount = userAuthMapper.insertSelective(userAuth);
         UserRegister userRegister = new UserRegister();
         userRegister.setUid(user.getId());
         userRegister.setRegister(thirdPartUserInfo.getUid());
         int userRegisterCount = userRegisterMapper.insertSelective(userRegister);
-        if(userAuthCount>0&&userRegisterCount>0) {
+        if (userAuthCount > 0 && userRegisterCount > 0) {
             return JwtHelper.createJWT(3600000000L, "customer", user);
         }
         return null;
     }
 
-    private ThirdPartUserInfo getUserInfoByThirdPartyAPi(String accessToken,String uid,Integer type){
-        switch (type){
+    private ThirdPartUserInfo getUserInfoByThirdPartyAPi(ThirdPartyLoginParam thirdPartyLoginParam) {
+        Integer type = thirdPartyLoginParam.getIdentityType();
+        switch (type) {
             //请求微信接口
             case 3:
-                return getUserInfoByWechat();
+                return getUserInfoByWechat(thirdPartyLoginParam.getCode(), type);
             //请求微博接口
             case 4:
-                return getUserInfoByWeibo(accessToken,uid,type);
+                return getUserInfoByWeibo(thirdPartyLoginParam.getAccessToken(), thirdPartyLoginParam.getUid(), type);
+            //请求qq接口
             case 5:
-                return getUserInfoByQQ();
+                return getUserInfoByQQ(thirdPartyLoginParam.getAccessToken(), type);
             default:
                 log.error("未知type");
                 break;
@@ -198,13 +204,33 @@ public class UserService {
         return null;
     }
 
-    private ThirdPartUserInfo getUserInfoByWechat() {
-         return null;
+    private ThirdPartUserInfo getUserInfoByWechat(String code, Integer type) {
+        ThirdPartUserInfo thirdPartUserInfo = new ThirdPartUserInfo();
+        String wechatAppId = appIdConfig.getWechatAppId();
+        String wechatSecret = appIdConfig.getWechatSecret();
+        String wechatGrantType = appIdConfig.getWechatGrantType();
+        //微信用code获取access_token的url
+        String wxOpenApiUrl = appIdConfig.getWxOpenApiUrl();
+        //微信用access_token和openid获取用户信息的url
+        String wxOpenApiUrl2 = appIdConfig.getWxOpenApiUrl2();
+        String getAccessTokenUrl = wxOpenApiUrl + "?appid=" + wechatAppId + "&secret=" + wechatSecret
+                + "&code=" + code + "&grant_type" + wechatGrantType;
+        String str = restTemplate.getForObject(getAccessTokenUrl, JSONObject.class, String.class).toString();
+        Map map = JsonUtil.jsonToMap(str);
+        String openId = map.get("openid") != null ? map.get("openid").toString() : "";
+        String accessToken = map.get("access_token") != null ? map.get("").toString() : "";
+        String getInfoUrl = wxOpenApiUrl2 + "?access_token=" + accessToken + "&openid=" + openId;
+        String str2 = restTemplate.getForObject(getInfoUrl, JSONObject.class, String.class).toString();
+        thirdPartUserInfo.setName(map.get("nickname") != null ? map.get("nickname").toString() : "");
+        thirdPartUserInfo.setUrl(map.get("headimgurl") != null ? map.get("headimgurl").toString() : "");
+        thirdPartUserInfo.setOpenId(map.get("openid") != null ? map.get("openid").toString() : "");
+        thirdPartUserInfo.setType(type);
+        return thirdPartUserInfo;
     }
 
-    private ThirdPartUserInfo getUserInfoByWeibo(String token,String uid,Integer type) {
-        ThirdPartUserInfo thirdPartUserInfo =new ThirdPartUserInfo();
-        String url = appIdConfig.getWeiboOpenApiUrl()+"?access_token=" + token + "&uid=" + uid;
+    private ThirdPartUserInfo getUserInfoByWeibo(String token, String uid, Integer type) {
+        ThirdPartUserInfo thirdPartUserInfo = new ThirdPartUserInfo();
+        String url = appIdConfig.getWeiboOpenApiUrl() + "?access_token=" + token + "&uid=" + uid;
         String str = restTemplate.getForObject(url, JSONObject.class, String.class).toString();
         Map map = JsonUtil.jsonToMap(str);
         thirdPartUserInfo.setName(map.get("name") != null ? map.get("name").toString() : "");
@@ -214,8 +240,32 @@ public class UserService {
         return thirdPartUserInfo;
     }
 
-    private ThirdPartUserInfo getUserInfoByQQ() {
-       return null;
+    private ThirdPartUserInfo getUserInfoByQQ(String token, Integer type) {
+        ThirdPartUserInfo thirdPartUserInfo = new ThirdPartUserInfo();
+        //根据token&&openid获取用户信息
+        String qqOpenApiUrl2 = appIdConfig.getQqOpenApiUrl2();
+        String qQappId = appIdConfig.getQQappId();
+        //根据token获取openid的url
+        String qqOpenApiUrl = appIdConfig.getQqOpenApiUrl();
+        String getOpenIdUrl = qqOpenApiUrl + "?access_token=" + token;
+        String str1 = restTemplate.getForObject(getOpenIdUrl, JSONObject.class, String.class).toString();
+        Map map = JsonUtil.jsonToMap(str1);
+        String openId = map.get("openid") != null ? map.get("openid").toString() : "";
+        String getInfourl = qqOpenApiUrl2 + "access_token=" + token + "&oauth_consumer_key=" + qQappId + "&openid=" + openId;
+        String str2 = restTemplate.getForObject(getInfourl, JSONObject.class, String.class).toString();
+        thirdPartUserInfo.setName(map.get("nickname") != null ? map.get("nickname").toString() : "");
+        thirdPartUserInfo.setUrl(map.get("figureurl_qq_1") != null ? map.get("figureurl_qq_1").toString() : "");
+        thirdPartUserInfo.setOpenId(openId);
+        thirdPartUserInfo.setType(type);
+        return thirdPartUserInfo;
+    }
+
+    public Boolean sendCode(String phone){
+        String s = smsSender.SmsSend(phone);
+        if(StringUtils.isNotBlank(s)){
+            return true;
+        }
+        return false;
     }
 
 }
