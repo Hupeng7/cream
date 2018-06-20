@@ -92,7 +92,16 @@ sms:
     #请求地址请登录253云通讯自助通平台查看或者询问您的商务负责人获取
     url: http://sms.253.com/msg/send/json
     code-time-out: 600
-
+redis:
+  time-out: 600
+  max-idle: 8
+  max-wait: 1
+  max-active: 8
+  port: 6379
+  password:
+  host: 10.40.254.59
+  database: 1
+  min-idle: 1
 
 
 

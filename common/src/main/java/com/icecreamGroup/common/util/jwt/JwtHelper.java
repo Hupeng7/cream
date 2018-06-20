@@ -7,7 +7,6 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 
 import com.icecreamGroup.common.model.User;
-import com.icecreamGroup.common.model.UserNameAndPasswordLogin;
 import com.icecreamGroup.common.model.UserStar;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;  

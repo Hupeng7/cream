@@ -26,7 +26,7 @@ public class ThirdPartyLoginParam {
 
 
     private String accessToken;//第三方登陆token
-    private Integer openId; //第三方用户ID(可获取第三方用户数据)
+    private String openId; //第三方用户ID(可获取第三方用户数据)
     private String uid; //微博的openId;
     private String code;//微信的获取openId中间数据
 }

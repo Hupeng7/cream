@@ -3,7 +3,7 @@ package com.icecreamGroup.user.controller;
 import com.icecreamGroup.common.model.Order;
 import com.icecreamGroup.common.model.ThirdPartyLoginParam;
 import com.icecreamGroup.common.model.ThirdPartyLoginReturn;
-import com.icecreamGroup.common.model.UserNameAndPasswordLogin;
+import com.icecreamGroup.common.model.PasswordLogin;
 import com.icecreamGroup.common.util.res.ResultEnum;
 import com.icecreamGroup.common.util.res.ResultUtil;
 import com.icecreamGroup.common.util.res.ResultVO;
@@ -14,7 +14,6 @@ import com.icecreamGroup.user.feignClients.OrderFeignClient;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -80,7 +79,7 @@ public class UserController {
      * @return ResultVO
      */
     @RequestMapping("login")
-    public ResultVO<String> login(UserNameAndPasswordLogin logginAgrs) {
+    public ResultVO<String> login(PasswordLogin logginAgrs) {
         log.info("用户{}，用户类型{}，正在登陆",logginAgrs.getUserName(),logginAgrs.getType());
         if(logginAgrs.getUserName()==null||logginAgrs.getPassword()==null||logginAgrs.getType()==null){
             return ResultUtil.error(null,ResultEnum.PARAMS_ERROR);

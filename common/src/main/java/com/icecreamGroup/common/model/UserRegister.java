@@ -14,9 +14,9 @@ public class UserRegister {
 
     private Integer uid;
 
-    private Byte registerType;
+    private Integer registerType;
 
     private String register;
 
-    private Byte status;
+    private Integer status;
 }

@@ -13,12 +13,4 @@ public class ThirdPartUserInfo {
     private String name;
 
     private String url;
-
-    private Integer type;
-
-    private String uid;
-
-    private String openId;
-
-    private String code;
 }

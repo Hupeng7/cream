@@ -10,7 +10,7 @@ import lombok.Data;
  */
 
 @Data
-public class UserNameAndPasswordLogin {
+public class PasswordLogin {
 
     //用户名
     private String userName;
