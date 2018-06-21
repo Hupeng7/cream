@@ -2,6 +2,9 @@ package com.icecreamGroup.common.model;
 
 import lombok.Data;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
@@ -10,6 +13,9 @@ import javax.persistence.Table;
 @Data
 @Table(name = "user_register")
 public class UserRegister {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     private Integer uid;

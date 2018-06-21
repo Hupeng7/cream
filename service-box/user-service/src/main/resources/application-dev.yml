@@ -103,6 +103,10 @@ redis:
   database: 1
   min-idle: 1
 
+token:
+  valid-time: 3600000000
+  star-secret: star
+  customer-secret: customer
 
 
 

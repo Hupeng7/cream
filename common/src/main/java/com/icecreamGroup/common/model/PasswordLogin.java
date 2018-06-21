@@ -10,14 +10,12 @@ import lombok.Data;
  */
 
 @Data
-public class PasswordLogin {
+public class PasswordLogin extends LoginBaseParams{
 
-    //用户名
-    private String userName;
+    private String itucode;
 
-    //密码
+    private String phone;
+
     private String password;
 
-    //登陆端
-    private Integer type;
 }

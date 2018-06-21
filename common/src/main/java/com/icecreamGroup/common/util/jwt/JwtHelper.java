@@ -1,17 +1,24 @@
 package com.icecreamGroup.common.util.jwt;
 
-import java.security.Key;
-import java.util.Date;  
-  
-import javax.crypto.spec.SecretKeySpec;  
-import javax.xml.bind.DatatypeConverter;
-
 import com.icecreamGroup.common.model.User;
 import com.icecreamGroup.common.model.UserStar;
+import com.icecreamGroup.common.util.constant.ConstantVal;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtBuilder;  
-import io.jsonwebtoken.Jwts;  
+import io.jsonwebtoken.JwtBuilder;
+import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
+
+import javax.crypto.spec.SecretKeySpec;
+import javax.naming.ldap.PagedResultsControl;
+import javax.xml.bind.DatatypeConverter;
+import java.security.Key;
+import java.util.Date;
 
 /**
  * @author Mr_h
@@ -24,12 +31,13 @@ import io.jsonwebtoken.SignatureAlgorithm;
  */
 public class JwtHelper {
 
+
     //客户端的解密方式
     public static Boolean parseJWT(String jsonWebToken, String base64Security) throws NullPointerException{
-        try  
-        {  
-            Claims claims = Jwts.parser()  
-                       .setSigningKey(DatatypeConverter.parseBase64Binary(base64Security))  
+        try
+        {
+            Claims claims = Jwts.parser()
+                       .setSigningKey(DatatypeConverter.parseBase64Binary(base64Security))
                        .parseClaimsJws(jsonWebToken).getBody();
             if(claims.get("uid")!=null||claims.get("name")!=null){
                 return true;
@@ -37,11 +45,12 @@ public class JwtHelper {
                 return false;
             }
         }
-        catch(Exception ex)  
-        {  
-            return null;  
-        }  
+        catch(Exception ex)
+        {
+            return null;
+        }
     }
+
 
     //客户端的创建token方式
     public static String createJWT(long TTLMillis, String secret,User user)

@@ -2,10 +2,7 @@ package com.icecreamGroup.common.model;
 
 import lombok.Data;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Data
 @Table(name = "user")
@@ -112,5 +109,10 @@ public class User {
 
     private Integer forwardCount;
 
-
+    @Transient
+    private Integer registerType;
+    @Transient
+    private String register;
+    @Transient
+    private String password;
 }

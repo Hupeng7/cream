@@ -33,4 +33,10 @@ public interface ConstantVal {
     String SMS_CHUANGLAN_URL= "sms.chuanglan.url";
     String SMS_CHUANGLAN_CODE_TIMEOUT ="sms.chuanglan.code-time-out";
 
+    /**
+     * token
+     */
+    String JWT_TOKEN_VALID_TIME = "jwt.token.valid-time";
+    String JWT_TOKEN_STAR_SECRET ="jwt.token.star-secret";
+    String JWT_TOKEN_CUSTOMER_SECRET="jwt.token.customer-secret";
 }

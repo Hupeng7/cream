@@ -19,9 +19,4 @@ public class SmsSendEntity {
 
      private String phone;
 
-     private String sendTime;
-
-     private Boolean report;
-
-     private String extend;
 }

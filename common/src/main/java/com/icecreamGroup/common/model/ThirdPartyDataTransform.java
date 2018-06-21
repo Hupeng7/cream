@@ -17,5 +17,7 @@ public class ThirdPartyDataTransform {
 
     private Integer type;
 
+    private String phone; //冗余字段 验证码登陆
+
     private Integer registerType; //推送方式 1极光 2百度 3网易云 4蝴蝶云
 }
