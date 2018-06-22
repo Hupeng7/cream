@@ -1,4 +1,4 @@
-package com.icecream.user.redis;
+package com.icecreamGroup.common.util.redis;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.DataType;

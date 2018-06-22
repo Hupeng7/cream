@@ -1,5 +1,6 @@
 package com.icecreamGroup.zuul.filter;
 
+import com.icecreamGroup.common.model.TokenInfo;
 import com.icecreamGroup.common.util.json.JsonUtil;
 import com.icecreamGroup.common.util.jwt.JwtHelper;
 import com.icecreamGroup.common.util.res.ResultEnum;
@@ -37,7 +38,7 @@ public class TokenFilter extends ZuulFilter{
     public boolean shouldFilter() {
         RequestContext ctx = RequestContext.getCurrentContext();
         String url = ctx.getRequest().getRequestURL().toString();
-        return !url.contains("login");
+        return !url.contains("login")|!url.contains("register");
     }
 
     /**
@@ -62,16 +63,18 @@ public class TokenFilter extends ZuulFilter{
         }else {
             //有token，则验证token，是否存在这个token或者是否将要过期
             log.info("token:"+token);
-            Boolean flag;
+            TokenInfo tokenInfo = null;
             try {
                 if (token.startsWith("customer")) {
-                    flag = JwtHelper.parseJWT(token.replace("customer", ""), "customer");
+                    tokenInfo= JwtHelper.parseJWT(token.replace("customer", ""), "customer");
                 } else {
-                    flag = JwtHelper.parseJWT(token.replace("star", ""), "star");
+                    tokenInfo = JwtHelper.parseJWT(token.replace("star", ""), "star");
                 }
-                log.info("parseJwt result--{}", flag);
-                if (flag) {
-                    return ResultUtil.success(ResultEnum.SUCCESS);
+                log.info("parseJwt result--{}", tokenInfo);
+                if (tokenInfo!=null) {
+                    ctx.setSendZuulResponse(true);
+                    ctx.setResponseStatusCode(200);
+                    ctx.set("isSuccess",true);
                 } else {
                     setResponse(ctx);
                 }

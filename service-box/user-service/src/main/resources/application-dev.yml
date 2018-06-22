@@ -40,7 +40,7 @@ spring:
 #开启feign客户端路由
 feign:
   hystrix:
-    enabled: true
+    enabled: fasle
 #设置断路器默认超时时间
 hystrix:
   command:
@@ -54,8 +54,8 @@ hystrix:
 logging:
   level:
     com.codingapi: debug
-    com.icecreamGroup.user.mapper: debug
-    com.icecreamGroup.user.feignClients.OrderFeignClient: debug
+    com.icecream.user.mapper: debug
+    com.icecream.user.feignClients.OrderFeignClient: debug
 
 
 #LCN相关配置

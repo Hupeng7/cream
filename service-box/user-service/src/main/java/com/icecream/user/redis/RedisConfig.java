@@ -1,6 +1,7 @@
 package com.icecream.user.redis;
 
 import com.alibaba.fastjson.parser.ParserConfig;
+import com.icecreamGroup.common.util.redis.FastJson2JsonRedisSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +13,8 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import redis.clients.jedis.JedisPoolConfig;
 
+import javax.annotation.Resource;
+
 /**
  * @author Mr_h
  * @version 1.0
@@ -20,7 +23,9 @@ import redis.clients.jedis.JedisPoolConfig;
  */
 @Configuration
 public class RedisConfig {
-    @Autowired
+
+
+    @Resource
     private RedisConfigProperties redis;
 
     @Bean

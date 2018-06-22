@@ -16,11 +16,13 @@ package com.icecreamGroup.common.util.res;
  *
  */
 public enum ResultEnum {
-    SUCCESS(200, "请求成功呢！好棒"),
+    SUCCESS(2000, "success"),
+    NAME_REPETITION(2003,"昵称重复"),
+    TOKEN_INFO_ERROR(3003,"token中获取的用户id不存在"),
     NOT_FOUND(404, "您的访问地址可能在火星上哦"),
     AUTH_ERROR(401, "拒绝木星人，出门左转身份登记"),
     ERROR_UNKNOWN(500, "服务器正在与水星黑客展开殊死搏斗，请过几分钟再试"),
-    PARAMS_ERROR(205, "星际航班上不能带核弹哦，请检查参数~"),
+    PARAMS_ERROR(4000, "用户参数格式错误"),
     USER_USERNAME_OR_PASSWORD_ERROR(11010,"请输入有效用户名和密码"),
     ILLGAL_WEIBO_PARAMS(11011,"微博登陆时,accessToken/uid为空"),
     ILLGAL_QQ_PARAMS(11012,"QQ登陆时，openId/accessToken/appId为空"),

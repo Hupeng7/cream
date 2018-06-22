@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
  * create by Mr_h on 2018/6/21 0021
  */
 @Data
-@Component
 @ConfigurationProperties("token")
+@Component
 public class JwtProperties {
 
     private long validTime;

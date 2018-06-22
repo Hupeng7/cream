@@ -1,10 +1,10 @@
 package com.icecream.user.sms;
 
-import com.icecream.user.redis.RedisHandler;
 import com.icecreamGroup.common.model.SmsOpenApiResponse;
 import com.icecreamGroup.common.model.SmsSendEntity;
 import com.icecreamGroup.common.util.constant.ConstantVal;
 import com.icecreamGroup.common.util.json.JsonUtil;
+import com.icecreamGroup.common.util.redis.RedisHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;

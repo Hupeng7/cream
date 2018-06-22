@@ -1,4 +1,4 @@
-package com.icecream.user.redis;
+package com.icecreamGroup.common.util.redis;
 
 import org.springframework.data.redis.connection.DataType;
 import org.springframework.data.redis.core.ZSetOperations;
@@ -70,14 +70,14 @@ public interface BaseRedisDao<K, V> {
      * @param obj
      * @return 返回在list中的下标
      */
-    long addList(K key,V obj);
+    long addList(K key, V obj);
     /**
      * 向list中增加值
      * @param key
      * @param obj
      * @return 返回在list中的下标
      */
-    long addList(K key,V ...obj);
+    long addList(K key, V... obj);
     /**
      *
      * 输出list
@@ -107,14 +107,14 @@ public interface BaseRedisDao<K, V> {
      * @param object
      * @return 返回移除数量
      */
-    long removeListValue(K key,V object);
+    long removeListValue(K key, V object);
     /**
      * 移除list中某值
      * @param key
      * @param object
      * @return 返回移除数量
      */
-    long removeListValue(K key,V... object);
+    long removeListValue(K key, V... object);
     /**
      * 批量删除key对应的value
      * @param keys
@@ -132,21 +132,21 @@ public interface BaseRedisDao<K, V> {
      * @param s
      * @param e
      */
-    void removeZSetRangeByScore(String key,double s , double e);
+    void removeZSetRangeByScore(String key, double s, double e);
     /**
      * 设置Set的过期时间
      * @param key
      * @param time
      * @return
      */
-    Boolean setSetExpireTime(String key,Long time);
+    Boolean setSetExpireTime(String key, Long time);
     /**
      * 设置ZSet的过期时间
      * @param key
      * @param time
      * @return
      */
-    Boolean setZSetExpireTime(String key,Long time);
+    Boolean setZSetExpireTime(String key, Long time);
     /**
      * 判断缓存中是否有key对应的value
      * @param key
@@ -231,7 +231,7 @@ public interface BaseRedisDao<K, V> {
      * @param key map对应的key
      * @return
      */
-    Boolean hasMapKey(K key,K field);
+    Boolean hasMapKey(K key, K field);
 
     /**
      * 获取map对应key的value
@@ -250,7 +250,7 @@ public interface BaseRedisDao<K, V> {
      * @param key
      * @param map
      */
-    void addMap(K key, Map<K,V> map);
+    void addMap(K key, Map<K, V> map);
     /**
      * 向key对应的map中添加缓存对象
      * @param key   cache对象key
@@ -265,7 +265,7 @@ public interface BaseRedisDao<K, V> {
      * @param time 过期时间-整个MAP的过期时间
      * @param value     值
      */
-    void addMap(K key, K field, V value,long time);
+    void addMap(K key, K field, V value, long time);
 
     /**
      * 向set中加入对象
@@ -303,7 +303,7 @@ public interface BaseRedisDao<K, V> {
      * 判断set中是否存在这个值
      * @param key  对象key
      */
-    Boolean hasSetValue(K key,V obj);
+    Boolean hasSetValue(K key, V obj);
     /**
      * 获得整个set
      * @param key  对象key
@@ -316,7 +316,7 @@ public interface BaseRedisDao<K, V> {
      * @param otherKey
      * @return
      */
-    Set<V> getSetUnion(K key,K otherKey);
+    Set<V> getSetUnion(K key, K otherKey);
 
     /**
      * 获得set 并集
@@ -324,7 +324,7 @@ public interface BaseRedisDao<K, V> {
      * @param set
      * @return
      */
-    Set<V> getSetUnion(K key,Set<Object> set);
+    Set<V> getSetUnion(K key, Set<Object> set);
 
     /**
      * 获得set 交集
@@ -332,7 +332,7 @@ public interface BaseRedisDao<K, V> {
      * @param otherKey
      * @return
      */
-    Set<V> getSetIntersect(K key,K otherKey);
+    Set<V> getSetIntersect(K key, K otherKey);
 
     /**
      * 获得set 交集
@@ -340,7 +340,7 @@ public interface BaseRedisDao<K, V> {
      * @param set
      * @return
      */
-    Set<V> getSetIntersect(K key,Set<Object> set);
+    Set<V> getSetIntersect(K key, Set<Object> set);
 
     /**
      * 模糊移除 支持*号等匹配移除
@@ -354,7 +354,7 @@ public interface BaseRedisDao<K, V> {
      * @param newKey
      * @return
      */
-    Boolean renameIfAbsent(String oldKey,String newKey);
+    Boolean renameIfAbsent(String oldKey, String newKey);
     /**
      * 模糊移除 支持*号等匹配移除
      * @param blear
@@ -378,14 +378,14 @@ public interface BaseRedisDao<K, V> {
      * @param key
      * @param blears
      */
-    void removeMapFieldByRegular(K key,K... blears);
+    void removeMapFieldByRegular(K key, K... blears);
 
     /**
      * 根据正则表达式来移除 Map中的key-value
      * @param key
      * @param blear
      */
-    void removeMapFieldByRegular(K key,K blear);
+    void removeMapFieldByRegular(K key, K blear);
 
     /**
      * 移除key 对应的value
@@ -407,7 +407,7 @@ public interface BaseRedisDao<K, V> {
      * @param end
      * @return
      */
-    void removeZSetRange(K key,Long start,Long end);
+    void removeZSetRange(K key, Long start, Long end);
 
     /**
      * 并集 将key对应的集合和key1对应的集合合并到key2中
@@ -417,7 +417,7 @@ public interface BaseRedisDao<K, V> {
      * @param key1
      * @param key2
      */
-    void setZSetUnionAndStore(String key,String key1, String key2);
+    void setZSetUnionAndStore(String key, String key1, String key2);
 
     /**
      * 获取整个有序集合ZSET，正序
@@ -432,7 +432,7 @@ public interface BaseRedisDao<K, V> {
      * @param start 开始位置
      * @param end 结束位置
      */
-    <T> T getZSetRange(K key,long start,long end);
+    <T> T getZSetRange(K key, long start, long end);
     /**
      * 获取整个有序集合ZSET，倒序
      * @param key
@@ -446,7 +446,7 @@ public interface BaseRedisDao<K, V> {
      * @param start 开始位置
      * @param end 结束位置
      */
-    Set<V> getZSetReverseRange(K key,long start,long end);
+    Set<V> getZSetReverseRange(K key, long start, long end);
 
     /**
      * 通过分数(权值)获取ZSET集合 正序 -从小到大
@@ -507,7 +507,7 @@ public interface BaseRedisDao<K, V> {
      * @param sMax
      * @return
      */
-    long getZSetCountSize(K key,double sMin,double sMax);
+    long getZSetCountSize(K key, double sMin, double sMax);
     /**
      * 获取Zset 键为K的集合元素个数
      * @param key
@@ -520,7 +520,7 @@ public interface BaseRedisDao<K, V> {
      * @param value
      * @return
      */
-    double getZSetScore(K key,V value);
+    double getZSetScore(K key, V value);
     /**
      * 元素分数增加，delta是增量
      * @param key
@@ -528,7 +528,7 @@ public interface BaseRedisDao<K, V> {
      * @param delta
      * @return
      */
-    double incrementZSetScore(K key,V value,double delta);
+    double incrementZSetScore(K key, V value, double delta);
     /**
      * 添加有序集合ZSET
      * 默认按照score升序排列，存储格式K(1)==V(n)，V(1)=S(1)
@@ -537,14 +537,14 @@ public interface BaseRedisDao<K, V> {
      * @param value
      * @return
      */
-    Boolean addZSet(String key ,double score, Object value);
+    Boolean addZSet(String key, double score, Object value);
     /**
      * 添加有序集合ZSET
      * @param key
      * @param value
      * @return
      */
-    Long addZSet(K key,TreeSet<V> value);
+    Long addZSet(K key, TreeSet<V> value);
     /**
      * 添加有序集合ZSET
      * @param key
@@ -552,5 +552,5 @@ public interface BaseRedisDao<K, V> {
      * @param value
      * @return
      */
-    Boolean addZSet(K key,double[] score, Object[] value);
+    Boolean addZSet(K key, double[] score, Object[] value);
 }

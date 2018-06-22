@@ -6,7 +6,6 @@ import com.icecream.user.config.login.AppIdConfig;
 import com.icecream.user.feignclients.OrderFeignClient;
 import com.icecream.user.mapper.UserMapper;
 import com.icecream.user.mapper.UserStarMapper;
-import com.icecream.user.redis.RedisHandler;
 import com.icecream.user.utils.UserBuilder;
 import com.icecream.user.utils.jwt.JwtBuilder;
 import com.icecreamGroup.common.model.*;
@@ -14,6 +13,10 @@ import com.icecreamGroup.common.util.json.JsonUtil;
 import com.icecream.user.mapper.UserAuthMapper;
 import com.icecream.user.mapper.UserRegisterMapper;
 import com.icecream.user.sms.SmsSender;
+import com.icecreamGroup.common.util.redis.RedisHandler;
+import com.icecreamGroup.common.util.res.ResultEnum;
+import com.icecreamGroup.common.util.res.ResultUtil;
+import com.icecreamGroup.common.util.res.ResultVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +26,9 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -77,22 +82,22 @@ public class UserService {
 
     //--------------------------登陆业务开始------------------------------------->
     public LoginReturn login(PasswordLogin passwordLogin) {
-         UserAuth userAuth = new UserAuth();
-         userAuth.setIdentityType(2);
-         userAuth.setIdentifier(passwordLogin.getItucode()+passwordLogin.getPhone());
-         UserAuth resualt = userAuthMapper.selectOne(userAuth);
-         if(resualt!=null){
-             User user = new User();
-             user.setId(userAuth.getUid());
-             User record = userMapper.selectOne(user);
-             if(record!=null){
-                 LoginReturn loginReturn = new LoginReturn();
-                 loginReturn.setToken(jwtBuilder.createToken(user));
-                 loginReturn.setUser(user);
-                 return loginReturn;
-             }
-         }
-         return null;
+        UserAuth userAuth = new UserAuth();
+        userAuth.setIdentityType(2);
+        userAuth.setIdentifier(passwordLogin.getItucode() + passwordLogin.getPhone());
+        UserAuth resualt = userAuthMapper.selectOne(userAuth);
+        if (resualt != null) {
+            User user = new User();
+            user.setId(userAuth.getUid());
+            User record = userMapper.selectOne(user);
+            if (record != null) {
+                LoginReturn loginReturn = new LoginReturn();
+                loginReturn.setToken(jwtBuilder.createToken(user));
+                loginReturn.setUser(user);
+                return loginReturn;
+            }
+        }
+        return null;
     }
 
 
@@ -196,7 +201,9 @@ public class UserService {
         thirdPartyDataTransform.setOpenid(openId);
         thirdPartyDataTransform.setToken(accessToken);
         thirdPartyDataTransform.setType(type);
-        thirdPartyDataTransform.setRegisterType(regiterType);
+        if(regiterType!=null) {
+            thirdPartyDataTransform.setRegisterType(regiterType);
+        }
         return null;
     }
 
@@ -206,7 +213,9 @@ public class UserService {
         thirdPartyDataTransform.setOpenid(id);
         thirdPartyDataTransform.setToken(token);
         thirdPartyDataTransform.setType(type);
-        thirdPartyDataTransform.setRegisterType(registerType);
+        if(registerType!=null) {
+            thirdPartyDataTransform.setRegisterType(registerType);
+        }
         return null;
     }
 
@@ -329,7 +338,7 @@ public class UserService {
         int mirror = Integer.parseInt(redisHandler.get(smsLoginParams.getItuCode() + smsLoginParams.getPhone()).toString());
         if (smsLoginParams.getCode().intValue() == mirror) {
             UserAuth userAuth = new UserAuth();
-            userAuth.setIdentifier(smsLoginParams.getItuCode()+smsLoginParams.getPhone());
+            userAuth.setIdentifier(smsLoginParams.getItuCode() + smsLoginParams.getPhone());
             userAuth.setIdentityType(1);
             UserAuth result = userAuthMapper.selectOne(userAuth);
             if (result == null) {
@@ -352,12 +361,14 @@ public class UserService {
         if (smsLoginParams.getCode().intValue() == mirror) {
             UserAuth userAuth = new UserAuth();
             userAuth.setIdentityType(1);
-            if(userAuth.getCredential()!=null){userAuth.setCredential(smsLoginParams.getPassword());}
-            userAuth.setIdentifier(smsLoginParams.getItuCode()+smsLoginParams.getPhone());
+            if (userAuth.getCredential() != null) {
+                userAuth.setCredential(smsLoginParams.getPassword());
+            }
+            userAuth.setIdentifier(smsLoginParams.getItuCode() + smsLoginParams.getPhone());
             UserAuth resualt = userAuthMapper.selectOne(userAuth);
-            if(resualt==null) {
+            if (resualt == null) {
                 return registerUser(builderPhoneUser(smsLoginParams), 1);
-            }else {
+            } else {
                 return null;
             }
         }
@@ -376,5 +387,105 @@ public class UserService {
         return user;
     }
     //------------------------------登陆业务结束--------------------------------->
+
+    public ResultVO update(User user, Integer uid) {
+        if (uid == null) return ResultUtil.error(null, ResultEnum.TOKEN_INFO_ERROR);
+        User result = getUserInfoByUid(uid);
+        if (result != null) {
+            if (user.getNickname() != null) {
+                if (user.getNickname() == result.getNickname() || user.getNickname().equals(result.getNickname())) {
+                    return ResultUtil.error(null, ResultEnum.NAME_REPETITION);
+                }
+            }
+            user.setId(uid);
+            int count = userMapper.updateByPrimaryKeySelective(user);
+            if (count > 0) {
+                return ResultUtil.success(user);
+            }
+        }
+        return null;
+    }
+
+    public ResultVO get(Integer uid){
+        if(uid==null) return ResultUtil.error(null,ResultEnum.TOKEN_INFO_ERROR);
+        User result = getUserInfoByUid(uid);
+        if(result!=null){
+            return ResultUtil.success(result);
+        }else {
+            return ResultUtil.error(null,ResultEnum.PARAMS_ERROR);
+        }
+    }
+
+    public User getUserInfoByUid(Integer uid){
+        User user = new User();
+        user.setId(uid);
+        User result = userMapper.selectOne(user);
+        return result;
+    }
+
+
+    public ResultVO isSetPassword(String itucode,String phone,Integer uid){
+        if(uid==null) return ResultUtil.error(null,ResultEnum.TOKEN_INFO_ERROR);
+        User user = getUserInfoByUid(uid);
+        if(user!=null){
+            UserAuth userAuth = new UserAuth();
+            userAuth.setUid(user.getId());
+            List<UserAuth> select = userAuthMapper.select(userAuth);
+            List<UserAuth> result = select.stream()
+                                          .filter(l -> l.getCredential() != null)
+                                          .collect(Collectors.toList());
+            if(result.isEmpty())
+                return ResultUtil.success(false);
+                return ResultUtil.success(true);
+
+        }else {
+            return ResultUtil.error(null,ResultEnum.PARAMS_ERROR);
+        }
+    }
+
+    public ResultVO binding(BindingModel bindingModel,Integer uid){
+        if(uid==null) return ResultUtil.error(null,ResultEnum.TOKEN_INFO_ERROR);
+        ThirdPartyLoginParam thirdPartyLoginParam = new ThirdPartyLoginParam();
+        if(bindingModel.getCode()!=null)thirdPartyLoginParam.setCode(bindingModel.getCode());
+        if(bindingModel.getOpenId()!=null)thirdPartyLoginParam.setOpenId(bindingModel.getOpenId());
+        if(bindingModel.getUid()!=null)thirdPartyLoginParam.setUid(bindingModel.getUid());
+        thirdPartyLoginParam.setAccessToken(bindingModel.getAccessToken());
+        thirdPartyLoginParam.setIdentityType(bindingModel.getIdentityType());
+        ThirdPartyDataTransform thirdPartyDataTransform = checkAndTransformByType(thirdPartyLoginParam);
+        if (thirdPartyDataTransform == null) return null;
+        User user = getUserInfoByUid(uid);
+        if(user!=null){
+            UserAuth userAuth = new UserAuth();
+            userAuth.setUid(user.getId());
+            userAuth.setIdentifier(thirdPartyDataTransform.getOpenid());
+            userAuth.setIdentityType(thirdPartyDataTransform.getType());
+            int count = userAuthMapper.insertSelective(userAuth);
+            if(count>0){
+                return ResultUtil.success();
+            }
+        }else {
+            return ResultUtil.error(null,ResultEnum.TOKEN_INFO_ERROR);
+        }
+        return ResultUtil.error(null,ResultEnum.ERROR_UNKNOWN);
+    }
+
+
+    public ResultVO unbinding(Integer type,Integer uid){
+        if(uid==null) return ResultUtil.error(null,ResultEnum.TOKEN_INFO_ERROR);
+        User user = getUserInfoByUid(uid);
+        if(user!=null){
+            UserAuth userAuth = new UserAuth();
+            userAuth.setId(user.getId());
+            userAuth.setIdentityType(type);
+            int count = userAuthMapper.delete(userAuth);
+            if(count>0){
+                return ResultUtil.success();
+            }else {
+                return ResultUtil.error("null",ResultEnum.DATA_ERROR);
+            }
+        }else {
+            return ResultUtil.error(null,ResultEnum.DATA_ERROR);
+        }
+    }
 
 }

@@ -1,5 +1,6 @@
 package com.icecreamGroup.common.util.jwt;
 
+import com.icecreamGroup.common.model.TokenInfo;
 import com.icecreamGroup.common.model.User;
 import com.icecreamGroup.common.model.UserStar;
 import com.icecreamGroup.common.util.constant.ConstantVal;
@@ -33,16 +34,19 @@ public class JwtHelper {
 
 
     //客户端的解密方式
-    public static Boolean parseJWT(String jsonWebToken, String base64Security) throws NullPointerException{
+    public static TokenInfo parseJWT(String jsonWebToken, String base64Security) throws NullPointerException{
         try
         {
             Claims claims = Jwts.parser()
                        .setSigningKey(DatatypeConverter.parseBase64Binary(base64Security))
                        .parseClaimsJws(jsonWebToken).getBody();
-            if(claims.get("uid")!=null||claims.get("name")!=null){
-                return true;
+            if(claims.get("uid")!=null){
+                TokenInfo tokenInfo = new TokenInfo();
+                tokenInfo.setIsToken(1);
+                tokenInfo.setUid(Integer.parseInt(claims.get("uid").toString()));
+                return tokenInfo;
             }else {
-                return false;
+                return null;
             }
         }
         catch(Exception ex)
@@ -50,6 +54,8 @@ public class JwtHelper {
             return null;
         }
     }
+
+
 
 
     //客户端的创建token方式
