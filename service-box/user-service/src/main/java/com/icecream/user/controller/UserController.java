@@ -171,6 +171,7 @@ public class UserController {
                 return ResultUtil.error(null, ResultEnum.INSERT_REPETITION);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             log.error("错误原因是---{}", e.getStackTrace());
             return ResultUtil.error(null, ResultEnum.ERROR_UNKNOWN);
         }
@@ -325,6 +326,25 @@ public class UserController {
     public ResultVO unbinding(@PathVariable("type") Integer type, HttpServletRequest request) {
         try {
             return userService.unbinding(type, RequestHandler.paramHandler(request));
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (e instanceof ConstraintViolationException) {
+                return ResultUtil.error(null, ResultEnum.PARAMS_ERROR);
+            }
+            e.printStackTrace();
+            return ResultUtil.error(null, ResultEnum.ERROR_UNKNOWN);
+        }
+    }
+
+    /**
+     * 直播获取用户数据
+     * @param request 获取请求中的token 解析出uid
+     * @return
+     */
+    @GetMapping("consumerInfo")
+    public ResultVO getRedisInfo(HttpServletRequest request){
+        try {
+            return userService.getUserInfo(RequestHandler.paramHandler(request));
         } catch (Exception e) {
             e.printStackTrace();
             if (e instanceof ConstraintViolationException) {

@@ -6,12 +6,11 @@ import javax.persistence.*;
 
 @Data
 @Table(name = "user")
-public class User {
+public class User{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-
+    
     private String nickname;
 
     private String smallavatar;
@@ -19,6 +18,20 @@ public class User {
     private String avatar;
 
     private Integer driver;
+
+    private Integer role;
+
+    private Integer status;
+
+    private Integer sex;
+
+    private Integer birthday;
+
+    private Integer exp;
+
+    private Integer expid;
+
+    private Integer scoreid;
 
     private String authid;
 
@@ -34,15 +47,7 @@ public class User {
 
     private String uname;
 
-    private Integer role;
-
-    private Integer status;
-
     private Integer identity;
-
-    private Integer birthday;
-
-    private Integer sex;
 
     private String professional;
 
@@ -66,21 +71,15 @@ public class User {
 
     private Integer totalCheck;
 
-    private Float exp;
+    private Integer score;
 
-    private Integer expid;
+    private Integer score1;
 
-    private Float score;
+    private Integer score2;
 
-    private Integer scoreid;
+    private Integer score3;
 
-    private Float score1;
-
-    private Float score2;
-
-    private Float score3;
-
-    private Float score4;
+    private Integer score4;
 
     private Integer ctime;
 

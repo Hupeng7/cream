@@ -91,7 +91,7 @@ sms:
     password: KsqAXCW2rueefa
     #请求地址请登录253云通讯自助通平台查看或者询问您的商务负责人获取
     url: http://sms.253.com/msg/send/json
-    code-time-out: 600
+    code-time-out: 60000
 redis:
   time-out: 600
   max-idle: 8

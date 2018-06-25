@@ -37,6 +37,8 @@ public class JsonUtil {
         return JSON.toJSONString(object, config, features);
     }
 
+    public static Object toJSON(Object object){return JSON.toJSON(object);}
+
     public static String toJSONNoFeatures(Object object) {
         return JSON.toJSONString(object, config);
     }

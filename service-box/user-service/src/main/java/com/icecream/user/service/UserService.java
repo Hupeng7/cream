@@ -1,5 +1,6 @@
 package com.icecream.user.service;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.codingapi.tx.annotation.TxTransaction;
 import com.icecream.user.config.login.AppIdConfig;
@@ -13,6 +14,7 @@ import com.icecreamGroup.common.util.json.JsonUtil;
 import com.icecream.user.mapper.UserAuthMapper;
 import com.icecream.user.mapper.UserRegisterMapper;
 import com.icecream.user.sms.SmsSender;
+import com.icecreamGroup.common.util.redis.FastJson2JsonRedisSerializer;
 import com.icecreamGroup.common.util.redis.RedisHandler;
 import com.icecreamGroup.common.util.res.ResultEnum;
 import com.icecreamGroup.common.util.res.ResultUtil;
@@ -39,6 +41,12 @@ public class UserService {
     private OrderFeignClient orderFeignClient;
 
     @Autowired
+    private UserAuthService userAuthService;
+
+    @Autowired
+    private UserRegisterService userRegisterService;
+
+    @Autowired
     private UserMapper userMapper;
 
     @Autowired
@@ -60,6 +68,9 @@ public class UserService {
     private RedisHandler redisHandler;
 
     @Autowired
+    private FastJson2JsonRedisSerializer fastJson2JsonRedisSerializer;
+
+    @Autowired
     private SmsSender smsSender;
 
     @Autowired
@@ -78,7 +89,6 @@ public class UserService {
             return 0;
         }
     }
-
 
     //--------------------------登陆业务开始------------------------------------->
     public LoginReturn login(PasswordLogin passwordLogin) {
@@ -201,7 +211,7 @@ public class UserService {
         thirdPartyDataTransform.setOpenid(openId);
         thirdPartyDataTransform.setToken(accessToken);
         thirdPartyDataTransform.setType(type);
-        if(regiterType!=null) {
+        if (regiterType != null) {
             thirdPartyDataTransform.setRegisterType(regiterType);
         }
         return null;
@@ -213,7 +223,7 @@ public class UserService {
         thirdPartyDataTransform.setOpenid(id);
         thirdPartyDataTransform.setToken(token);
         thirdPartyDataTransform.setType(type);
-        if(registerType!=null) {
+        if (registerType != null) {
             thirdPartyDataTransform.setRegisterType(registerType);
         }
         return null;
@@ -234,8 +244,7 @@ public class UserService {
     }
 
     //插入user、user_auth、user_register表数据
-    @Transactional(rollbackFor = Exception.class)
-    public LoginReturn registerUser(User user, Integer type) throws Exception {
+    public LoginReturn registerUser(User user, Integer type) throws RuntimeException {
         if (user != null) {
             LoginReturn loginReturn = new LoginReturn();
             Long time = LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
@@ -243,25 +252,11 @@ public class UserService {
             user.setMtime(time.intValue());
             user.setLastlogintime(time.intValue());
             int userCount = userMapper.insertSelective(user);
-            if (userCount <= 0) return null;
-            UserAuth userAuth = new UserAuth();
-            userAuth.setUid(user.getId());
-            userAuth.setIdentityType(type);
-            userAuth.setUid(user.getId());
-            if (type == 1) {
-                userAuth.setIdentifier(user.getItucode() + user.getPhone());
-                if (user.getPassword() != null) {
-                    userAuth.setCredential(user.getPassword());
-                }
-            } else {
-                userAuth.setIdentifier(user.getOpenid());
-            }
-            int userAuthCount = userAuthMapper.insertSelective(userAuth);
-            UserRegister userRegister = new UserRegister();
-            userRegister.setUid(user.getId());
-            userRegister.setRegister(user.getRegister());
-            userRegister.setRegisterType(user.getRegisterType());
-            int userRegisterCount = userRegisterMapper.insertSelective(userRegister);
+            User userInfo = userMapper.getCache(user.getId());
+            //存入数据到redis，key为uid
+            setUserInfoToRedis(userInfo);
+            int userAuthCount = userAuthService.insertUserAuthByType(user, type);
+            int userRegisterCount = userRegisterService.insertRegisterByUserId(user);
             if (userAuthCount > 0 && userRegisterCount > 0) {
                 String token = jwtBuilder.createToken(user);
                 loginReturn.setUser(user);
@@ -269,7 +264,17 @@ public class UserService {
                 return loginReturn;
             }
         }
-        return null;
+        throw new RuntimeException("插入失败");
+    }
+
+    private void setUserInfoToRedis(User user) {
+        try {
+            JSONObject jsonObject = (JSONObject) JSON.toJSON(user);
+            redisHandler.set(user.getId(), jsonObject);
+        } catch (Exception e) {
+            log.error("用户信息存入redis时失败");
+            e.printStackTrace();
+        }
     }
 
     private ThirdPartUserInfo getUserInfoByThirdPartyAPi(ThirdPartyDataTransform thirdPartyDataTransform) {
@@ -325,7 +330,6 @@ public class UserService {
         return thirdPartUserInfo;
     }
 
-
     public Boolean sendCode(String itucode, String phone) {
         String s = smsSender.smsSend(itucode, phone);
         if (StringUtils.isNotBlank(s)) {
@@ -334,6 +338,7 @@ public class UserService {
         return false;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public LoginReturn fastLogin(SmsLoginParams smsLoginParams) throws Exception {
         int mirror = Integer.parseInt(redisHandler.get(smsLoginParams.getItuCode() + smsLoginParams.getPhone()).toString());
         if (smsLoginParams.getCode().intValue() == mirror) {
@@ -388,6 +393,16 @@ public class UserService {
     }
     //------------------------------登陆业务结束--------------------------------->
 
+    public ResultVO get(Integer uid) {
+        if (uid == null) return ResultUtil.error(null, ResultEnum.TOKEN_INFO_ERROR);
+        User result = getUserInfoByUid(uid);
+        if (result != null) {
+            return ResultUtil.success(result);
+        } else {
+            return ResultUtil.error(null, ResultEnum.PARAMS_ERROR);
+        }
+    }
+
     public ResultVO update(User user, Integer uid) {
         if (uid == null) return ResultUtil.error(null, ResultEnum.TOKEN_INFO_ERROR);
         User result = getUserInfoByUid(uid);
@@ -406,86 +421,99 @@ public class UserService {
         return null;
     }
 
-    public ResultVO get(Integer uid){
-        if(uid==null) return ResultUtil.error(null,ResultEnum.TOKEN_INFO_ERROR);
-        User result = getUserInfoByUid(uid);
-        if(result!=null){
-            return ResultUtil.success(result);
-        }else {
-            return ResultUtil.error(null,ResultEnum.PARAMS_ERROR);
-        }
-    }
-
-    public User getUserInfoByUid(Integer uid){
+    public User getUserInfoByUid(Integer uid) {
         User user = new User();
         user.setId(uid);
         User result = userMapper.selectOne(user);
         return result;
     }
 
-
-    public ResultVO isSetPassword(String itucode,String phone,Integer uid){
-        if(uid==null) return ResultUtil.error(null,ResultEnum.TOKEN_INFO_ERROR);
+    public ResultVO isSetPassword(String itucode, String phone, Integer uid) {
+        if (uid == null) return ResultUtil.error(null, ResultEnum.TOKEN_INFO_ERROR);
         User user = getUserInfoByUid(uid);
-        if(user!=null){
+        if (user != null) {
             UserAuth userAuth = new UserAuth();
             userAuth.setUid(user.getId());
             List<UserAuth> select = userAuthMapper.select(userAuth);
             List<UserAuth> result = select.stream()
-                                          .filter(l -> l.getCredential() != null)
-                                          .collect(Collectors.toList());
-            if(result.isEmpty())
+                    .filter(l -> l.getCredential() != null)
+                    .collect(Collectors.toList());
+            if (result.isEmpty())
                 return ResultUtil.success(false);
-                return ResultUtil.success(true);
+            return ResultUtil.success(true);
 
-        }else {
-            return ResultUtil.error(null,ResultEnum.PARAMS_ERROR);
+        } else {
+            return ResultUtil.error(null, ResultEnum.PARAMS_ERROR);
         }
     }
 
-    public ResultVO binding(BindingModel bindingModel,Integer uid){
-        if(uid==null) return ResultUtil.error(null,ResultEnum.TOKEN_INFO_ERROR);
+    public ResultVO binding(BindingModel bindingModel, Integer uid) {
+        if (uid == null) return ResultUtil.error(null, ResultEnum.TOKEN_INFO_ERROR);
         ThirdPartyLoginParam thirdPartyLoginParam = new ThirdPartyLoginParam();
-        if(bindingModel.getCode()!=null)thirdPartyLoginParam.setCode(bindingModel.getCode());
-        if(bindingModel.getOpenId()!=null)thirdPartyLoginParam.setOpenId(bindingModel.getOpenId());
-        if(bindingModel.getUid()!=null)thirdPartyLoginParam.setUid(bindingModel.getUid());
+        if (bindingModel.getCode() != null) thirdPartyLoginParam.setCode(bindingModel.getCode());
+        if (bindingModel.getOpenId() != null) thirdPartyLoginParam.setOpenId(bindingModel.getOpenId());
+        if (bindingModel.getUid() != null) thirdPartyLoginParam.setUid(bindingModel.getUid());
         thirdPartyLoginParam.setAccessToken(bindingModel.getAccessToken());
         thirdPartyLoginParam.setIdentityType(bindingModel.getIdentityType());
         ThirdPartyDataTransform thirdPartyDataTransform = checkAndTransformByType(thirdPartyLoginParam);
         if (thirdPartyDataTransform == null) return null;
         User user = getUserInfoByUid(uid);
-        if(user!=null){
+        if (user != null) {
             UserAuth userAuth = new UserAuth();
             userAuth.setUid(user.getId());
             userAuth.setIdentifier(thirdPartyDataTransform.getOpenid());
             userAuth.setIdentityType(thirdPartyDataTransform.getType());
             int count = userAuthMapper.insertSelective(userAuth);
-            if(count>0){
+            if (count > 0) {
                 return ResultUtil.success();
             }
-        }else {
-            return ResultUtil.error(null,ResultEnum.TOKEN_INFO_ERROR);
+        } else {
+            return ResultUtil.error(null, ResultEnum.TOKEN_INFO_ERROR);
         }
-        return ResultUtil.error(null,ResultEnum.ERROR_UNKNOWN);
+        return ResultUtil.error(null, ResultEnum.ERROR_UNKNOWN);
     }
 
-
-    public ResultVO unbinding(Integer type,Integer uid){
-        if(uid==null) return ResultUtil.error(null,ResultEnum.TOKEN_INFO_ERROR);
+    public ResultVO unbinding(Integer type, Integer uid) {
+        if (uid == null) return ResultUtil.error(null, ResultEnum.TOKEN_INFO_ERROR);
         User user = getUserInfoByUid(uid);
-        if(user!=null){
+        if (user != null) {
             UserAuth userAuth = new UserAuth();
             userAuth.setId(user.getId());
             userAuth.setIdentityType(type);
             int count = userAuthMapper.delete(userAuth);
-            if(count>0){
+            if (count > 0) {
                 return ResultUtil.success();
-            }else {
-                return ResultUtil.error("null",ResultEnum.DATA_ERROR);
+            } else {
+                return ResultUtil.error("null", ResultEnum.DATA_ERROR);
             }
-        }else {
-            return ResultUtil.error(null,ResultEnum.DATA_ERROR);
+        } else {
+            return ResultUtil.error(null, ResultEnum.DATA_ERROR);
         }
     }
+
+    public ResultVO getUserInfo(Integer uid) {
+        if (uid == null) return ResultUtil.error(null, ResultEnum.TOKEN_INFO_ERROR);
+        try {
+            User user = (User) redisHandler.get(uid.toString());
+            if (user != null)
+                return ResultUtil.success(user);
+            throw new RuntimeException("redis中数据为空");
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("从redis中取数据出错,开始从mysql中取得数据,错误{}", e.getStackTrace());
+            try {
+                User cache = userMapper.getCache(uid);
+                if (cache != null)
+                    return ResultUtil.success(cache);
+                return ResultUtil.error(null, ResultEnum.DATA_ERROR);
+            } catch (Exception e1) {
+                log.error("从mysql中取数据出错,错误{}", e.getStackTrace());
+                e1.printStackTrace();
+            }
+        }
+        return ResultUtil.error(null, ResultEnum.ERROR_UNKNOWN);
+
+    }
+
 
 }
