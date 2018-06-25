@@ -56,38 +56,42 @@ public class TokenFilter extends ZuulFilter{
     @Override
     public ResultVO run() {
         RequestContext ctx = RequestContext.getCurrentContext();
-        HttpServletRequest request = ctx.getRequest();
-        log.info(String.format("%s request to %s",request.getMethod(), request.getRequestURL().toString()));
-        //根据前端token存放位置去获取 如header body url等
-        String token = request.getParameter("token");
+        String token =  ctx.getRequest().getParameter("token");
         if(token==null){
             //如果token没有,不允许访问api
             log.error("token is null ...");
             setResponse(ctx);
         }else {
-            //有token，则验证token
             log.info("token:"+token);
-            TokenInfo tokenInfo = null;
-            try {
-                if (token.startsWith("customer")) {
-                    tokenInfo= JwtHelper.parseJWT(token.replace("customer", ""), "customer");
-                } else {
-                    tokenInfo = JwtHelper.parseJWT(token.replace("star", ""), "star");
-                }
-                log.info("parseJwt result--{}", tokenInfo);
-                if (tokenInfo!=null) {
-                    ctx.setSendZuulResponse(true);
-                    ctx.setResponseStatusCode(200);
-                    ctx.set("isSuccess",true);
-                } else {
-                    setResponse(ctx);
-                }
-            }catch (RuntimeException e){
-                setResponse(ctx);
-            }
-
+            parseJwt(ctx, token);
         }
         return null;
+    }
+
+    private void parseJwt(RequestContext ctx, String token) {
+        //有token，则验证token
+        TokenInfo tokenInfo;
+        try {
+            if (token.startsWith("customer")) {
+                tokenInfo= JwtHelper.parseJWT(token.replace("customer", ""), "customer");
+            } else {
+                tokenInfo = JwtHelper.parseJWT(token.replace("star", ""), "star");
+            }
+            log.info("parseJwt result--{}", tokenInfo);
+            if (tokenInfo!=null) {
+                setSuccessResponse(ctx);
+            } else {
+                setResponse(ctx);
+            }
+        }catch (RuntimeException e){
+            setResponse(ctx);
+        }
+    }
+
+    private void setSuccessResponse(RequestContext ctx) {
+        ctx.setSendZuulResponse(true);
+        ctx.setResponseStatusCode(200);
+        ctx.set("isSuccess",true);
     }
 
     //设置过滤器返回内容
