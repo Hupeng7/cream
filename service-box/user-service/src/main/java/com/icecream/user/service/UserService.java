@@ -318,7 +318,7 @@ public class UserService {
 
     private ThirdPartUserInfo getUserInfoByQQ(String token, String openid, Integer type) {
         ThirdPartUserInfo thirdPartUserInfo = new ThirdPartUserInfo();
-        //根据token&&openid获取用户信息
+        //根据token&&openid获取用户信息。
         String qqOpenApiUrl2 = appIdConfig.getQqOpenApiUrl2();
         String qQappId = appIdConfig.getQQappId();
         //根据token获取openid的url
