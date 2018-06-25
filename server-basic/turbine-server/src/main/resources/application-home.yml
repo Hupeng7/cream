@@ -1,0 +1,21 @@
+server:
+  port: 2008
+spring:
+  application:
+    name: turbine-server
+  profiles:
+    active: dev
+  rabbitmq:
+    username: admin
+    password: 123456
+    host: localhost
+    port: 5672
+    connection-timeout: 20000
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:2000/eureka
+
+
+

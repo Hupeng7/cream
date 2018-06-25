@@ -80,7 +80,7 @@ public class UserController {
      * @return
      */
     @RequestMapping("login")
-    public ResultVO<String> login(PasswordLogin passwordLogin, BindingResult bindingResult) {
+    public ResultVO<String> login(@RequestBody @Valid PasswordLogin passwordLogin, BindingResult bindingResult) {
         log.info("用户{}，用户类型{}，正在登陆", passwordLogin.getPhone(), passwordLogin.getPhoneModel());
         if (bindingResult.hasErrors()) {
             log.info("基础参数不合法:" + bindingResult.getFieldError().getDefaultMessage());

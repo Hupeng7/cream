@@ -12,6 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * @author Mr_h
@@ -23,6 +26,8 @@ import javax.servlet.http.HttpServletRequest;
 @Component
 @ResponseBody
 public class TokenFilter extends ZuulFilter{
+
+    private static final String[] whiteList = {"login","sendauthcode","register","loginByOldOpenid", "loginByOldOpenid"};
 
     @Override
     public String filterType() {
@@ -36,15 +41,14 @@ public class TokenFilter extends ZuulFilter{
 
     @Override
     public boolean shouldFilter() {
-        RequestContext ctx = RequestContext.getCurrentContext();
-        String url = ctx.getRequest().getRequestURL().toString();
-        return !url.contains("login")|!url.contains("register");
+       return Stream.of(whiteList)
+                .noneMatch(s -> RequestContext.getCurrentContext().getRequest().getRequestURL().toString().contains(s));
     }
 
     /**
      * @return
      * 过滤器核心逻辑
-     * 过滤除login*外所有请求
+     * 过滤白名单外外所有请求
      * 验证是否有token或者token是否正确或者token是否将要过期
      * 验证失败，返回401
      * 验证成功，放行
@@ -61,7 +65,7 @@ public class TokenFilter extends ZuulFilter{
             log.error("token is null ...");
             setResponse(ctx);
         }else {
-            //有token，则验证token，是否存在这个token或者是否将要过期
+            //有token，则验证token
             log.info("token:"+token);
             TokenInfo tokenInfo = null;
             try {

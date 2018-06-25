@@ -494,10 +494,10 @@ public class UserService {
     public ResultVO getUserInfo(Integer uid) {
         if (uid == null) return ResultUtil.error(null, ResultEnum.TOKEN_INFO_ERROR);
         try {
-            User user = (User) redisHandler.get(uid.toString());
-            if (user != null)
-                return ResultUtil.success(user);
-            throw new RuntimeException("redis中数据为空");
+            Object o = redisHandler.get(uid);
+            if (o != null)
+                return ResultUtil.success(o);
+                throw new RuntimeException("redis中数据为空");
         } catch (Exception e) {
             e.printStackTrace();
             log.error("从redis中取数据出错,开始从mysql中取得数据,错误{}", e.getStackTrace());
@@ -509,11 +509,11 @@ public class UserService {
             } catch (Exception e1) {
                 log.error("从mysql中取数据出错,错误{}", e.getStackTrace());
                 e1.printStackTrace();
+                return ResultUtil.error(null, ResultEnum.DATA_ERROR);
             }
         }
-        return ResultUtil.error(null, ResultEnum.ERROR_UNKNOWN);
-
     }
 
-
 }
+
+

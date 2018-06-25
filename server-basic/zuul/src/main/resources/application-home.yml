@@ -1,0 +1,58 @@
+server:
+  port: 2004
+
+#服务名称#
+spring:
+  application:
+    name: zuul-server
+  profiles:
+    active: dev
+
+#服务中心默认地址#
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:2000/eureka/
+
+#配置zuul网关#
+zuul:
+  routes:
+    order-api:
+      path: /order-api/**
+      serviceId: order-service
+    user-api:
+      path: /user-api/**
+      serviceId: user-service
+    comment-api:
+      path: /comment-api/**
+      serviceId: comment-service
+
+
+#设置断路器默认超时时间
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMillisecondes: 5000
+
+redis:
+  time-out: 600
+  max-idle: 8
+  max-wait: 1
+  max-active: 8
+  port: 6379
+  password:
+  host: localhost
+  database: 1
+  min-idle: 1
+
+
+#ribbon:
+#  eureka:
+#    enabled: false
+#
+#order-api:
+#  ribbon:
+#    listOfServers: localhost,localhost
