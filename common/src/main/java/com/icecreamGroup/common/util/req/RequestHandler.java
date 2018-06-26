@@ -19,11 +19,8 @@ import java.util.Map;
 public class RequestHandler {
 
     public static Integer paramHandler(HttpServletRequest request) {
-        String token = request.getParameter("token");
-        TokenInfo tokenInfo = JwtHelper.parseJWT(token.replace("customer", ""), "customer");
-        if (tokenInfo != null)
-            return tokenInfo.getUid();
-        return null;
+            return JwtHelper.parseJWT(request.getParameter("token")
+                            .replace("customer", ""), "customer").getUid();
     }
 
 

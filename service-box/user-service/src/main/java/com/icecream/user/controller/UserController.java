@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -344,16 +345,7 @@ public class UserController {
      */
     @GetMapping("consumerInfo")
     public ResultVO<Object> getRedisInfo(HttpServletRequest request){
-        try {
             return userService.getUserInfo(RequestHandler.paramHandler(request));
-        } catch (Exception e) {
-            e.printStackTrace();
-            if (e instanceof ConstraintViolationException) {
-                return ResultUtil.error(null, ResultEnum.PARAMS_ERROR);
-            }
-            e.printStackTrace();
-            return ResultUtil.error(null, ResultEnum.ERROR_UNKNOWN);
-        }
     }
 
     /**
@@ -366,16 +358,7 @@ public class UserController {
     @PutMapping("ituphone/{itucode}/{phone}")
     public ResultVO updatePhone(@PathVariable("itucode")@NotBlank String itucode,
                                 @PathVariable("phone")@NotBlank String phone,HttpServletRequest request){
-        try {
             return userService.updatePhone(RequestHandler.paramHandler(request),itucode,phone);
-        } catch (Exception e) {
-            e.printStackTrace();
-            if (e instanceof ConstraintViolationException) {
-                return ResultUtil.error(null, ResultEnum.PARAMS_ERROR);
-            }
-            e.printStackTrace();
-            return ResultUtil.error(null, ResultEnum.MYSQL_OPERATION_FAILED);
-        }
     }
 
     /**
@@ -385,7 +368,7 @@ public class UserController {
      * @return
      */
     @PostMapping("pwdModifier")
-    public ResultVO updatePassword(@Valid Password password, HttpServletRequest request) {
+    public ResultVO updatePassword(@Validated @RequestBody Password password, HttpServletRequest request) {
         return userService.updatePassword(password, RequestHandler.paramHandler(request));
     }
 

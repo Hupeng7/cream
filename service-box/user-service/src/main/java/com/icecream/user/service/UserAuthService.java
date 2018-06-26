@@ -37,4 +37,12 @@ public class UserAuthService {
         return userAuthMapper.insertSelective(userAuth);
     }
 
+    public UserAuth get(Integer uid,String password){
+        UserAuth arg = new UserAuth();
+        arg.setUid(uid);
+        arg.setCredential(password);
+        UserAuth result = userAuthMapper.selectOne(arg);
+        return result;
+    }
+
 }

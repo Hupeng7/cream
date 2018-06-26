@@ -31,7 +31,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -541,11 +543,7 @@ public class UserService {
     }
 
     public ResultVO updatePassword(Password password,Integer uid){
-        if (uid == null) return ResultUtil.error(null, ResultEnum.TOKEN_INFO_ERROR);
-        UserAuth arg = new UserAuth();
-        arg.setUid(uid);
-        arg.setCredential(password.getOldPassword());
-        UserAuth result = userAuthMapper.selectOne(arg);
+        UserAuth result = userAuthService.get(uid, password.getOldPassword());
         if(result!=null){
             result.setCredential(password.getNewPassword());
             int count = userAuthMapper.updateByPrimaryKey(result);

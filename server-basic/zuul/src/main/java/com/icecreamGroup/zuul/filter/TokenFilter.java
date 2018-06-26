@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -70,6 +71,7 @@ public class TokenFilter extends ZuulFilter{
     }
 
     private void parseJwt(RequestContext ctx, String token) {
+
         //有token，则验证token
         TokenInfo tokenInfo;
         try {
@@ -80,7 +82,9 @@ public class TokenFilter extends ZuulFilter{
             }
             log.info("parseJwt result--{}", tokenInfo);
             if (tokenInfo!=null) {
-                setSuccessResponse(ctx);
+                if(tokenInfo.getUid()!=null) {
+                    setSuccessResponse(ctx);
+                }
             } else {
                 setBadResponse(ctx);
             }
@@ -96,7 +100,7 @@ public class TokenFilter extends ZuulFilter{
     }
 
     //设置过滤器返回内容
-    public void setBadResponse(RequestContext context){
+    private void setBadResponse(RequestContext context){
         context.setSendZuulResponse(false);
         context.setResponseStatusCode(401);
         context.setResponseBody(JsonUtil.toJSONString(ResultUtil.error(401,"Unauthorized access")));

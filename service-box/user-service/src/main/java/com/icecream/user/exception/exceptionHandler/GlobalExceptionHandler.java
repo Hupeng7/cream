@@ -6,6 +6,7 @@ import com.icecreamGroup.common.util.res.ResultVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.binding.BindingException;
 import org.springframework.validation.BindException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import javax.validation.ConstraintViolationException;
@@ -20,22 +21,32 @@ import javax.validation.ConstraintViolationException;
 @RestControllerAdvice
 public class GlobalExceptionHandler{
 
-
     /**
-     * 所有异常报错
-     * @param exception
+     * 未知的异常处理
+     * @param e
      * @return
      * @throws Exception
      */
     @ExceptionHandler(value=Exception.class)
-    public ResultVO allExceptionHandler(Exception exception) {
-        exception.printStackTrace();
-        if(exception instanceof ConstraintViolationException|exception instanceof BindException){
-            exception.printStackTrace();
-            return ResultUtil.error(null, ResultEnum.PARAMS_ERROR);
-        }else {
-            exception.printStackTrace();
-            return ResultUtil.error(null, ResultEnum.ERROR_UNKNOWN);
-        }
+    public ResultVO doException(Exception e) throws Exception{
+        return ResultUtil.error(null,ResultEnum.ERROR_UNKNOWN);
+
     }
+
+    /**
+     * 校验的异常处理
+     * @param methodArgumentNotValidException
+     * @return
+     */
+    @ExceptionHandler(value=MethodArgumentNotValidException.class)
+    public ResultVO beanValidation(MethodArgumentNotValidException methodArgumentNotValidException) throws Exception{
+            return ResultUtil.error("非法的参数"
+                    +methodArgumentNotValidException
+                    .getBindingResult().getFieldError()
+                    .getDefaultMessage(), ResultEnum.PARAMS_ERROR);
+
+    }
+
+
+
 }
