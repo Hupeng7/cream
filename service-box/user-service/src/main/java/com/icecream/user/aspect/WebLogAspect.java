@@ -1,8 +1,10 @@
 package com.icecream.user.aspect;
 
+import com.icecreamGroup.common.util.req.RequestHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.log4j.Logger;
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
@@ -13,6 +15,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
+import java.util.Optional;
 
 /**
  * @author MR_H
@@ -26,12 +29,16 @@ import java.util.Arrays;
 @Slf4j
 public class WebLogAspect {
 
-
-    @Pointcut("execution(*  com.icecreamGroup.user.controller.*.*(..))")
+    //切点
+    @Pointcut("execution(*  com.icecream.user.controller.*.*(..))")
     public void webLog(){}
 
+    /**
+     * 打印请求日志
+     * @param joinPoint 切入点
+     */
     @Before("webLog()")
-    public void doBefore(JoinPoint joinPoint) throws Throwable {
+    public void doBefore(JoinPoint joinPoint){
         // 接收到请求，记录请求内容
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = attributes.getRequest();
@@ -41,9 +48,6 @@ public class WebLogAspect {
         log.info("IP : " + request.getRemoteAddr());
         log.info("CLASS_METHOD : " + joinPoint.getSignature().getDeclaringTypeName() + "." + joinPoint.getSignature().getName());
         log.info("ARGS : " + Arrays.toString(joinPoint.getArgs()));
-
     }
-
-
 
 }

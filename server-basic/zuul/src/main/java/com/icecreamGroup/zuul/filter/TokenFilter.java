@@ -42,7 +42,8 @@ public class TokenFilter extends ZuulFilter{
     @Override
     public boolean shouldFilter() {
        return Stream.of(whiteList)
-                .noneMatch(s -> RequestContext.getCurrentContext().getRequest().getRequestURL().toString().contains(s));
+                .noneMatch(s -> RequestContext.getCurrentContext()
+                        .getRequest().getRequestURL().toString().contains(s));
     }
 
     /**
@@ -60,7 +61,7 @@ public class TokenFilter extends ZuulFilter{
         if(token==null){
             //如果token没有,不允许访问api
             log.error("token is null ...");
-            setResponse(ctx);
+            setBadResponse(ctx);
         }else {
             log.info("token:"+token);
             parseJwt(ctx, token);
@@ -81,10 +82,10 @@ public class TokenFilter extends ZuulFilter{
             if (tokenInfo!=null) {
                 setSuccessResponse(ctx);
             } else {
-                setResponse(ctx);
+                setBadResponse(ctx);
             }
         }catch (RuntimeException e){
-            setResponse(ctx);
+            setBadResponse(ctx);
         }
     }
 
@@ -95,7 +96,7 @@ public class TokenFilter extends ZuulFilter{
     }
 
     //设置过滤器返回内容
-    public void setResponse(RequestContext context){
+    public void setBadResponse(RequestContext context){
         context.setSendZuulResponse(false);
         context.setResponseStatusCode(401);
         context.setResponseBody(JsonUtil.toJSONString(ResultUtil.error(401,"Unauthorized access")));

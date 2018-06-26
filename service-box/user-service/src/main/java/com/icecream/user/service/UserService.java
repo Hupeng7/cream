@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import tk.mybatis.mapper.entity.Example;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -491,11 +492,11 @@ public class UserService {
         }
     }
 
-    public ResultVO getUserInfo(Integer uid) {
+    public ResultVO<Object> getUserInfo(Integer uid) {
         if (uid == null) return ResultUtil.error(null, ResultEnum.TOKEN_INFO_ERROR);
         try {
             Object o = redisHandler.get(uid);
-            if (o != null)
+            if (o!= null)
                 return ResultUtil.success(o);
                 throw new RuntimeException("redis中数据为空");
         } catch (Exception e) {
@@ -514,6 +515,48 @@ public class UserService {
         }
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public ResultVO updatePhone(Integer uid,String itucode,String phone){
+        if (uid == null) return ResultUtil.error(null, ResultEnum.TOKEN_INFO_ERROR);
+        User user = new User();
+        user.setId(uid);
+        user.setItucode(itucode);
+        user.setPhone(phone);
+        int count1 = userMapper.updateByPrimaryKeySelective(user);
+        UserAuth userAuth = new UserAuth();
+        userAuth.setIdentifier(itucode+phone);
+        userAuth.setUid(uid);
+        Example example = new Example(UserAuth.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("uid",uid);
+        int count2 = userAuthMapper.updateByExampleSelective(userAuth,example);
+        if(count1>0&count2>0){
+            User args = new User();
+            args.setId(uid);
+            User result = userMapper.selectOne(args);
+            return ResultUtil.success(result);
+        }else {
+            return ResultUtil.error(null,ResultEnum.MYSQL_OPERATION_FAILED);
+        }
+    }
+
+    public ResultVO updatePassword(Password password,Integer uid){
+        if (uid == null) return ResultUtil.error(null, ResultEnum.TOKEN_INFO_ERROR);
+        UserAuth arg = new UserAuth();
+        arg.setUid(uid);
+        arg.setCredential(password.getOldPassword());
+        UserAuth result = userAuthMapper.selectOne(arg);
+        if(result!=null){
+            result.setCredential(password.getNewPassword());
+            int count = userAuthMapper.updateByPrimaryKey(result);
+            if(count>0){
+                return ResultUtil.success(result);
+            }
+        }else {
+           return ResultUtil.error(null,ResultEnum.PARAMS_ERROR);
+        }
+        return ResultUtil.error(null,ResultEnum.MYSQL_OPERATION_FAILED);
+    }
 }
 
 

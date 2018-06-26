@@ -11,6 +11,7 @@ import com.icecream.user.service.UserService;
 import com.icecream.user.feignclients.OrderFeignClient;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -339,10 +340,10 @@ public class UserController {
     /**
      * 直播获取用户数据
      * @param request 获取请求中的token 解析出uid
-     * @return
+     * @return resultVO<T></>
      */
     @GetMapping("consumerInfo")
-    public ResultVO getRedisInfo(HttpServletRequest request){
+    public ResultVO<Object> getRedisInfo(HttpServletRequest request){
         try {
             return userService.getUserInfo(RequestHandler.paramHandler(request));
         } catch (Exception e) {
@@ -355,4 +356,39 @@ public class UserController {
         }
     }
 
+    /**
+     * 更改手机号
+     * @param itucode 区号
+     * @param phone 手机号
+     * @param request token
+     * @return
+     */
+    @PutMapping("ituphone/{itucode}/{phone}")
+    public ResultVO updatePhone(@PathVariable("itucode")@NotBlank String itucode,
+                                @PathVariable("phone")@NotBlank String phone,HttpServletRequest request){
+        try {
+            return userService.updatePhone(RequestHandler.paramHandler(request),itucode,phone);
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (e instanceof ConstraintViolationException) {
+                return ResultUtil.error(null, ResultEnum.PARAMS_ERROR);
+            }
+            e.printStackTrace();
+            return ResultUtil.error(null, ResultEnum.MYSQL_OPERATION_FAILED);
+        }
+    }
+
+    /**
+     * 修改密码
+     * @param password 密码封装对象 包含新密码和旧密码
+     * @param request 获取token
+     * @return
+     */
+    @PostMapping("pwdModifier")
+    public ResultVO updatePassword(@Valid Password password, HttpServletRequest request) {
+        return userService.updatePassword(password, RequestHandler.paramHandler(request));
+    }
+
 }
+
+
