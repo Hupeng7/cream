@@ -14,6 +14,8 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Optional;
+
 
 /**
  * @author Mr_h
@@ -24,7 +26,7 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 @Component
 @SuppressWarnings("all")
-public class SmsSender {
+public class AuthCodeHandler {
 
     @Autowired
     private RestTemplate restTemplate;
@@ -35,7 +37,7 @@ public class SmsSender {
     @Autowired
     private RedisHandler redisHandler;
 
-    //短信发送
+    //短信验证码发送
     public String smsSend(String itucode,String phone){
         String url = environment.getProperty(ConstantVal.SMS_CHUANGLAN_URL);
         HttpHeaders headers = new HttpHeaders();
@@ -61,5 +63,12 @@ public class SmsSender {
         return "";
     }
 
+    //短信验证码和redis中的做对比
+    public Boolean checkCode(String key,Integer code){
+        int mirror = Integer.parseInt(redisHandler.get(key).toString());
+        if(mirror==code)
+            return true;
+            return false;
+    }
 
 }

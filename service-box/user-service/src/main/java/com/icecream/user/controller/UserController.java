@@ -339,6 +339,16 @@ public class UserController {
     }
 
     /**
+     * 获取所有的登陆方式
+     * @param request
+     * @return
+     */
+    @GetMapping("auths")
+    public ResultVO getAllAuths(HttpServletRequest request){
+        return userService.getAllAuths(RequestHandler.paramHandler(request));
+    }
+
+    /**
      * 直播获取用户数据
      * @param request 获取请求中的token 解析出uid
      * @return resultVO<T></>
@@ -371,6 +381,53 @@ public class UserController {
     public ResultVO updatePassword(@Validated @RequestBody Password password, HttpServletRequest request) {
         return userService.updatePassword(password, RequestHandler.paramHandler(request));
     }
+
+    /**
+     * 验证验证码，并修改密码
+     * @param smsLoginParams
+     * @param request
+     * @return
+     */
+    @PostMapping("pwdModifierByPhone")
+    public ResultVO updateByCodeAndPasswrod(@Validated @RequestBody SmsLoginParams smsLoginParams,HttpServletRequest request){
+        return userService.updateByCodeAndPasswrod(smsLoginParams,RequestHandler.paramHandler(request));
+    }
+
+    /**
+     * 判断手机是否存在
+     * @param itucode 区号
+     * @param phone 手机号
+     * @param request token
+     * @return
+     */
+    @PostMapping("verifyphone/{itucode}/{phone}")
+    public ResultVO ifExistPhone(@PathVariable("itucode")@NotBlank String itucode,
+                                 @PathVariable("phone")@NotBlank String phone,HttpServletRequest request){
+        return userService.ifExistPhone(itucode+phone,RequestHandler.paramHandler(request));
+    }
+
+    /**
+     * 验证手机号是否存在
+     * @param phone
+     * @param request
+     * @return
+     */
+    @PostMapping("checkNewPhoneInfo")
+    public ResultVO checkNewPhoneInfo(@Validated @RequestBody Phone phone, HttpServletRequest request){
+        return userService.checkNewPhoneInfo(phone,RequestHandler.paramHandler(request));
+    }
+
+    /**
+     * 验证手机号对应的密码是否存在
+     * @param phone
+     * @param request
+     * @return
+     */
+    @PostMapping("checkNewPassword")
+    public ResultVO checkNewPassword(@Validated @RequestBody Phone phone, HttpServletRequest request){
+        return userService.checkNewPassword(phone,RequestHandler.paramHandler(request));
+    }
+
 
 }
 

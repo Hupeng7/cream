@@ -12,9 +12,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -71,7 +73,6 @@ public class TokenFilter extends ZuulFilter{
     }
 
     private void parseJwt(RequestContext ctx, String token) {
-
         //有token，则验证token
         TokenInfo tokenInfo;
         try {

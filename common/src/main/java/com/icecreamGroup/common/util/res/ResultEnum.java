@@ -17,6 +17,7 @@ package com.icecreamGroup.common.util.res;
  */
 public enum ResultEnum {
     SUCCESS(2000, "success"),
+    EXIST_ACCOUNT(2008,"账号已存在"),
     NAME_REPETITION(2003,"昵称重复"),
     TOKEN_INFO_ERROR(3003,"token中获取的用户id不存在"),
     NOT_FOUND(404, "您的访问地址可能在火星上哦"),
@@ -24,6 +25,8 @@ public enum ResultEnum {
     REQUEST_TYPE_TO_METHOD_NOT_ALLOW(405, "请求类型错误"),
     ERROR_UNKNOWN(500, "服务器正在与水星黑客展开殊死搏斗，请过几分钟再试"),
     PARAMS_ERROR(4000, "用户参数格式错误"),
+    ERROR_PHONE(4002,"手机号与用户id不符合"),
+    EXIST_BINDING(4014,"该手机号已绑定其他雪糕群账号"),
     MYSQL_OPERATION_FAILED(4100,"数据库sql操作失败"),
     USER_USERNAME_OR_PASSWORD_ERROR(11010,"请输入有效用户名和密码"),
     ILLGAL_WEIBO_PARAMS(11011,"微博登陆时,accessToken/uid为空"),

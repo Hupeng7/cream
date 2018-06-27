@@ -28,6 +28,7 @@ public class UserAuthService {
         userAuth.setUid(user.getId());
         if (type == 1) {
             userAuth.setIdentifier(user.getItucode() + user.getPhone());
+
             if (user.getPassword() != null) {
                 userAuth.setCredential(user.getPassword());
             }
@@ -41,6 +42,14 @@ public class UserAuthService {
         UserAuth arg = new UserAuth();
         arg.setUid(uid);
         arg.setCredential(password);
+        UserAuth result = userAuthMapper.selectOne(arg);
+        return result;
+    }
+
+    public UserAuth getByIdentifer(Integer uid,String identifer){
+        UserAuth arg = new UserAuth();
+        arg.setUid(uid);
+        arg.setIdentifier(identifer);
         UserAuth result = userAuthMapper.selectOne(arg);
         return result;
     }
