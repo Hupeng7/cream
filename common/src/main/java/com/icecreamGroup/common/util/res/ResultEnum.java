@@ -30,7 +30,9 @@ public enum ResultEnum {
     PARAMS_ERROR(2003, "用户参数格式错误"),
     ERROR_PHONE(2004,"手机号与用户id不符合"),
     SMS_CODE_SEND_FAILED(2005,"验证码发送失败"),
-    EXIST_BINDING(2006,"该手机号已绑定其他雪糕群账号");
+    EXIST_BINDING(2006,"该手机号已绑定其他雪糕群账号"),
+    CODE_AUTHENTICATION_FAILED(2007,"验证码授权失败");
+
 
     private Integer code;
     private String msg;

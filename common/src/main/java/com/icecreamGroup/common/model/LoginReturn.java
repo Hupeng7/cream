@@ -9,9 +9,9 @@ import lombok.Data;
  * create by Mr_h on 2018/6/14 0014
  */
 @Data
-public class LoginReturn {
+public class LoginReturn<T>{
 
     private String token;
 
-    private User user;
+    private T user;
 }

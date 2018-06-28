@@ -3,20 +3,12 @@ package com.icecreamGroup.common.util.jwt;
 import com.icecreamGroup.common.model.TokenInfo;
 import com.icecreamGroup.common.model.User;
 import com.icecreamGroup.common.model.UserStar;
-import com.icecreamGroup.common.util.constant.ConstantVal;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Component;
 
 import javax.crypto.spec.SecretKeySpec;
-import javax.naming.ldap.PagedResultsControl;
 import javax.xml.bind.DatatypeConverter;
 import java.security.Key;
 import java.util.Date;
@@ -102,9 +94,9 @@ public class JwtHelper {
 
         //添加构成JWT的参数
         JwtBuilder builder = Jwts.builder().setHeaderParam("typ", "JWT")
-                .claim("name", star.getName())
-                .claim("uid", star.getUid())
-                .setIssuer(star.getName())
+                .claim("name", star.getUsername())
+                .claim("uid", star.getId())
+                .setIssuer(star.getUsername())
                 .setAudience(star.getPassword())
                 .signWith(signatureAlgorithm, signingKey);
         //添加Token过期时间

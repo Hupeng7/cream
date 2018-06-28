@@ -8,7 +8,8 @@ import com.icecream.user.feignclients.OrderFeignClient;
 import com.icecream.user.mapper.UserMapper;
 import com.icecream.user.mapper.UserStarMapper;
 import com.icecream.user.utils.UserBuilder;
-import com.icecream.user.utils.jwt.JwtBuilder;
+import com.icecream.user.utils.jwt.TokenBuilder;
+import com.icecream.user.utils.time.DateUtil;
 import com.icecreamGroup.common.model.*;
 import com.icecreamGroup.common.util.json.JsonUtil;
 import com.icecream.user.mapper.UserAuthMapper;
@@ -29,10 +30,8 @@ import org.springframework.web.client.RestTemplate;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.List;
-import java.util.Map;
+import java.time.*;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -77,7 +76,7 @@ public class UserService {
     private AuthCodeHandler authCodeHandler;
 
     @Autowired
-    private JwtBuilder jwtBuilder;
+    private TokenBuilder tokenBuilder;
 
     @TxTransaction(isStart = true)
     @Transactional
@@ -105,7 +104,7 @@ public class UserService {
             User record = userMapper.selectOne(user);
             if (record != null) {
                 LoginReturn loginReturn = new LoginReturn();
-                loginReturn.setToken(jwtBuilder.createToken(user));
+                loginReturn.setToken(tokenBuilder.createToken(user));
                 loginReturn.setUser(user);
                 return loginReturn;
             }
@@ -144,7 +143,7 @@ public class UserService {
             User result = userMapper.selectOne(user);
             if (result != null) {
                 LoginReturn loginReturn = new LoginReturn();
-                loginReturn.setToken(jwtBuilder.createToken(user));
+                loginReturn.setToken(tokenBuilder.createToken(user));
                 loginReturn.setUser(user);
                 return loginReturn;
             }
@@ -158,7 +157,7 @@ public class UserService {
         User userSelect = new User();
         userSelect.setId(userAuth.getUid());
         User user = userMapper.selectOne(userSelect);
-        loginReturn.setToken(jwtBuilder.createToken(user));
+        loginReturn.setToken(tokenBuilder.createToken(user));
         loginReturn.setUser(user);
         return loginReturn;
     }
@@ -261,7 +260,7 @@ public class UserService {
             int userAuthCount = userAuthService.insertUserAuthByType(user, type);
             int userRegisterCount = userRegisterService.insertRegisterByUserId(user);
             if (userAuthCount > 0 && userRegisterCount > 0) {
-                String token = jwtBuilder.createToken(user);
+                String token = tokenBuilder.createToken(user);
                 loginReturn.setUser(user);
                 loginReturn.setToken(token);
                 return loginReturn;
@@ -357,7 +356,7 @@ public class UserService {
                 user.setId(result.getUid());
                 User record = userMapper.selectOne(user);
                 loginReturn.setUser(record);
-                loginReturn.setToken(jwtBuilder.createToken(user));
+                loginReturn.setToken(tokenBuilder.createToken(user));
                 return loginReturn;
             }
         }
@@ -666,6 +665,34 @@ public class UserService {
         }
         return null;
     }
+
+    public ResultVO checkCode(Integer uid,Integer code){
+        User user = getUserInfoByUid(uid);
+        if(user!=null){
+            Boolean mirror = authCodeHandler.checkCode(user.getItucode() + user.getPhone(), code);
+            if(mirror){
+                return ResultUtil.success(true);
+            }else {
+                return ResultUtil.error(null,ResultEnum.CODE_AUTHENTICATION_FAILED);
+            }
+        }
+        return ResultUtil.error(null,ResultEnum.QUERY_RESULT_IS_NULL);
+    }
+
+    public ResultVO GetTheTotalNumberOfUsers(){
+        int count = userMapper.selectCount(null);
+        return ResultUtil.success(count);
+    }
+
+    public ResultVO getTheNumberOfUsersInWeek(Integer year,Integer week){
+        Date startTime = DateUtil.getFirstDayOfWeek(year,week);
+        Date endTime = DateUtil.getLastDayOfWeek(year, week);
+        BaseTimeSection timeSection = DateUtil.getTimeSection(startTime.getTime(), endTime.getTime());
+        Integer count = userMapper.getUserCountInWeek(timeSection.getStartTime(), timeSection.getEndTime());
+        return ResultUtil.success(count);
+    }
+
+
 
 }
 

@@ -3,6 +3,7 @@ package com.icecream.user.service;
 import com.icecream.user.mapper.UserAuthMapper;
 import com.icecreamGroup.common.model.User;
 import com.icecreamGroup.common.model.UserAuth;
+import com.icecreamGroup.common.model.UserStar;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,6 @@ public class UserAuthService {
         UserAuth userAuth = new UserAuth();
         userAuth.setUid(user.getId());
         userAuth.setIdentityType(type);
-        userAuth.setUid(user.getId());
         if (type == 1) {
             userAuth.setIdentifier(user.getItucode() + user.getPhone());
 
@@ -35,6 +35,14 @@ public class UserAuthService {
         } else {
             userAuth.setIdentifier(user.getOpenid());
         }
+        return userAuthMapper.insertSelective(userAuth);
+    }
+
+    public Integer insertUserAuthByType(UserStar star) {
+        UserAuth userAuth = new UserAuth();
+        userAuth.setIdentityType(2);
+        userAuth.setUid(star.getId());
+        userAuth.setCredential(star.getPassword());
         return userAuthMapper.insertSelective(userAuth);
     }
 

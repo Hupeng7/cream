@@ -27,7 +27,7 @@
         </javaTypeResolver>
 
         <!--生成Model类存放位置-->
-        <javaModelGenerator targetPackage="com.icecreamGroup.common.model" targetProject="src/main/java">
+        <javaModelGenerator targetPackage="com.icecream.user.config" targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
             <property name="trimStrings" value="true"/>
         </javaModelGenerator>
@@ -45,8 +45,8 @@
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>-->
         <!--生成对应表及类名-->
-        <table tableName="user_register"
-               domainObjectName="userRegister"
+        <table tableName="user_star"
+               domainObjectName="UserStar"
                enableCountByExample="false"
                enableUpdateByExample="false"
                enableDeleteByExample="false"

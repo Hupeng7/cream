@@ -21,9 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 
-
-import static com.icecreamGroup.common.util.constant.ConstantVal.*;
-
 @Slf4j
 @RestController
 @RequestMapping("Consumers")
@@ -159,12 +156,7 @@ public class UserController {
      * 手机验证码快速登陆
      */
     @RequestMapping("fastlogin")
-    public ResultVO<LoginReturn> fastLogin(@RequestBody @Valid SmsLoginParams smsLoginParams,
-                                           BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            log.info("基础参数不合法:" + bindingResult.getFieldError().getDefaultMessage());
-            return ResultUtil.error("非法的参数：" + bindingResult.getFieldError().getDefaultMessage(), ResultEnum.PARAMS_ERROR);
-        }
+    public ResultVO<LoginReturn> fastLogin(@Validated @RequestBody SmsLoginParams smsLoginParams) {
         try {
             LoginReturn loginReturn = userService.fastLogin(smsLoginParams);
             if (loginReturn != null) {
@@ -232,8 +224,7 @@ public class UserController {
     //------------------------------------用户操作star------------------------------------------>
 
     /**
-     * 修改用户个人信息
-     *
+     * 修改个人信息
      * @param user    需要修改的字段封装实体类
      * @param request 从该对象中解析token获取uid
      * @return ResultVO<T>
@@ -252,9 +243,9 @@ public class UserController {
     }
 
     /**
+     * 原接口获取user数据和获取指定user数据整合
      * 根据id查询用户
-     *
-     * @param uid 他人用户的id
+     * @param uid 用户的id
      * @return ResultVo
      */
     @GetMapping(value = "{consumerId}")
@@ -273,7 +264,6 @@ public class UserController {
 
     /**
      * 查询用户是否设置了密码
-     *
      * @param itucode 手机区号
      * @param phone   手机号
      * @param request 获取token中的uid
@@ -304,22 +294,13 @@ public class UserController {
      * @return
      */
     @PostMapping(value = "auth")
-    public ResultVO binding(@RequestBody @Valid BindingModel bindingModel, HttpServletRequest request) {
-        try {
+    public ResultVO binding(@Validated @RequestBody BindingModel bindingModel, HttpServletRequest request) {
             return userService.binding(bindingModel, RequestHandler.paramHandler(request));
-        } catch (Exception e) {
-            e.printStackTrace();
-            if (e instanceof ConstraintViolationException) {
-                return ResultUtil.error(null, ResultEnum.PARAMS_ERROR);
-            }
-            e.printStackTrace();
-            return ResultUtil.error(null, ResultEnum.ERROR_UNKNOWN);
-        }
+
     }
 
     /**
      * 解绑第三方平台
-     *
      * @param bindingModel 绑定实体类
      * @param request      获取请求中的token 解析出uid
      * @return ResultVO<T></>
@@ -338,6 +319,10 @@ public class UserController {
         }
     }
 
+    @GetMapping("authCodes/{Code}/verify")
+    public ResultVO checkCode(HttpServletRequest request,Integer code){
+        return userService.checkCode(RequestHandler.paramHandler(request),code);
+    }
     /**
      * 获取所有的登陆方式
      * @param request

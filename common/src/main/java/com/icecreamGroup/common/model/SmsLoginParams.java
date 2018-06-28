@@ -24,4 +24,5 @@ public class SmsLoginParams extends LoginBaseParams{
     private Integer code;
 
     private String password;
+
 }
