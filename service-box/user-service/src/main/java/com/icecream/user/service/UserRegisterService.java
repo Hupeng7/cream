@@ -29,4 +29,12 @@ public class UserRegisterService {
         userRegister.setRegisterType(user.getRegisterType());
         return userRegisterMapper.insertSelective(userRegister);
     }
+
+    public UserRegister get(Integer uid,Integer type){
+        UserRegister userRegister = new UserRegister();
+        userRegister.setUid(uid);
+        userRegister.setRegisterType(type);
+        UserRegister result = userRegisterMapper.selectOne(userRegister);
+        return result;
+    }
 }

@@ -1,4 +1,4 @@
-package com.icecream.user.exception.exceptionHandler;
+package com.icecream.user.exception.handler;
 
 import com.icecreamGroup.common.util.res.ResultEnum;
 import com.icecreamGroup.common.util.res.ResultUtil;

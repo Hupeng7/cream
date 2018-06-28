@@ -1,15 +1,12 @@
-package com.icecream.user.exception.exceptionHandler;
+package com.icecream.user.exception.handler;
 
 import com.icecreamGroup.common.util.res.ResultEnum;
 import com.icecreamGroup.common.util.res.ResultUtil;
 import com.icecreamGroup.common.util.res.ResultVO;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.binding.BindingException;
-import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import javax.validation.ConstraintViolationException;
 
 /**
  * @author Mr_h

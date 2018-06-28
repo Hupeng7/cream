@@ -16,6 +16,7 @@ import com.icecream.user.mapper.UserRegisterMapper;
 import com.icecream.user.sms.AuthCodeHandler;
 import com.icecreamGroup.common.util.redis.FastJson2JsonRedisSerializer;
 import com.icecreamGroup.common.util.redis.RedisHandler;
+import com.icecreamGroup.common.util.req.RequestHandler;
 import com.icecreamGroup.common.util.res.ResultEnum;
 import com.icecreamGroup.common.util.res.ResultUtil;
 import com.icecreamGroup.common.util.res.ResultVO;
@@ -27,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import tk.mybatis.mapper.entity.Example;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -595,20 +597,20 @@ public class UserService {
         }
     }
 
-    public ResultVO checkNewPhoneInfo(Phone phone, Integer uid) {
+    public ResultVO checkPhoneInfo(Phone phone, Integer uid) {
         UserAuth userAuth = userAuthService.getByIdentifer(uid, phone.getItucode() + phone.getPhone());
         if (userAuth != null) {
             User user = new User();
             user.setId(uid);
             User result = userMapper.selectOne(user);
-            return ResultUtil.error(result,ResultEnum.EXIST_BINDING);
+            return ResultUtil.error(result, ResultEnum.EXIST_BINDING);
         } else {
             authCodeHandler.smsSend(phone.getItucode(), phone.getPhone());
             return ResultUtil.success();
         }
     }
 
-    public ResultVO checkNewPassword(Phone phone, Integer uid) {
+    public ResultVO checkPassword(Phone phone, Integer uid) {
         UserAuth userAuth = userAuthService.getByIdentifer(uid, phone.getItucode() + phone.getPhone());
         SmsSendResult smsSendResult = new SmsSendResult();
         if (userAuth != null) {
@@ -628,20 +630,39 @@ public class UserService {
         }
     }
 
-    public ResultVO bindingPhone(Phone phone, Integer uid) {
-        UserAuth result = userAuthService.getByIdentifer(uid, phone.getItucode() + phone.getPhone());
-        User user = new User();
-        user.setId(uid);
-        user.setItucode(phone.getItucode());
-        user.setPhone(phone.getPhone());
-        int userUpdate = userMapper.updateByPrimaryKeySelective(user);
-        if (result == null) {
-            UserAuth userAuth = new UserAuth();
-            userAuth.setUid(uid);
-            userAuth.setIdentifier(phone.getItucode() + phone.getPhone());
-            int userAuthInsert = userAuthMapper.insertSelective(userAuth);
+
+    //换新手机时调用的接口
+    @Transactional(rollbackFor = Exception.class)
+    public ResultVO changePhones(SmsLoginParams smsLoginParams, HttpServletRequest request) {
+        Integer uid = RequestHandler.paramHandler(request);
+        String phone = smsLoginParams.getItuCode() + smsLoginParams.getPhone();
+        Boolean mirror = authCodeHandler.checkCode(phone, smsLoginParams.getCode());
+        if (mirror) {
+            User user = getUserInfoByUid(uid);
+            if (user != null) {
+                User args = new User();
+                args.setItucode(smsLoginParams.getItuCode());
+                args.setPhone(smsLoginParams.getPhone());
+                args.setId(user.getId());
+                int userUpdate = userMapper.updateByPrimaryKeySelective(args);
+                UserAuth record = userAuthService.getByType(uid, 1);
+                record.setIdentifier(phone);
+                int userAuthUpdate = userAuthMapper.updateByPrimaryKeySelective(record);
+                UserRegister userRegister = userRegisterService.get(uid, 1);
+                userRegister.setRegister(smsLoginParams.getRegister());
+                int registerUpdate = userRegisterMapper.updateByPrimaryKeySelective(userRegister);
+                if (userUpdate > 0 & userAuthUpdate > 0 & registerUpdate > 0) {
+                    String token = request.getParameter("token");
+                    LoginReturn loginReturn = new LoginReturn();
+                    loginReturn.setToken(token);
+                    loginReturn.setUser(user);
+                    User userInfo = userMapper.getCache(user.getId());
+                    redisHandler.set(uid, userInfo);
+                    return ResultUtil.success(loginReturn);
+                }
+            }
         } else {
-            int userAuthUpdate = userAuthMapper.updateByPrimaryKeySelective(result);
+            return ResultUtil.error(null, ResultEnum.PARAMS_ERROR);
         }
         return null;
     }

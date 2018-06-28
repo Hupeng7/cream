@@ -54,9 +54,9 @@ public class UserController {
             if (order != null) return ResultUtil.success(order);
         } catch (Exception e) {
             log.error("查询失败,错误原因是{}", e.getMessage());
-            return ResultUtil.error(US_QUERY_FAILED_CODE, US_QUERY_FAILED);
+            return ResultUtil.error(null,ResultEnum.PARAMS_ERROR);
         }
-        return ResultUtil.error(US_QUERY_NO_RESULT_CODE, US_QUERY_NO_RESULT);
+        return ResultUtil.error(null,ResultEnum.QUERY_RESULT_IS_NULL);
     }
 
     @RequestMapping("tx")
@@ -68,7 +68,7 @@ public class UserController {
         } catch (Exception e) {
             log.error("插入失败，原因为{}", e.getMessage());
         }
-        return ResultUtil.error(US_INSERT_FAILED_CODE, US_INSERT_FAILED);
+        return ResultUtil.error(null,ResultEnum.MYSQL_OPERATION_FAILED);
     }
 
 
@@ -93,7 +93,7 @@ public class UserController {
             if (login != null) {
                 return ResultUtil.success(login);
             } else {
-                return ResultUtil.error(null, ResultEnum.USER_USERNAME_OR_PASSWORD_ERROR);
+                return ResultUtil.error(null, ResultEnum.PARAMS_ERROR);
             }
         } catch (Exception e) {
             log.error("查询用户/创建token出错，原因：{}", e.getCause());
@@ -412,9 +412,9 @@ public class UserController {
      * @param request
      * @return
      */
-    @PostMapping("checkNewPhoneInfo")
+    @PostMapping("checkPhoneInfo")
     public ResultVO checkNewPhoneInfo(@Validated @RequestBody Phone phone, HttpServletRequest request){
-        return userService.checkNewPhoneInfo(phone,RequestHandler.paramHandler(request));
+        return userService.checkPhoneInfo(phone,RequestHandler.paramHandler(request));
     }
 
     /**
@@ -423,9 +423,15 @@ public class UserController {
      * @param request
      * @return
      */
-    @PostMapping("checkNewPassword")
-    public ResultVO checkNewPassword(@Validated @RequestBody Phone phone, HttpServletRequest request){
-        return userService.checkNewPassword(phone,RequestHandler.paramHandler(request));
+    @PostMapping("checkPassword")
+    public ResultVO checkPassword(@Validated @RequestBody Phone phone, HttpServletRequest request){
+        return userService.checkPassword(phone,RequestHandler.paramHandler(request));
+    }
+
+
+    @PostMapping("phones")
+    public ResultVO changePhones(@Validated @RequestBody SmsLoginParams smsLoginParams,HttpServletRequest request){
+        return userService.changePhones(smsLoginParams,request);
     }
 
 

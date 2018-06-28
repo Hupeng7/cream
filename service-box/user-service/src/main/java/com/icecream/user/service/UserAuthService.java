@@ -54,4 +54,12 @@ public class UserAuthService {
         return result;
     }
 
+    public UserAuth getByType(Integer uid,Integer type){
+        UserAuth arg = new UserAuth();
+        arg.setUid(uid);
+        arg.setIdentityType(type);
+        UserAuth result = userAuthMapper.selectOne(arg);
+        return result;
+    }
+
 }
