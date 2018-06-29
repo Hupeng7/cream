@@ -19,12 +19,12 @@ import java.util.Map;
 public class RequestHandler {
 
     public static Integer paramHandler(HttpServletRequest request) {
-            return JwtHelper.parseJWT(request.getParameter("token")
+            return JwtHelper.parseJWT(request.getParameter("access_token")
                             .replace("customer", ""), "customer").getUid();
     }
 
     public static Integer paramHandlerForStar(HttpServletRequest request) {
-        return JwtHelper.parseJWT(request.getParameter("token")
+        return JwtHelper.parseJWT(request.getParameter("access_token")
                 .replace("star", ""), "star").getUid();
     }
 

@@ -60,7 +60,7 @@ public class TokenFilter extends ZuulFilter{
     @Override
     public ResultVO run() {
         RequestContext ctx = RequestContext.getCurrentContext();
-        String token =  ctx.getRequest().getParameter("token");
+        String token =  ctx.getRequest().getParameter("access_token");
         if(token==null){
             //如果token没有,不允许访问api
             log.error("token is null ...");

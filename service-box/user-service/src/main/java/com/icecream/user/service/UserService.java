@@ -651,7 +651,7 @@ public class UserService {
                 userRegister.setRegister(smsLoginParams.getRegister());
                 int registerUpdate = userRegisterMapper.updateByPrimaryKeySelective(userRegister);
                 if (userUpdate > 0 & userAuthUpdate > 0 & registerUpdate > 0) {
-                    String token = request.getParameter("token");
+                    String token = request.getParameter("access_token");
                     LoginReturn loginReturn = new LoginReturn();
                     loginReturn.setToken(token);
                     loginReturn.setUser(user);
