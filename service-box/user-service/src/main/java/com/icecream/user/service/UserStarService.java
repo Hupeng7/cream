@@ -1,11 +1,11 @@
 package com.icecream.user.service;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.icecream.user.mapper.UserStarMapper;
 import com.icecream.user.utils.jwt.TokenBuilder;
 import com.icecream.user.utils.time.DateUtil;
-import com.icecreamGroup.common.model.LoginReturn;
-import com.icecreamGroup.common.model.SimpleLogin;
-import com.icecreamGroup.common.model.UserStar;
+import com.icecreamGroup.common.model.*;
 import com.icecreamGroup.common.util.redis.RedisHandler;
 import com.icecreamGroup.common.util.res.ResultEnum;
 import com.icecreamGroup.common.util.res.ResultUtil;
@@ -39,7 +39,7 @@ public class UserStarService {
 
     public ResultVO<Object> getUserStarInfo(Integer uid) {
         try {
-            Object o = redisHandler.get(uid);
+            Object o = redisHandler.get(uid*(-1));
             if (o != null)
                 return ResultUtil.success(o);
             throw new RuntimeException("redis中数据为空");
@@ -64,10 +64,13 @@ public class UserStarService {
         UserStar userStar = new UserStar();
         userStar.setUsername(simpleLogin.getAccount());
         UserStar result = userStarMapper.selectOne(userStar);
-        if(result.getPassword()==simpleLogin.getPassword()){
+        if(result.getPassword().equals(simpleLogin.getPassword())){
             UserStar cache = userStarMapper.getCache(result.getId());
-            redisHandler.set(result.getId(),cache);
-            return ResultUtil.success();
+            setUserStarInfoToRedis(cache);
+            LoginReturn loginReturn = new LoginReturn();
+            loginReturn.setUser(result);
+            loginReturn.setToken(tokenBuilder.createToken(result));
+            return ResultUtil.success(loginReturn);
         }
         return null;
     }
@@ -79,10 +82,7 @@ public class UserStarService {
             userStar.setCtime(now);userStar.setMtime(now);userStar.setLastlogintime(now);
             int insertStar = userStarMapper.insertSelective(userStar);
             if (insertStar > 0 ) {
-                LoginReturn loginReturn = new LoginReturn();
-                loginReturn.setUser(userStar);
-                loginReturn.setToken(tokenBuilder.createToken(userStar));
-                return ResultUtil.success(loginReturn);
+                return ResultUtil.success(null);
             }
         } else {
             return ResultUtil.error(null, ResultEnum.NAME_REPETITION);
@@ -90,4 +90,26 @@ public class UserStarService {
         return ResultUtil.error(null,ResultEnum.MYSQL_OPERATION_FAILED);
     }
 
+
+    private void setUserStarInfoToRedis(UserStar userStar) {
+        try {
+            JSONObject jsonObject = (JSONObject) JSON.toJSON(userStar);
+            redisHandler.set(userStar.getId()*(-1), jsonObject);
+        } catch (Exception e) {
+            log.error("用户信息存入redis时失败");
+            e.printStackTrace();
+        }
+    }
+
+    public ResultVO changeStarStatus(PersonStatusInfo personStatusInfo){
+        UserStar star = new UserStar();
+        star.setId(personStatusInfo.getUid());
+        star.setStatus(personStatusInfo.getStatus());
+        int statUpdate = userStarMapper.updateByPrimaryKeySelective(star);
+        if(statUpdate>0){
+            return ResultUtil.success(statUpdate);
+        }else {
+            return ResultUtil.error(null,ResultEnum.MYSQL_OPERATION_FAILED);
+        }
+    }
 }

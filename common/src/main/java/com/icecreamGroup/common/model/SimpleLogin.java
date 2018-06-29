@@ -1,6 +1,7 @@
 package com.icecreamGroup.common.model;
 
 import lombok.Data;
+import org.hibernate.validator.constraints.NotBlank;
 
 /**
  * @author Mr_h
@@ -11,7 +12,9 @@ import lombok.Data;
 @Data
 public class SimpleLogin {
 
+    @NotBlank
     private String account;
 
+    @NotBlank
     private String password;
 }

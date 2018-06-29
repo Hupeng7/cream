@@ -538,7 +538,9 @@ public class DateUtil{
     }
 
     public static BaseTimeSection getTimeSection(Long startTime,Long endTime){
-        if(startTime<endTime) return null;
+        if(startTime>endTime) return null;
+        startTime = startTime/1000;
+        endTime =endTime/1000;
         BaseTimeSection baseTimeSection = new BaseTimeSection();
         baseTimeSection.setStartTime(startTime.intValue());
         baseTimeSection.setEndTime(endTime.intValue());

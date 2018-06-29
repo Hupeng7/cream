@@ -26,7 +26,7 @@ public class GlobalExceptionHandler{
      */
     @ExceptionHandler(value=Exception.class)
     public ResultVO doException(Exception e) throws Exception{
-        return ResultUtil.error(null,ResultEnum.ERROR_UNKNOWN);
+        return ResultUtil.error(e.getLocalizedMessage(),ResultEnum.ERROR_UNKNOWN);
 
     }
 

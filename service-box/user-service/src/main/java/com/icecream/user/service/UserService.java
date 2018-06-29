@@ -693,6 +693,18 @@ public class UserService {
     }
 
 
+    public ResultVO changeUserStatus(PersonStatusInfo personStatusInfo){
+        User user = new User();
+        user.setId(personStatusInfo.getUid());
+        user.setStatus(personStatusInfo.getStatus());
+        int userUpdate = userMapper.updateByPrimaryKeySelective(user);
+        if(userUpdate>0){
+            return ResultUtil.success(userUpdate);
+        }else {
+            return ResultUtil.error(null,ResultEnum.MYSQL_OPERATION_FAILED);
+        }
+    }
+
 
 }
 

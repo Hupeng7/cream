@@ -9,7 +9,7 @@ import tk.mybatis.mapper.common.MySqlMapper;
 @Mapper
 public interface UserStarMapper extends tk.mybatis.mapper.common.Mapper<UserStar>,MySqlMapper<UserStar> {
 
-    @Select("select id,smallavatar,avatar,driver,role,status,sex,birthday,exp,expid,scoreid from user_star where id=#{uid}")
+    @Select("select id,smallavatar,avatar,driver,role,status,sex,birthday,exp from user_star where id=#{uid}")
     @ResultType(com.icecreamGroup.common.model.UserStar.class)
-    public UserStar getCache(Integer uid);
+    UserStar getCache(Integer uid);
 }

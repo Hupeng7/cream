@@ -23,6 +23,11 @@ public class RequestHandler {
                             .replace("customer", ""), "customer").getUid();
     }
 
+    public static Integer paramHandlerForStar(HttpServletRequest request) {
+        return JwtHelper.parseJWT(request.getParameter("token")
+                .replace("star", ""), "star").getUid();
+    }
+
 
     /**
      * 去掉url中的路径，留下请求参数部分

@@ -2,6 +2,7 @@ package com.icecream.user.mapper;
 
 import com.icecreamGroup.common.model.User;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.ResultType;
 import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Component;
@@ -14,7 +15,7 @@ public interface UserMapper extends tk.mybatis.mapper.common.Mapper<User>,MySqlM
     @ResultType(com.icecreamGroup.common.model.User.class)
     User getCache(Integer uid);
 
-    @Select("SELECT *FROM `user`WHERE ctime BETWEEN #{startTime} AND #{endTime}")
+    @Select("SELECT count(*) FROM `user` WHERE ctime BETWEEN #{start} AND #{end}")
     @ResultType(Integer.class)
-    Integer getUserCountInWeek(Integer startTime,Integer endTime);
+    Integer getUserCountInWeek(@Param("start") Integer startTime,@Param("end") Integer endTime);
 }

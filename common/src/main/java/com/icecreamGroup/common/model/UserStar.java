@@ -98,5 +98,4 @@ public class UserStar {
     private Integer friendCount;
 
     private Integer forwardCount;
-
 }
