@@ -17,6 +17,7 @@
         <module>user-service</module>
         <module>order-service</module>
         <module>comment-service</module>
+        <module>goods-service</module>
     </modules>
 
     <dependencies>
