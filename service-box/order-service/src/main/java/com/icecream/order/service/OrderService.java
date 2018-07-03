@@ -34,7 +34,7 @@ public class OrderService implements ITxTransaction {
         List<Order> orderList = orderMapper.selectAll();
         PageHelper.startPage(DEFAULT_PAGE_CURRENT,DEFAULT_PAGE_SIZE);
         PageInfo<Order> pageInfo = new PageInfo<>(orderList);
-        log.info("分表查询--》",pageInfo);
+        log.info("分表查询---》",pageInfo);
         return pageInfo;
     }
 
