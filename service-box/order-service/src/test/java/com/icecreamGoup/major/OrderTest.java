@@ -1,9 +1,9 @@
 package com.icecreamGoup.major;
 
 
-import com.icecreamGroup.common.model.Order;
-import com.icecreamGroup.order.OrderServiceApplication;
-import com.icecreamGroup.order.mapper.OrderMapper;
+import com.icecream.common.model.pojo.Order;
+import com.icecream.order.OrderServiceApplication;
+import com.icecream.order.mapper.OrderMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

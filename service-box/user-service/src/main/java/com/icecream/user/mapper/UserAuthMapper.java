@@ -1,6 +1,6 @@
 package com.icecream.user.mapper;
 
-import com.icecreamGroup.common.model.UserAuth;
+import com.icecream.common.model.pojo.UserAuth;
 import org.apache.ibatis.annotations.Mapper;
 import tk.mybatis.mapper.common.MySqlMapper;
 

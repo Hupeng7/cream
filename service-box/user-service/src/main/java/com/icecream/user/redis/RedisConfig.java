@@ -1,8 +1,7 @@
 package com.icecream.user.redis;
 
 import com.alibaba.fastjson.parser.ParserConfig;
-import com.icecreamGroup.common.util.redis.FastJson2JsonRedisSerializer;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.icecream.common.util.redis.FastJson2JsonRedisSerializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;

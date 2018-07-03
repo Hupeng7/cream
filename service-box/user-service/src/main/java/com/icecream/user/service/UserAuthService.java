@@ -1,9 +1,9 @@
 package com.icecream.user.service;
 
 import com.icecream.user.mapper.UserAuthMapper;
-import com.icecreamGroup.common.model.User;
-import com.icecreamGroup.common.model.UserAuth;
-import com.icecreamGroup.common.model.UserStar;
+import com.icecream.common.model.pojo.User;
+import com.icecream.common.model.pojo.UserAuth;
+import com.icecream.common.model.pojo.UserStar;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

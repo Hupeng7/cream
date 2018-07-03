@@ -1,10 +1,10 @@
 package com.icecream.user.sms;
 
-import com.icecreamGroup.common.model.SmsOpenApiResponse;
-import com.icecreamGroup.common.model.SmsSendEntity;
-import com.icecreamGroup.common.util.constant.ConstantVal;
-import com.icecreamGroup.common.util.json.JsonUtil;
-import com.icecreamGroup.common.util.redis.RedisHandler;
+import com.icecream.common.model.requstbody.SmsOpenApiResponse;
+import com.icecream.common.model.requstbody.SmsSendEntity;
+import com.icecream.common.util.constant.ConstantVal;
+import com.icecream.common.util.json.JsonUtil;
+import com.icecream.common.util.redis.RedisHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -13,8 +13,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.Optional;
 
 
 /**

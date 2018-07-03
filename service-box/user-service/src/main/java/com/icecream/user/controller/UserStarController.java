@@ -2,11 +2,11 @@ package com.icecream.user.controller;
 
 import com.icecream.user.service.UserService;
 import com.icecream.user.service.UserStarService;
-import com.icecreamGroup.common.model.SimpleLogin;
-import com.icecreamGroup.common.model.UserStar;
-import com.icecreamGroup.common.model.PersonStatusInfo;
-import com.icecreamGroup.common.util.req.RequestHandler;
-import com.icecreamGroup.common.util.res.ResultVO;
+import com.icecream.common.model.requstbody.SimpleLogin;
+import com.icecream.common.model.pojo.UserStar;
+import com.icecream.common.model.requstbody.PersonStatusInfo;
+import com.icecream.common.util.req.RequestHandler;
+import com.icecream.common.util.res.ResultVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;

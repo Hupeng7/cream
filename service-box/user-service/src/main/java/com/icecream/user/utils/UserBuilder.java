@@ -1,6 +1,6 @@
 package com.icecream.user.utils;
 
-import com.icecreamGroup.common.model.User;
+import com.icecream.common.model.pojo.User;
 
 public class UserBuilder {
 

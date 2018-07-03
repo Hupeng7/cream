@@ -1,7 +1,7 @@
 package com.icecream.user.feignclients;
 
 import com.icecream.user.config.OrderFeignConfig;
-import com.icecreamGroup.common.model.Order;
+import com.icecream.common.model.pojo.Order;
 import com.icecream.user.feignclients.FeiginFallBack.OrderFeignFallBack;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.stereotype.Component;

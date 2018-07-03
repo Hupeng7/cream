@@ -1,7 +1,6 @@
 package com.icecream.user.utils.time;
 
-import com.icecreamGroup.common.model.BaseTimeSection;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import com.icecream.common.model.requstbody.BaseTimeSection;
 
 import java.sql.Timestamp;
 import java.text.DateFormat;

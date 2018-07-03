@@ -1,12 +1,14 @@
 package com.icecream.user.controller;
 
+import com.icecream.common.model.pojo.Order;
+import com.icecream.common.model.pojo.User;
+import com.icecream.common.model.requstbody.*;
 import com.icecream.user.config.login.AppIdConfig;
 import com.icecream.user.feignclients.CommentsClient;
-import com.icecreamGroup.common.model.*;
-import com.icecreamGroup.common.util.req.RequestHandler;
-import com.icecreamGroup.common.util.res.ResultEnum;
-import com.icecreamGroup.common.util.res.ResultUtil;
-import com.icecreamGroup.common.util.res.ResultVO;
+import com.icecream.common.util.req.RequestHandler;
+import com.icecream.common.util.res.ResultEnum;
+import com.icecream.common.util.res.ResultUtil;
+import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.service.UserService;
 import com.icecream.user.feignclients.OrderFeignClient;
 import lombok.NonNull;

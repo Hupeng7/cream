@@ -1,7 +1,7 @@
 package com.icecream.user.feignclients.FeiginFallBack;
 
 import com.icecream.user.feignclients.OrderFeignClient;
-import com.icecreamGroup.common.model.Order;
+import com.icecream.common.model.pojo.Order;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

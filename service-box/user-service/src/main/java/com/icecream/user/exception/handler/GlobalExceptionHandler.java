@@ -1,8 +1,8 @@
 package com.icecream.user.exception.handler;
 
-import com.icecreamGroup.common.util.res.ResultEnum;
-import com.icecreamGroup.common.util.res.ResultUtil;
-import com.icecreamGroup.common.util.res.ResultVO;
+import com.icecream.common.util.res.ResultEnum;
+import com.icecream.common.util.res.ResultUtil;
+import com.icecream.common.util.res.ResultVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;

@@ -19,5 +19,6 @@
        <module>zipkin-server</module>
        <module>zuul</module>
        <module>config-server</module>
+       <module>redis-server</module>
    </modules>
 </project>
