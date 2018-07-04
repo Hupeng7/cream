@@ -22,7 +22,7 @@ import org.springframework.web.client.RestTemplate;
 @EnableDiscoveryClient
 @SpringBootApplication
 @EnableConfigurationProperties
-@ComponentScan(basePackages = {"com.icecreamGroup.common","com.icecream.user"})
+@ComponentScan(basePackages = {"com.icecream.common","com.icecream.user"})
 public class UserServiceApplication {
 
     @Bean

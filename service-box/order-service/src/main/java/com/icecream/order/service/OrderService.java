@@ -3,6 +3,8 @@ package com.icecream.order.service;
 import com.codingapi.tx.annotation.ITxTransaction;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.github.pagehelper.PageRowBounds;
+import com.icecream.common.util.snowflake.staticfactroy.SnowflakeGlobalIdFactory;
 import com.icecream.order.utils.builder.OrderBuilder;
 import com.icecream.order.mapper.OrderMapper;
 import com.icecream.common.model.pojo.Order;
@@ -22,6 +24,9 @@ public class OrderService implements ITxTransaction {
 
     @Autowired
     private OrderMapper orderMapper;
+
+    @Autowired
+    private SnowflakeGlobalIdFactory snowflakeGlobalIdFactory;
 
     public Order getOrderByOrderNo(String orderNo){
         Order order = new Order();

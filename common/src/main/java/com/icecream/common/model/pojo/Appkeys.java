@@ -6,7 +6,8 @@ import javax.persistence.Table;
 
 @Data
 @Table(name = "appkeys")
-public class Appkeys {
+public class Appkeys  {
+
     private Integer id;
 
     private String appid;

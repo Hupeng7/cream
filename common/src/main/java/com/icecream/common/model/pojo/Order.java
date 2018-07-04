@@ -10,6 +10,11 @@ import java.math.BigDecimal;
 public class Order {
 
     /**
+     * 全局id
+     */
+    private Long id;
+
+    /**
      * sid 1郑爽 2杨幂
      */
     private Integer sid;
