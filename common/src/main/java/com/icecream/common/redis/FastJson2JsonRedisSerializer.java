@@ -1,4 +1,4 @@
-package com.icecream.common.util.redis;
+package com.icecream.common.redis;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;

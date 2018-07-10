@@ -1,9 +1,14 @@
 package com.icecream.common.model.pojo;
 
+import com.fasterxml.jackson.databind.ser.std.UUIDSerializer;
 import lombok.Data;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.Table;
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Data
 @Table(name = "order_info")
@@ -12,7 +17,9 @@ public class Order {
     /**
      * 全局id
      */
-    private Long id;
+    @Id
+    @GeneratedValue(generator = "UUID")
+    private String id;
 
     /**
      * sid 1郑爽 2杨幂
@@ -421,6 +428,5 @@ public class Order {
      * 修改时间
      */
     private Integer mtime;
-
 
 }

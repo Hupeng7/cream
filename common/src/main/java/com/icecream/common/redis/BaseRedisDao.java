@@ -1,4 +1,4 @@
-package com.icecream.common.util.redis;
+package com.icecream.common.redis;
 
 import org.springframework.data.redis.connection.DataType;
 import org.springframework.data.redis.core.ZSetOperations;
@@ -11,7 +11,8 @@ import java.util.TreeSet;
 /**
  * @author Mr_h
  * @version 1.0
- * description:
+ * @deprecated  因为需要提供静态方法所以弃用
+ * description: redis工具类方法接口，方法注释看这里
  * create by Mr_h on 2018/6/19 0019
  */
 public interface BaseRedisDao<K, V> {

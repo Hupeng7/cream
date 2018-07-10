@@ -7,6 +7,7 @@ import com.icecream.common.model.pojo.User;
 import com.icecream.common.model.pojo.UserAuth;
 import com.icecream.common.model.pojo.UserRegister;
 import com.icecream.common.model.requstbody.*;
+import com.icecream.common.redis.RedisHandler;
 import com.icecream.user.config.login.AppIdConfig;
 import com.icecream.user.feignclients.OrderFeignClient;
 import com.icecream.user.mapper.UserMapper;
@@ -18,8 +19,6 @@ import com.icecream.common.util.json.JsonUtil;
 import com.icecream.user.mapper.UserAuthMapper;
 import com.icecream.user.mapper.UserRegisterMapper;
 import com.icecream.user.sms.AuthCodeHandler;
-import com.icecream.common.util.redis.FastJson2JsonRedisSerializer;
-import com.icecream.common.util.redis.RedisHandler;
 import com.icecream.common.util.req.RequestHandler;
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
@@ -68,12 +67,6 @@ public class UserService {
 
     @Autowired
     private AppIdConfig appIdConfig;
-
-    @Autowired
-    private RedisHandler redisHandler;
-
-    @Autowired
-    private FastJson2JsonRedisSerializer fastJson2JsonRedisSerializer;
 
     @Autowired
     private AuthCodeHandler authCodeHandler;
@@ -275,7 +268,7 @@ public class UserService {
     private void setUserInfoToRedis(User user) {
         try {
             JSONObject jsonObject = (JSONObject) JSON.toJSON(user);
-            redisHandler.set(user.getId(), jsonObject);
+            RedisHandler.set(user.getId(), jsonObject);
         } catch (Exception e) {
             log.error("用户信息存入redis时失败");
             e.printStackTrace();
@@ -345,7 +338,7 @@ public class UserService {
 
     @Transactional(rollbackFor = Exception.class)
     public LoginReturn fastLogin(SmsLoginParams smsLoginParams) throws Exception {
-        int mirror = Integer.parseInt(redisHandler.get(smsLoginParams.getItuCode() + smsLoginParams.getPhone()).toString());
+        int mirror = Integer.parseInt(RedisHandler.get(smsLoginParams.getItuCode() + smsLoginParams.getPhone()).toString());
         if (smsLoginParams.getCode().intValue() == mirror) {
             UserAuth userAuth = new UserAuth();
             userAuth.setIdentifier(smsLoginParams.getItuCode() + smsLoginParams.getPhone());
@@ -367,7 +360,7 @@ public class UserService {
     }
 
     public LoginReturn toRigster(SmsLoginParams smsLoginParams) throws Exception {
-        int mirror = Integer.parseInt(redisHandler.get(smsLoginParams.getItuCode() + smsLoginParams.getPhone()).toString());
+        int mirror = Integer.parseInt(RedisHandler.get(smsLoginParams.getItuCode() + smsLoginParams.getPhone()).toString());
         if (smsLoginParams.getCode().intValue() == mirror) {
             UserAuth userAuth = new UserAuth();
             userAuth.setIdentityType(1);
@@ -505,7 +498,7 @@ public class UserService {
 
     public ResultVO<Object> getUserInfo(Integer uid) {
         try {
-            Object o = redisHandler.get(uid);
+            Object o = RedisHandler.get(uid);
             if (o != null)
                 return ResultUtil.success(o);
             throw new RuntimeException("redis中数据为空");
@@ -659,7 +652,7 @@ public class UserService {
                     loginReturn.setToken(token);
                     loginReturn.setUser(user);
                     User userInfo = userMapper.getCache(user.getId());
-                    redisHandler.set(uid, userInfo);
+                    RedisHandler.set(uid, userInfo);
                     return ResultUtil.success(loginReturn);
                 }
             }

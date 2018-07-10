@@ -1,7 +1,6 @@
-package com.icecream.user.redis;
+package com.icecream.common.redis;
 
 import com.alibaba.fastjson.parser.ParserConfig;
-import com.icecream.common.util.redis.FastJson2JsonRedisSerializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -23,41 +22,57 @@ import javax.annotation.Resource;
 @Configuration
 public class RedisConfig {
 
-
-    @Resource
-    private RedisConfigProperties redis;
+    private static final String host = "10.40.254.59";
+    //端口
+    private static final int port =6379 ;
+    //密码没有不填写
+    private static final String password="";
+    // Redis数据库索引（默认为0）
+    private static final int database =1;
+    //连接池最大阻塞等待时间（使用负值表示没有限制）
+    private static final int maxWait=1;
+    //连接池中的最大空闲连接
+    private static final int maxIdle=8;
+    //连接池中的最小空闲连接
+    private static final int minIdle=1;
+    //连接超时时间（毫秒）
+    private static final int timeOut=600;
 
     @Bean
-    public RedisSerializer fastJson2JsonRedisSerializer() {     ParserConfig.getGlobalInstance().setAutoTypeSupport(true);
+    public RedisSerializer fastJson2JsonRedisSerializer() {
+        ParserConfig.getGlobalInstance().setAutoTypeSupport(true);
         return new FastJson2JsonRedisSerializer<Object>(Object.class);
     }
+
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
         JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
         //最大空闲接连
-        jedisPoolConfig.setMaxIdle(redis.getMaxIdle());
+        jedisPoolConfig.setMaxIdle(maxIdle);
         //最小空闲连接
-        jedisPoolConfig.setMinIdle(redis.getMinIdle());
+        jedisPoolConfig.setMinIdle(minIdle);
         //连接池最大阻塞等待时间
-        jedisPoolConfig.setMaxWaitMillis(redis.getMaxWait());
+        jedisPoolConfig.setMaxWaitMillis(maxWait);
         JedisConnectionFactory jedisConnectionFactory = new JedisConnectionFactory();
         //主机地址
-        jedisConnectionFactory.setHostName(redis.getHost());
+        jedisConnectionFactory.setHostName(host);
         //端口
-        jedisConnectionFactory.setPort(redis.getPort());
+        jedisConnectionFactory.setPort(port);
         //密码
-        jedisConnectionFactory.setPassword(redis.getPassword());
+        jedisConnectionFactory.setPassword(password);
         //索引
-        jedisConnectionFactory.setDatabase(redis.getDatabase());
+        jedisConnectionFactory.setDatabase(database);
         //超时时间
-        jedisConnectionFactory.setTimeout(redis.getTimeOut());
+        jedisConnectionFactory.setTimeout(timeOut);
         jedisConnectionFactory.setUsePool(true);
         jedisConnectionFactory.setPoolConfig(jedisPoolConfig);
         return jedisConnectionFactory;
     }
+
     @Bean
     public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory factory, RedisSerializer fastJson2JsonRedisSerializer) {
-        StringRedisTemplate redisTemplate = new StringRedisTemplate(factory);        redisTemplate.setConnectionFactory(redisConnectionFactory());
+        StringRedisTemplate redisTemplate = new StringRedisTemplate(factory);
+        redisTemplate.setConnectionFactory(redisConnectionFactory());
         //redis   开启事务
         redisTemplate.setEnableTransactionSupport(true);
         //hash  使用jdk  的序列化

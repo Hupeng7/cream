@@ -1,6 +1,6 @@
-package com.icecream.common.util.snowflake.staticfactroy;
+package com.icecream.common.util.idbuilder.staticfactroy;
 
-import com.icecream.common.util.snowflake.handler.SnowflakeArithmeticHandler;
+import com.icecream.common.util.idbuilder.handler.SnowflakeArithmeticHandler;
 import org.springframework.stereotype.Component;
 
 /**

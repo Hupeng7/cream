@@ -1,21 +1,24 @@
 package com.icecream.order.utils.builder;
 
 import com.icecream.common.model.pojo.Order;
+import com.icecream.common.util.uuid.UUIDFactory;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.UUID;
 
 public class OrderBuilder {
 
 
     public static Order buildOrder(){
         Order order = new Order();
+        order.setId(UUIDFactory.create());
         order.setSid(1);
         order.setUid(2082501);
         order.setCreater(-1);
         order.setAmount(new BigDecimal(1));
-        order.setOrderNo("001120180119000018889");
+        order.setOrderNo("001120180119000018887");
         order.setGoodsId("000005");
         order.setGoodsPrice(new BigDecimal(3500));
         order.setParentOrderNo("111111111");

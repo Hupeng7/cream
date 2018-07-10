@@ -1,4 +1,4 @@
-package com.icecream.common.util.snowflake.handler;
+package com.icecream.common.util.idbuilder.handler;
 /**
  * <p>名称：SnowflakeArithmeticHandler.java</p>
  * <p>描述：分布式自增长ID</p>

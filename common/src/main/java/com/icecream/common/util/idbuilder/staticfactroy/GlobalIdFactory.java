@@ -1,4 +1,4 @@
-package com.icecream.common.util.snowflake.staticfactroy;
+package com.icecream.common.util.idbuilder.staticfactroy;
 
 /**
  * @author Mr_h
