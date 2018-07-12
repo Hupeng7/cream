@@ -1,4 +1,4 @@
-package com.icecream.user.exception.handler;
+package com.icecream.common.util.exception;
 
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  */
 @Slf4j
 @RestControllerAdvice
-public class GlobalExceptionHandler{
+public class GlobalExceptionHandler {
 
     /**
      * 未知的异常处理
@@ -25,7 +25,7 @@ public class GlobalExceptionHandler{
      * @throws Exception
      */
     @ExceptionHandler(value=Exception.class)
-    public ResultVO doException(Exception e) throws Exception{
+    public ResultVO doException(Exception e) {
         return ResultUtil.error(e.getLocalizedMessage(),ResultEnum.ERROR_UNKNOWN);
 
     }

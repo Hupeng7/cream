@@ -841,5 +841,20 @@ public class DateUtil {
         return time.intValue();
     }
 
+    /**
+     * 处理从数据库拿出来转化为String的localDateTime类型的数据
+     * 类似2018-07-12 15:21:44.0
+     * 转化为2018-07-12 15:21:44
+     * @param time
+     * @return
+     */
+    public static String formatLocalDateTime(String time) {
+        if (time.indexOf(".") > 0) {
+            time = time.replaceAll("[.]0+?$", "");
+        }
+        return time;
+    }
+
+
 }
 

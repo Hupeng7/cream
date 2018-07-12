@@ -1,4 +1,4 @@
-package com.icecream.user.exception.handler;
+package com.icecream.common.util.exception;
 
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
@@ -14,8 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * @author Mr_h
  * @version 1.0
- * description: 在进入Controller之前 出现访问异常(如404,405)
- * create by Mr_h on 2018/6/26 0026
+ * description:
+ * create by Mr_h on 2018/7/12 0012
  */
 @Slf4j
 @RestController
