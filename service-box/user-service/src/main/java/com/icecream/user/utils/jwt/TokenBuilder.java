@@ -2,7 +2,6 @@ package com.icecream.user.utils.jwt;
 
 import com.icecream.common.model.pojo.User;
 import com.icecream.common.model.pojo.UserStar;
-import com.icecream.common.util.jwt.JwtHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

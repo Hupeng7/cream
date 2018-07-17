@@ -1,14 +1,18 @@
-package com.icecream.common.util.jwt;
+package com.icecream.user.utils.jwt;
 
-import com.icecream.common.model.requstbody.TokenInfo;
 import com.icecream.common.model.pojo.User;
 import com.icecream.common.model.pojo.UserStar;
+import com.icecream.common.model.requstbody.TokenInfo;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.validation.annotation.Validated;
 
 import javax.crypto.spec.SecretKeySpec;
+import javax.naming.ldap.PagedResultsControl;
 import javax.xml.bind.DatatypeConverter;
 import java.security.Key;
 import java.util.Date;
@@ -24,34 +28,27 @@ import java.util.Date;
  */
 public class JwtHelper {
 
-
-
     //解密
-    public static TokenInfo parseJWT(String jsonWebToken, String[] cell){
-        for(String c:cell) {
-            try {
-                Claims claims = Jwts.parser()
-                        .setSigningKey(DatatypeConverter.parseBase64Binary(c))
-                        .parseClaimsJws(jsonWebToken).getBody();
-                if (claims.get("id") != null) {
-                    TokenInfo tokenInfo = new TokenInfo();
-                    tokenInfo.setIsToken(1);
-                    tokenInfo.setId(Integer.parseInt(claims.get("id").toString()));
-                    tokenInfo.setRole(Integer.parseInt(claims.get("role").toString()));
-                    return tokenInfo;
-                } else {
-                    continue;
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
+    public static TokenInfo parseJWT(String jsonWebToken, String secret) {
+        try {
+            Claims claims = Jwts.parser()
+                    .setSigningKey(DatatypeConverter.parseBase64Binary(secret))
+                    .parseClaimsJws(jsonWebToken).getBody();
+            if (claims.get("uid") != null) {
+                TokenInfo tokenInfo = new TokenInfo();
+                tokenInfo.setIsToken(1);
+                tokenInfo.setUid(Integer.parseInt(claims.get("id").toString()));
+                return tokenInfo;
             }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
         return null;
     }
 
 
     //客户端的创建token方式
-    public static String createJWT(long TTLMillis, String secret, User user,Integer type) {
+    public static String createJWT(long TTLMillis, String secret, User user) {
         SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
         long nowMillis = System.currentTimeMillis();
         Date now = new Date(nowMillis);
@@ -60,8 +57,7 @@ public class JwtHelper {
         Key signingKey = new SecretKeySpec(apiKeySecretBytes, signatureAlgorithm.getJcaName());
         //添加构成JWT的参数
         JwtBuilder builder = Jwts.builder().setHeaderParam("typ", "jwt")
-                .claim("type",type)
-                .claim("id", user.getId())
+                .claim("uid", user.getId())
                 .signWith(signatureAlgorithm, signingKey);
         //添加Token过期时间
         if (TTLMillis >= 0) {
@@ -71,11 +67,11 @@ public class JwtHelper {
         }
 
         //生成JWT
-        return "customer" + builder.compact();
+        return "consumer" + builder.compact();
     }
 
     //版主端的创建token方式
-    public static String createJWTForStar(long TTLMillis, String secret, UserStar star,Integer role) {
+    public static String createJWTForStar(long TTLMillis, String secret, UserStar star) {
         SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
         long nowMillis = System.currentTimeMillis();
         Date now = new Date(nowMillis);
@@ -85,8 +81,7 @@ public class JwtHelper {
 
         //添加构成JWT的参数
         JwtBuilder builder = Jwts.builder().setHeaderParam("typ", "jwt")
-                .claim("id", star.getId())
-                .claim("role",role)
+                .claim("uid", star.getId())
                 .signWith(signatureAlgorithm, signingKey);
         //添加Token过期时间
         if (TTLMillis >= 0) {
@@ -96,6 +91,6 @@ public class JwtHelper {
         }
 
         //生成JWT
-        return builder.compact();
+        return "star" + builder.compact();
     }
 }  

@@ -94,9 +94,10 @@ sms:
     code-time-out: 60000
 
 token:
-  valid-time: 3600000000
+  valid-time: 6000
+  refresh-time: 12000
   star-secret: star
-  customer-secret: customer
+  customer-secret: consumer
 
 
 

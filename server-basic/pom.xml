@@ -20,6 +20,5 @@
        <module>zuul</module>
        <module>config-server</module>
        <module>rabbitmq-server</module>
-       <module>redis-server</module>
    </modules>
 </project>

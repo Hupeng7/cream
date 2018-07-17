@@ -1,7 +1,7 @@
-package com.icecream.common.util.req;
+package com.icecream.user.utils.req;
 
 
-import com.icecream.common.util.jwt.JwtHelper;
+import com.icecream.user.utils.jwt.JwtHelper;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,12 +19,12 @@ public class RequestHandler {
 
     public static Integer paramHandler(HttpServletRequest request) {
             return JwtHelper.parseJWT(request.getParameter("access_token")
-                            .replace("customer", ""), "Y29uc3VtZXI=").getId();
+                            .replace("customer", ""), "consumer").getUid();
     }
 
     public static Integer paramHandlerForStar(HttpServletRequest request) {
         return JwtHelper.parseJWT(request.getParameter("access_token")
-                , "c3Rhcg==").getId();
+                , "star").getUid();
     }
 
 
