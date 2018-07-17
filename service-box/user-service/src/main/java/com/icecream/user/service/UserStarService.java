@@ -6,16 +6,17 @@ import com.icecream.common.model.requstbody.LoginReturn;
 import com.icecream.common.model.requstbody.PersonStatusInfo;
 import com.icecream.common.model.requstbody.SimpleLogin;
 import com.icecream.common.model.pojo.UserStar;
+import com.icecream.common.redis.RedisHandler;
 import com.icecream.user.mapper.UserStarMapper;
 import com.icecream.user.utils.jwt.TokenBuilder;
 import com.icecream.user.utils.time.DateUtil;
-import com.icecream.common.util.redis.RedisHandler;
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 
 /**
  * @author Mr_h
@@ -32,9 +33,6 @@ public class UserStarService {
     private UserStarMapper userStarMapper;
 
     @Autowired
-    private RedisHandler redisHandler;
-
-    @Autowired
     private UserAuthService userAuthService;
 
     @Autowired
@@ -42,7 +40,7 @@ public class UserStarService {
 
     public ResultVO<Object> getUserStarInfo(Integer uid) {
         try {
-            Object o = redisHandler.get(uid*(-1));
+            Object o = RedisHandler.get(uid*(-1));
             if (o != null)
                 return ResultUtil.success(o);
             throw new RuntimeException("redis中数据为空");
@@ -97,7 +95,7 @@ public class UserStarService {
     private void setUserStarInfoToRedis(UserStar userStar) {
         try {
             JSONObject jsonObject = (JSONObject) JSON.toJSON(userStar);
-            redisHandler.set(userStar.getId()*(-1), jsonObject);
+            RedisHandler.set(userStar.getId()*(-1), jsonObject);
         } catch (Exception e) {
             log.error("用户信息存入redis时失败");
             e.printStackTrace();

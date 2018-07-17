@@ -856,5 +856,17 @@ public class DateUtil {
     }
 
 
+
+    /**
+     *
+     * 转换LocalDataTime 类型的数据到毫秒类型
+     * @param localDateTime
+     * @return
+     */
+    public static long caseLocalDateTimeMillsion(LocalDateTime localDateTime) {
+       return localDateTime.toInstant(ZoneOffset.of("+8")).toEpochMilli();
+    }
+
+
 }
 

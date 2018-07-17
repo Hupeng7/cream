@@ -15,6 +15,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -41,8 +42,9 @@ public class UserController {
     @Autowired
     private AppIdConfig appIdConfig;
 
-    @RequestMapping("user-comment")
-    public String selectCommentList() {
+    @RequestMapping("uid")
+    public String selectCommentList(@Param("uid")String uid) {
+        log.info(uid);
         return commentsClient.backComments();
     }
 

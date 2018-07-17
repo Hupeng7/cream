@@ -25,43 +25,43 @@ import java.util.Date;
 public class JwtHelper {
 
 
-    //客户端的解密方式
-    public static TokenInfo parseJWT(String jsonWebToken, String base64Security) throws NullPointerException {
-        try {
-            Claims claims = Jwts.parser()
-                    .setSigningKey(DatatypeConverter.parseBase64Binary(base64Security))
-                    .parseClaimsJws(jsonWebToken).getBody();
-            if (claims.get("uid") != null) {
-                TokenInfo tokenInfo = new TokenInfo();
-                tokenInfo.setIsToken(1);
-                tokenInfo.setUid(Integer.parseInt(claims.get("uid").toString()));
-                return tokenInfo;
-            } else {
-                return null;
+
+    //解密
+    public static TokenInfo parseJWT(String jsonWebToken, String[] cell){
+        for(String c:cell) {
+            try {
+                Claims claims = Jwts.parser()
+                        .setSigningKey(DatatypeConverter.parseBase64Binary(c))
+                        .parseClaimsJws(jsonWebToken).getBody();
+                if (claims.get("id") != null) {
+                    TokenInfo tokenInfo = new TokenInfo();
+                    tokenInfo.setIsToken(1);
+                    tokenInfo.setId(Integer.parseInt(claims.get("id").toString()));
+                    tokenInfo.setRole(Integer.parseInt(claims.get("role").toString()));
+                    return tokenInfo;
+                } else {
+                    continue;
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
-        } catch (Exception ex) {
-            return null;
         }
+        return null;
     }
 
 
     //客户端的创建token方式
-    public static String createJWT(long TTLMillis, String secret, User user) {
+    public static String createJWT(long TTLMillis, String secret, User user,Integer type) {
         SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
-
         long nowMillis = System.currentTimeMillis();
         Date now = new Date(nowMillis);
-
-        //生成签名密钥  
+        //生成签名密钥
         byte[] apiKeySecretBytes = DatatypeConverter.parseBase64Binary(secret);
         Key signingKey = new SecretKeySpec(apiKeySecretBytes, signatureAlgorithm.getJcaName());
-
         //添加构成JWT的参数
-        JwtBuilder builder = Jwts.builder().setHeaderParam("typ", "JWT")
-                .claim("name", user.getNickname())
-                .claim("uid", user.getId())
-                .setIssuer(user.getNickname())
-                .setAudience(user.getId().toString())
+        JwtBuilder builder = Jwts.builder().setHeaderParam("typ", "jwt")
+                .claim("type",type)
+                .claim("id", user.getId())
                 .signWith(signatureAlgorithm, signingKey);
         //添加Token过期时间
         if (TTLMillis >= 0) {
@@ -75,22 +75,18 @@ public class JwtHelper {
     }
 
     //版主端的创建token方式
-    public static String createJWTForStar(long TTLMillis, String secret, UserStar star) {
-        SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS512;
-
+    public static String createJWTForStar(long TTLMillis, String secret, UserStar star,Integer role) {
+        SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
         long nowMillis = System.currentTimeMillis();
         Date now = new Date(nowMillis);
-
         //生成签名密钥
         byte[] apiKeySecretBytes = DatatypeConverter.parseBase64Binary(secret);
         Key signingKey = new SecretKeySpec(apiKeySecretBytes, signatureAlgorithm.getJcaName());
 
         //添加构成JWT的参数
-        JwtBuilder builder = Jwts.builder().setHeaderParam("typ", "JWT")
-                .claim("name", star.getUsername())
-                .claim("uid", star.getId())
-                .setIssuer(star.getUsername())
-                .setAudience(star.getPassword())
+        JwtBuilder builder = Jwts.builder().setHeaderParam("typ", "jwt")
+                .claim("id", star.getId())
+                .claim("role",role)
                 .signWith(signatureAlgorithm, signingKey);
         //添加Token过期时间
         if (TTLMillis >= 0) {
@@ -100,6 +96,6 @@ public class JwtHelper {
         }
 
         //生成JWT
-        return "star" + builder.compact();
+        return builder.compact();
     }
 }  

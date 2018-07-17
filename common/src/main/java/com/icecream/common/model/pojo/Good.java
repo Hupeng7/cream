@@ -1,5 +1,6 @@
 package com.icecream.common.model.pojo;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.persistence.GeneratedValue;
@@ -24,6 +25,7 @@ public class Good {
 
     private Integer type;
 
+    @ApiModelProperty(value="商品编码",name="goods_sn",required=true)
     private String goodsSn;
 
     private Integer isHot;
@@ -96,7 +98,7 @@ public class Good {
 
     private LocalDateTime offsaleTime;
 
-    private String onflashsaleTime;
+    private LocalDateTime onflashsaleTime;
 
-    private String offflashsaleTime;
+    private LocalDateTime offflashsaleTime;
 }

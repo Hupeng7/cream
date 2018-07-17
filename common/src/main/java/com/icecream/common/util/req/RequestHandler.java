@@ -19,12 +19,12 @@ public class RequestHandler {
 
     public static Integer paramHandler(HttpServletRequest request) {
             return JwtHelper.parseJWT(request.getParameter("access_token")
-                            .replace("customer", ""), "customer").getUid();
+                            .replace("customer", ""), "Y29uc3VtZXI=").getId();
     }
 
     public static Integer paramHandlerForStar(HttpServletRequest request) {
         return JwtHelper.parseJWT(request.getParameter("access_token")
-                .replace("star", ""), "star").getUid();
+                , "c3Rhcg==").getId();
     }
 
 
