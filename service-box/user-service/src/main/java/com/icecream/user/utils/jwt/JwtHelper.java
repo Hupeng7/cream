@@ -37,7 +37,7 @@ public class JwtHelper {
             if (claims.get("uid") != null) {
                 TokenInfo tokenInfo = new TokenInfo();
                 tokenInfo.setIsToken(1);
-                tokenInfo.setUid(Integer.parseInt(claims.get("id").toString()));
+                tokenInfo.setUid(Integer.parseInt(claims.get("uid").toString()));
                 return tokenInfo;
             }
         } catch (Exception ex) {

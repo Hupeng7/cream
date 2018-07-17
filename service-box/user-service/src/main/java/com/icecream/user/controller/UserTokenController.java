@@ -3,8 +3,7 @@ package com.icecream.user.controller;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.service.UserTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author Mr_h
@@ -19,12 +18,12 @@ public class UserTokenController {
    @Autowired
    private UserTokenService userTokenService;
 
-    @RequestMapping("star")
-    public ResultVO checkStar(String token){
+    @GetMapping("star")
+    public ResultVO checkStar(@RequestParam("token") String token){
       return userTokenService.checkStar(token);
     }
-    @RequestMapping("consumer")
-    public ResultVO checkConsumer(String token){
+    @GetMapping("consumer")
+    public ResultVO checkConsumer(@RequestParam("token")String token){
         return userTokenService.checkConsumer(token);
     }
 }

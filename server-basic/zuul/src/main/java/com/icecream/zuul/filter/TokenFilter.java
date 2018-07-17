@@ -1,5 +1,6 @@
 package com.icecream.zuul.filter;
 
+import com.alibaba.fastjson.JSON;
 import com.icecream.common.model.requstbody.TokenInfo;
 import com.icecream.common.util.json.JsonUtil;
 import com.icecream.common.util.res.ResultUtil;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -71,21 +73,28 @@ public class TokenFilter extends ZuulFilter {
 
     private void parseJwt(RequestContext ctx, String token) {
         //有token，则验证token
+        ResultVO resultVO =null;
         if (token.startsWith("star")) {
-            ResultVO resultVO = userTokenFeignClient.checkStar(token);
-            if (resultVO.getResult() != null) {
-                TokenInfo tokenInfo = (TokenInfo) resultVO.getResult();
-                setSuccessResponse(ctx, tokenInfo.getUid());
-            }
-            setBadResponse(ctx);
+            resultVO = userTokenFeignClient.checkStar(token.replace("star",""));
         } else if (token.startsWith("consumer")) {
-            ResultVO resultVO = userTokenFeignClient.checkConsumer(token);
-            if (resultVO.getResult() != null) {
-                TokenInfo tokenInfo = (TokenInfo) resultVO.getResult();
-                setSuccessResponse(ctx, tokenInfo.getUid());
-            }
-            setBadResponse(ctx);
+            resultVO = userTokenFeignClient.checkConsumer(token.replace("consumer",""));
         } else {
+            setBadResponse(ctx);
+        }
+        if(resultVO!=null){
+            localHandler(resultVO,ctx);
+        }
+
+    }
+
+
+    private void localHandler(ResultVO resultVO,RequestContext ctx){
+        if (resultVO.getResult() != null) {
+            log.info("result ={}",resultVO.getResult());
+            String json = JSON.toJSONString(resultVO.getResult());
+            TokenInfo tokenInfo = JSON.parseObject(json, TokenInfo.class);
+            setSuccessResponse(ctx, tokenInfo.getUid());
+        }else {
             setBadResponse(ctx);
         }
     }

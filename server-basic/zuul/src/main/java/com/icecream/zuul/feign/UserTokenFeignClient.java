@@ -3,7 +3,10 @@ package com.icecream.zuul.feign;
 import com.icecream.common.util.res.ResultVO;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * @author Mr_h
@@ -15,9 +18,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @FeignClient(name ="user-service")
 public interface UserTokenFeignClient {
 
-    @RequestMapping("token/star")
-    ResultVO checkStar(String token);
+    @RequestMapping(value = "token/star",method = RequestMethod.GET)
+    ResultVO checkStar(@RequestParam("token") String token);
 
-    @RequestMapping("token/consumer")
-    ResultVO checkConsumer(String token);
+    @RequestMapping(value = "token/consumer",method = RequestMethod.GET)
+    ResultVO checkConsumer(@RequestParam("token")String token);
 }
