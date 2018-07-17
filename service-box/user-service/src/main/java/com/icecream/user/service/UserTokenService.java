@@ -49,7 +49,7 @@ public class UserTokenService {
 
     public ResultVO checkConsumer(String token){
         if(token==null){return ResultUtil.error(null,ResultEnum.PARAMS_ERROR);}
-        TokenInfo tokenInfo = JwtHelper.parseJWT(token, jwtProperties.getStarSecret());
+        TokenInfo tokenInfo = JwtHelper.parseJWT(token, jwtProperties.getCustomerSecret());
         if(tokenInfo!=null){
             User user = new User();
             user.setId(tokenInfo.getUid());

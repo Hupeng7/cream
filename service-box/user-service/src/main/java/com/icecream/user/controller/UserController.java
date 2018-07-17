@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -43,8 +44,7 @@ public class UserController {
     private AppIdConfig appIdConfig;
 
     @RequestMapping("uid")
-    public String selectCommentList(@Param("uid")String uid) {
-        log.info(uid);
+    public String selectCommentList(@RequestBody Map<String,Object> body) {
         return commentsClient.backComments();
     }
 
