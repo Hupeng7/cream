@@ -278,8 +278,8 @@ public class UserController {
      * @return
      */
     @PostMapping("pwdModifierByPhone")
-    public ResultVO updateByCodeAndPasswrod(@Validated @RequestBody SmsLoginParams smsLoginParams) {
-        return userService.updateByCodeAndPasswrod(smsLoginParams);
+    public ResultVO updateByCodeAndPasswrod(@Validated @RequestBody SmsSupplement smsSupplement) {
+        return userService.updateByCodeAndPasswrod(smsSupplement);
     }
 
     /**
@@ -327,9 +327,8 @@ public class UserController {
      * @return
      */
     @PostMapping("phones")
-    public ResultVO changePhones(@Validated @RequestBody SmsLoginParams smsLoginParams) {
-        return userService.changePhones(smsLoginParams);
-
+    public ResultVO changePhones(@Validated @RequestBody SmsSupplement smsSupplement) {
+        return userService.changePhones(smsSupplement);
     }
 
 

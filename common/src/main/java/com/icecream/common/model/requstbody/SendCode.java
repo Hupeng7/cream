@@ -12,7 +12,6 @@ import org.hibernate.validator.constraints.NotBlank;
 @Data
 public class SendCode {
 
-    private Integer id;
 
     private String itucode;
 

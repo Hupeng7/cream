@@ -14,7 +14,6 @@ import com.icecream.user.mapper.UserMapper;
 import com.icecream.user.mapper.UserStarMapper;
 import com.icecream.user.utils.UserBuilder;
 import com.icecream.user.utils.jwt.TokenBuilder;
-import com.icecream.user.utils.req.RequestHandler;
 import com.icecream.user.utils.time.DateUtil;
 import com.icecream.common.util.json.JsonUtil;
 import com.icecream.user.mapper.UserAuthMapper;
@@ -32,9 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import tk.mybatis.mapper.entity.Example;
 
-import javax.servlet.http.HttpServletRequest;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.time.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -572,7 +568,7 @@ public class UserService {
         return ResultUtil.error(null, ResultEnum.MYSQL_OPERATION_FAILED);
     }
 
-    public ResultVO updateByCodeAndPasswrod(SmsLoginParams smsLoginParams) {
+    public ResultVO updateByCodeAndPasswrod(SmsSupplement smsLoginParams) {
         String key = smsLoginParams.getItuCode() + smsLoginParams.getPhone().toString();
         Boolean result = authCodeHandler.checkCode(key, smsLoginParams.getCode());
         if (result) {
@@ -645,10 +641,8 @@ public class UserService {
 
     //换新手机时调用的接口
     @Transactional(rollbackFor = Exception.class)
-    public ResultVO changePhones(SmsLoginParams smsLoginParams) {
+    public ResultVO changePhones(SmsSupplement smsLoginParams) {
         String phone = smsLoginParams.getItuCode() + smsLoginParams.getPhone();
-        Boolean mirror = authCodeHandler.checkCode(phone, smsLoginParams.getCode());
-        if (mirror) {
             User user = getUserInfoByUid(smsLoginParams.getId());
             if (user != null) {
                 User args = new User();
@@ -656,24 +650,21 @@ public class UserService {
                 args.setPhone(smsLoginParams.getPhone());
                 args.setId(user.getId());
                 int userUpdate = userMapper.updateByPrimaryKeySelective(args);
-                UserAuth record = userAuthService.getByType(smsLoginParams.getId(), 1);
+                UserAuth record = userAuthService.getByType(smsLoginParams.getId(), TYPE_SMS);
                 record.setIdentifier(phone);
                 int userAuthUpdate = userAuthMapper.updateByPrimaryKeySelective(record);
-                UserRegister userRegister = userRegisterService.get(smsLoginParams.getId(), 1);
+                UserRegister userRegister = userRegisterService.get(smsLoginParams.getId(), TYPE_SMS);
                 userRegister.setRegister(smsLoginParams.getRegister());
                 int registerUpdate = userRegisterMapper.updateByPrimaryKeySelective(userRegister);
                 if (userUpdate > 0 & userAuthUpdate > 0 & registerUpdate > 0) {
                     LoginReturn loginReturn = new LoginReturn();
                     loginReturn.setToken(tokenBuilder.createToken(user));
-                    loginReturn.setUser(user);
+                    loginReturn.setUser(getUserInfoByUid(smsLoginParams.getId()));
                     User userInfo = userMapper.getCache(user.getId());
                     RedisHandler.set(smsLoginParams.getId(), userInfo);
                     return ResultUtil.success(loginReturn);
                 }
             }
-        } else {
-            return ResultUtil.error(null, ResultEnum.PARAMS_ERROR);
-        }
         return null;
     }
 

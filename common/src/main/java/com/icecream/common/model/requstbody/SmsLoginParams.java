@@ -13,9 +13,6 @@ import javax.validation.constraints.NotNull;
 @Data
 public class SmsLoginParams extends LoginBaseParams {
 
-    @NotNull
-    private Integer id;
-
     @NotBlank(message = "区号不能为空")
     private String ituCode;
 
