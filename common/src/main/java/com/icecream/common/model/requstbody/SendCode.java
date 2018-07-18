@@ -1,6 +1,8 @@
 package com.icecream.common.model.requstbody;
 
 import lombok.Data;
+import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * @author Mr_h
@@ -13,6 +15,7 @@ public class SendCode {
 
     private String itucode;
 
+    @NotBlank(message = "手机号不能为空")
     private String phone;
 
 }

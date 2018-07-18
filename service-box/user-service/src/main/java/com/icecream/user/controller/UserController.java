@@ -43,7 +43,7 @@ public class UserController {
     @Autowired
     private AppIdConfig appIdConfig;
 
-    @RequestMapping("uid")
+/*    @RequestMapping("uid")
     public String selectCommentList(@RequestBody Map<String,Object> body) {
         return commentsClient.backComments();
     }
@@ -70,7 +70,7 @@ public class UserController {
             log.error("插入失败，原因为{}", e.getMessage());
         }
         return ResultUtil.error(null,ResultEnum.MYSQL_OPERATION_FAILED);
-    }
+    }*/
 
 
     //登陆相关start------------------------------------------------------------------------------>
@@ -83,23 +83,9 @@ public class UserController {
      * @return
      */
     @RequestMapping("login")
-    public ResultVO<String> login(@RequestBody @Valid PasswordLogin passwordLogin, BindingResult bindingResult) {
+    public ResultVO<String> login(@Validated @RequestBody PasswordLogin passwordLogin) {
         log.info("用户{}，用户类型{}，正在登陆", passwordLogin.getPhone(), passwordLogin.getPhoneModel());
-        if (bindingResult.hasErrors()) {
-            log.info("基础参数不合法:" + bindingResult.getFieldError().getDefaultMessage());
-            return ResultUtil.error("非法的参数：" + bindingResult.getFieldError().getDefaultMessage(), ResultEnum.PARAMS_ERROR);
-        }
-        try {
-            LoginReturn login = userService.login(passwordLogin);
-            if (login != null) {
-                return ResultUtil.success(login);
-            } else {
-                return ResultUtil.error(null, ResultEnum.PARAMS_ERROR);
-            }
-        } catch (Exception e) {
-            log.error("查询用户/创建token出错，原因：{}", e.getCause());
-            return ResultUtil.error(null, ResultEnum.ERROR_UNKNOWN);
-        }
+        return userService.login(passwordLogin);
     }
 
     /**
@@ -109,23 +95,10 @@ public class UserController {
      * 登陆并注册用户，针对于新用户
      */
     @RequestMapping("loginByOpenid")
-    public ResultVO<LoginReturn> thirdPartyLoginAndRegister(@RequestBody @Valid ThirdPartyLoginParam thirdPartyLoginParam,
-                                                            BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            log.info("基础参数不合法:" + bindingResult.getFieldError().getDefaultMessage());
-            return ResultUtil.error("非法的参数：" + bindingResult.getFieldError().getDefaultMessage(), ResultEnum.PARAMS_ERROR);
-        }
-        try {
-            LoginReturn loginReturn = userService.oauthLoginAndRegister(thirdPartyLoginParam);
-            if (loginReturn != null) {
-                return ResultUtil.success(loginReturn);
-            } else {
-                return ResultUtil.error(null, ResultEnum.ERROR_UNKNOWN);
-            }
-        } catch (Exception e) {
-            log.info("第三方登陆出错,错误原因{}", e.getStackTrace());
-            return ResultUtil.error(null, ResultEnum.ERROR_UNKNOWN);
-        }
+    public ResultVO<LoginReturn> thirdPartyLoginAndRegister(
+            @Validated @RequestBody ThirdPartyLoginParam thirdPartyLoginParam) {
+        return userService.oauthLoginAndRegister(thirdPartyLoginParam);
+
     }
 
     /**
@@ -135,23 +108,9 @@ public class UserController {
      * 登陆，针对于已经登陆过数据库有记录的用户
      */
     @RequestMapping("loginByOldOpenid")
-    public ResultVO<LoginReturn> thirdPartyLogin(@RequestBody @Valid ThirdPartyLoginParam thirdPartyLoginParam,
-                                                 BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            log.info("基础参数不合法:" + bindingResult.getFieldError().getDefaultMessage());
-            return ResultUtil.error("非法的参数：" + bindingResult.getFieldError().getDefaultMessage(), ResultEnum.PARAMS_ERROR);
-        }
-        try {
-            LoginReturn loginReturn = userService.oauthLogin(thirdPartyLoginParam);
-            if (loginReturn != null) {
-                return ResultUtil.success(loginReturn);
-            } else {
-                return ResultUtil.error(null, ResultEnum.ERROR_UNKNOWN);
-            }
-        } catch (Exception e) {
-            log.info("第三方登陆出错,错误原因{}", e.getStackTrace());
-            return ResultUtil.error(null, ResultEnum.ERROR_UNKNOWN);
-        }
+    public ResultVO<LoginReturn> thirdPartyLogin(
+            @Validated @RequestBody ThirdPartyLoginParam thirdPartyLoginParam) {
+        return userService.oauthLogin(thirdPartyLoginParam);
     }
 
     /**
@@ -161,18 +120,7 @@ public class UserController {
      */
     @RequestMapping("fastlogin")
     public ResultVO<LoginReturn> fastLogin(@Validated @RequestBody SmsLoginParams smsLoginParams) {
-        try {
-            LoginReturn loginReturn = userService.fastLogin(smsLoginParams);
-            if (loginReturn != null) {
-                return ResultUtil.success(loginReturn);
-            } else {
-                return ResultUtil.error(null, ResultEnum.INSERT_REPETITION);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error("错误原因是---{}", e.getStackTrace());
-            return ResultUtil.error(null, ResultEnum.ERROR_UNKNOWN);
-        }
+        return userService.fastLogin(smsLoginParams);
     }
 
     /**
@@ -183,18 +131,8 @@ public class UserController {
      * @return {@link ResultVO<T>}
      */
     @RequestMapping(value = "sendauthcode", method = RequestMethod.POST)
-    public ResultVO<String> sendCode(@RequestBody SendCode sendCode) {
-        try {
-            Boolean flag = userService.sendCode(sendCode.getItucode(), sendCode.getPhone());
-            if (flag) {
-                return ResultUtil.success(flag);
-            } else
-                return ResultUtil.error(null, ResultEnum.SMS_CODE_SEND_FAILED);
-        } catch (Exception e) {
-            log.info("发送验证码出错，错误是{}", e.getStackTrace());
-            e.printStackTrace();
-            return ResultUtil.error(null, ResultEnum.ERROR_UNKNOWN);
-        }
+    public ResultVO<String> sendCode(@Validated @RequestBody SendCode sendCode) {
+        return userService.sendCode(sendCode.getItucode(), sendCode.getPhone());
     }
 
     /**
@@ -205,23 +143,8 @@ public class UserController {
      * @return {@link ResultVO<T>}
      */
     @RequestMapping("register")
-    public ResultVO<LoginReturn> register(@RequestBody @Valid SmsLoginParams smsLoginParams,
-                                          BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            log.info("基础参数不合法:" + bindingResult.getFieldError().getDefaultMessage());
-            return ResultUtil.error("非法的参数：" + bindingResult.getFieldError().getDefaultMessage(), ResultEnum.PARAMS_ERROR);
-        }
-        try {
-            LoginReturn loginReturn = userService.toRigster(smsLoginParams);
-            if (loginReturn != null) {
-                return ResultUtil.success(loginReturn);
-            } else {
-                return ResultUtil.error(null, ResultEnum.INSERT_REPETITION);
-            }
-        } catch (Exception e) {
-            log.error("错误原因是---{}", e.getStackTrace());
-            return ResultUtil.error(null, ResultEnum.ERROR_UNKNOWN);
-        }
+    public ResultVO<LoginReturn> register(@Validated @RequestBody SmsLoginParams smsLoginParams) {
+           return userService.toRigster(smsLoginParams);
     }
     //------------------------------------登陆相关end------------------------------------------->
 
@@ -229,26 +152,20 @@ public class UserController {
 
     /**
      * 修改个人信息
+     *
      * @param user    需要修改的字段封装实体类
      * @param request 从该对象中解析token获取uid
      * @return ResultVO<T>
      */
     @PatchMapping(value = "update")
-    public ResultVO updateUserInfo(@RequestBody @Valid User user, HttpServletRequest request) {
-        try {
-            return userService.update(user, RequestHandler.paramHandler(request));
-        } catch (Exception e) {
-            if (e instanceof ConstraintViolationException) {
-                return ResultUtil.error(null, ResultEnum.PARAMS_ERROR);
-            }
-            e.printStackTrace();
-            return ResultUtil.error(null, ResultEnum.ERROR_UNKNOWN);
-        }
+    public ResultVO updateUserInfo(@RequestBody User user) {
+            return userService.update(user);
     }
 
     /**
      * 原接口获取user数据和获取指定user数据整合
      * 根据id查询用户
+     *
      * @param uid 用户的id
      * @return ResultVo
      */
@@ -268,6 +185,7 @@ public class UserController {
 
     /**
      * 查询用户是否设置了密码
+     *
      * @param itucode 手机区号
      * @param phone   手机号
      * @param request 获取token中的uid
@@ -299,12 +217,13 @@ public class UserController {
      */
     @PostMapping(value = "auth")
     public ResultVO binding(@Validated @RequestBody BindingModel bindingModel, HttpServletRequest request) {
-            return userService.binding(bindingModel, RequestHandler.paramHandler(request));
+        return userService.binding(bindingModel, RequestHandler.paramHandler(request));
 
     }
 
     /**
      * 解绑第三方平台
+     *
      * @param bindingModel 绑定实体类
      * @param request      获取请求中的token 解析出uid
      * @return ResultVO<T></>
@@ -324,46 +243,51 @@ public class UserController {
     }
 
     @GetMapping("authCodes/{Code}/verify")
-    public ResultVO checkCode(HttpServletRequest request,Integer code){
-        return userService.checkCode(RequestHandler.paramHandler(request),code);
+    public ResultVO checkCode(HttpServletRequest request, Integer code) {
+        return userService.checkCode(RequestHandler.paramHandler(request), code);
     }
+
     /**
      * 获取所有的登陆方式
+     *
      * @param request
      * @return
      */
     @GetMapping("auths")
-    public ResultVO getAllAuths(HttpServletRequest request){
+    public ResultVO getAllAuths(HttpServletRequest request) {
         return userService.getAllAuths(RequestHandler.paramHandler(request));
     }
 
     /**
      * 直播获取用户数据
+     *
      * @param request 获取请求中的token 解析出uid
      * @return resultVO<T></>
      */
     @GetMapping("consumerInfo")
-    public ResultVO<Object> getRedisInfo(HttpServletRequest request){
-            return userService.getUserInfo(RequestHandler.paramHandler(request));
+    public ResultVO<Object> getRedisInfo(HttpServletRequest request) {
+        return userService.getUserInfo(RequestHandler.paramHandler(request));
     }
 
     /**
      * 更改手机号
+     *
      * @param itucode 区号
-     * @param phone 手机号
+     * @param phone   手机号
      * @param request token
      * @return
      */
     @PutMapping("ituphone/{itucode}/{phone}")
-    public ResultVO updatePhone(@PathVariable("itucode")@NotBlank String itucode,
-                                @PathVariable("phone")@NotBlank String phone,HttpServletRequest request){
-            return userService.updatePhone(RequestHandler.paramHandler(request),itucode,phone);
+    public ResultVO updatePhone(@PathVariable("itucode") @NotBlank String itucode,
+                                @PathVariable("phone") @NotBlank String phone, HttpServletRequest request) {
+        return userService.updatePhone(RequestHandler.paramHandler(request), itucode, phone);
     }
 
     /**
      * 修改密码
+     *
      * @param password 密码封装对象 包含新密码和旧密码
-     * @param request 获取token
+     * @param request  获取token
      * @return
      */
     @PostMapping("pwdModifier")
@@ -373,54 +297,58 @@ public class UserController {
 
     /**
      * 验证验证码，并修改密码
+     *
      * @param smsLoginParams
      * @param request
      * @return
      */
     @PostMapping("pwdModifierByPhone")
-    public ResultVO updateByCodeAndPasswrod(@Validated @RequestBody SmsLoginParams smsLoginParams,HttpServletRequest request){
-        return userService.updateByCodeAndPasswrod(smsLoginParams,RequestHandler.paramHandler(request));
+    public ResultVO updateByCodeAndPasswrod(@Validated @RequestBody SmsLoginParams smsLoginParams, HttpServletRequest request) {
+        return userService.updateByCodeAndPasswrod(smsLoginParams, RequestHandler.paramHandler(request));
     }
 
     /**
      * 判断手机是否存在
+     *
      * @param itucode 区号
-     * @param phone 手机号
+     * @param phone   手机号
      * @param request token
      * @return
      */
     @PostMapping("verifyphone/{itucode}/{phone}")
-    public ResultVO ifExistPhone(@PathVariable("itucode")@NotBlank String itucode,
-                                 @PathVariable("phone")@NotBlank String phone,HttpServletRequest request){
-        return userService.ifExistPhone(itucode+phone,RequestHandler.paramHandler(request));
+    public ResultVO ifExistPhone(@PathVariable("itucode") @NotBlank String itucode,
+                                 @PathVariable("phone") @NotBlank String phone, HttpServletRequest request) {
+        return userService.ifExistPhone(itucode + phone, RequestHandler.paramHandler(request));
     }
 
     /**
      * 验证手机号是否存在
+     *
      * @param phone
      * @param request
      * @return
      */
     @PostMapping("checkPhoneInfo")
-    public ResultVO checkNewPhoneInfo(@Validated @RequestBody Phone phone, HttpServletRequest request){
-        return userService.checkPhoneInfo(phone,RequestHandler.paramHandler(request));
+    public ResultVO checkNewPhoneInfo(@Validated @RequestBody Phone phone, HttpServletRequest request) {
+        return userService.checkPhoneInfo(phone, RequestHandler.paramHandler(request));
     }
 
     /**
      * 验证手机号对应的密码是否存在
+     *
      * @param phone
      * @param request
      * @return
      */
     @PostMapping("checkPassword")
-    public ResultVO checkPassword(@Validated @RequestBody Phone phone, HttpServletRequest request){
-        return userService.checkPassword(phone,RequestHandler.paramHandler(request));
+    public ResultVO checkPassword(@Validated @RequestBody Phone phone, HttpServletRequest request) {
+        return userService.checkPassword(phone, RequestHandler.paramHandler(request));
     }
 
 
     @PostMapping("phones")
-    public ResultVO changePhones(@Validated @RequestBody SmsLoginParams smsLoginParams,HttpServletRequest request){
-        return userService.changePhones(smsLoginParams,request);
+    public ResultVO changePhones(@Validated @RequestBody SmsLoginParams smsLoginParams, HttpServletRequest request) {
+        return userService.changePhones(smsLoginParams, request);
 
     }
 

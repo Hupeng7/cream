@@ -23,6 +23,7 @@ import com.icecream.user.sms.AuthCodeHandler;
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
+import com.icecream.user.utils.vaild.Checker;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,9 +33,13 @@ import org.springframework.web.client.RestTemplate;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.time.*;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.icecream.user.constants.Constans.TYPE_SMS;
 
 @Slf4j
 @Service
@@ -89,27 +94,27 @@ public class UserService {
     }
 
     //--------------------------登陆业务开始------------------------------------->
-    public LoginReturn login(PasswordLogin passwordLogin) {
+    public ResultVO login(PasswordLogin passwordLogin) {
         UserAuth userAuth = new UserAuth();
-        userAuth.setIdentityType(1);
+        userAuth.setIdentityType(TYPE_SMS);
         userAuth.setIdentifier(passwordLogin.getItucode() + passwordLogin.getPhone());
         UserAuth resualt = userAuthMapper.selectOne(userAuth);
         if (resualt != null) {
             User user = new User();
-            user.setId(userAuth.getUid());
+            user.setId(resualt.getUid());
             User record = userMapper.selectOne(user);
             if (record != null) {
                 LoginReturn loginReturn = new LoginReturn();
                 loginReturn.setToken(tokenBuilder.createToken(user));
                 loginReturn.setUser(user);
-                return loginReturn;
+                return ResultUtil.success(loginReturn);
             }
         }
-        return null;
+        return ResultUtil.error(null, ResultEnum.PARAMS_ERROR);
     }
 
 
-    public LoginReturn oauthLoginAndRegister(ThirdPartyLoginParam thirdPartyLoginParam) throws Exception {
+    public ResultVO oauthLoginAndRegister(ThirdPartyLoginParam thirdPartyLoginParam){
         //数据校验与转换 每种登陆方式传递参数不一致 需要转换成请求第三方用户接口的最终形态
         ThirdPartyDataTransform thirdPartyDataTransform = checkAndTransformByType(thirdPartyLoginParam);
         if (thirdPartyDataTransform == null) return null;
@@ -119,15 +124,15 @@ public class UserService {
             //获取第三方用户数据
             ThirdPartUserInfo thirdPartUserInfo = getUserInfoByThirdPartyAPi(thirdPartyDataTransform);
             //注册用户并返回token
-            return registerUser(builderThirdPartyUser(thirdPartyLoginParam, thirdPartUserInfo, thirdPartyDataTransform),
-                    thirdPartyLoginParam.getIdentityType());
+            return ResultUtil.success(registerUser(builderThirdPartyUser(thirdPartyLoginParam, thirdPartUserInfo, thirdPartyDataTransform),
+                    thirdPartyLoginParam.getIdentityType()));
         } else {
             //直接从记录(数据库)中返回数据
-            return getUserInfoByRecord(userAuth);
+            return ResultUtil.success(getUserInfoByRecord(userAuth));
         }
     }
 
-    public LoginReturn oauthLogin(ThirdPartyLoginParam thirdPartyLoginParam) throws Exception {
+    public ResultVO oauthLogin(ThirdPartyLoginParam thirdPartyLoginParam){
         //数据校验与转换 每种登陆方式传递参数不一致 需要转换成请求第三方用户接口的最终形态
         ThirdPartyDataTransform thirdPartyDataTransform = checkAndTransformByType(thirdPartyLoginParam);
         if (thirdPartyDataTransform == null) return null;
@@ -141,10 +146,10 @@ public class UserService {
                 LoginReturn loginReturn = new LoginReturn();
                 loginReturn.setToken(tokenBuilder.createToken(user));
                 loginReturn.setUser(user);
-                return loginReturn;
+                return ResultUtil.success(loginReturn);
             }
         }
-        return null;
+        return ResultUtil.error(null,ResultEnum.PARAMS_ERROR);
     }
 
 
@@ -328,24 +333,24 @@ public class UserService {
         return thirdPartUserInfo;
     }
 
-    public Boolean sendCode(String itucode, String phone) {
+    public ResultVO sendCode(String itucode, String phone) {
         String s = authCodeHandler.smsSend(itucode, phone);
         if (StringUtils.isNotBlank(s)) {
-            return true;
+            return ResultUtil.success(true);
         }
-        return false;
+        return ResultUtil.error(false,ResultEnum.SMS_CODE_SEND_FAILED);
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public LoginReturn fastLogin(SmsLoginParams smsLoginParams) throws Exception {
+    public ResultVO fastLogin(SmsLoginParams smsLoginParams) {
         int mirror = Integer.parseInt(RedisHandler.get(smsLoginParams.getItuCode() + smsLoginParams.getPhone()).toString());
         if (smsLoginParams.getCode().intValue() == mirror) {
             UserAuth userAuth = new UserAuth();
             userAuth.setIdentifier(smsLoginParams.getItuCode() + smsLoginParams.getPhone());
-            userAuth.setIdentityType(1);
+            userAuth.setIdentityType(TYPE_SMS);
             UserAuth result = userAuthMapper.selectOne(userAuth);
             if (result == null) {
-                return registerUser(builderPhoneUser(smsLoginParams), 1);
+                return ResultUtil.success(registerUser(builderPhoneUser(smsLoginParams), TYPE_SMS));
             } else {
                 LoginReturn loginReturn = new LoginReturn();
                 User user = new User();
@@ -353,29 +358,29 @@ public class UserService {
                 User record = userMapper.selectOne(user);
                 loginReturn.setUser(record);
                 loginReturn.setToken(tokenBuilder.createToken(user));
-                return loginReturn;
+                return ResultUtil.success(loginReturn);
             }
         }
-        return null;
+        return ResultUtil.error(null,ResultEnum.PARAMS_ERROR);
     }
 
-    public LoginReturn toRigster(SmsLoginParams smsLoginParams) throws Exception {
+    public ResultVO toRigster(SmsLoginParams smsLoginParams) {
         int mirror = Integer.parseInt(RedisHandler.get(smsLoginParams.getItuCode() + smsLoginParams.getPhone()).toString());
         if (smsLoginParams.getCode().intValue() == mirror) {
             UserAuth userAuth = new UserAuth();
-            userAuth.setIdentityType(1);
+            userAuth.setIdentityType(TYPE_SMS);
             if (userAuth.getCredential() != null) {
                 userAuth.setCredential(smsLoginParams.getPassword());
             }
             userAuth.setIdentifier(smsLoginParams.getItuCode() + smsLoginParams.getPhone());
             UserAuth resualt = userAuthMapper.selectOne(userAuth);
             if (resualt == null) {
-                return registerUser(builderPhoneUser(smsLoginParams), 1);
+                return ResultUtil.success(registerUser(builderPhoneUser(smsLoginParams), TYPE_SMS));
             } else {
-                return null;
+                return ResultUtil.error(null,ResultEnum.EXIST_ACCOUNT);
             }
         }
-        return null;
+        return ResultUtil.error(null,ResultEnum.WRONG_CODE);
     }
 
     private User builderPhoneUser(SmsLoginParams smsLoginParams) {
@@ -400,15 +405,18 @@ public class UserService {
         }
     }
 
-    public ResultVO update(User user, Integer uid) {
-        User result = getUserInfoByUid(uid);
+    public ResultVO update(User user) {
+        Boolean vaild = Checker.checkUpateUser(user);
+        if(!vaild) return ResultUtil.success();
+        //此步操作是为了判断user中是否只有id有值，如果是这种情况，不允许更新操作
+        User result = getUserInfoByUid(user.getId());
         if (result != null) {
             if (user.getNickname() != null) {
                 if (user.getNickname() == result.getNickname() || user.getNickname().equals(result.getNickname())) {
                     return ResultUtil.error(null, ResultEnum.NAME_REPETITION);
                 }
             }
-            user.setId(uid);
+            user.setId(result.getId());
             int count = userMapper.updateByPrimaryKeySelective(user);
             if (count > 0) {
                 setUserInfoToRedis(getUserInfoByUid(user.getId()));
@@ -417,6 +425,8 @@ public class UserService {
         }
         return null;
     }
+
+
 
     public User getUserInfoByUid(Integer uid) {
         User user = new User();
@@ -662,26 +672,26 @@ public class UserService {
         return null;
     }
 
-    public ResultVO checkCode(Integer uid,Integer code){
+    public ResultVO checkCode(Integer uid, Integer code) {
         User user = getUserInfoByUid(uid);
-        if(user!=null){
+        if (user != null) {
             Boolean mirror = authCodeHandler.checkCode(user.getItucode() + user.getPhone(), code);
-            if(mirror){
+            if (mirror) {
                 return ResultUtil.success(true);
-            }else {
-                return ResultUtil.error(null,ResultEnum.CODE_AUTHENTICATION_FAILED);
+            } else {
+                return ResultUtil.error(null, ResultEnum.CODE_AUTHENTICATION_FAILED);
             }
         }
-        return ResultUtil.error(null,ResultEnum.QUERY_RESULT_IS_NULL);
+        return ResultUtil.error(null, ResultEnum.QUERY_RESULT_IS_NULL);
     }
 
-    public ResultVO GetTheTotalNumberOfUsers(){
+    public ResultVO GetTheTotalNumberOfUsers() {
         int count = userMapper.selectCount(null);
         return ResultUtil.success(count);
     }
 
-    public ResultVO getTheNumberOfUsersInWeek(Integer year,Integer week){
-        Date startTime = DateUtil.getFirstDayOfWeek(year,week);
+    public ResultVO getTheNumberOfUsersInWeek(Integer year, Integer week) {
+        Date startTime = DateUtil.getFirstDayOfWeek(year, week);
         Date endTime = DateUtil.getLastDayOfWeek(year, week);
         BaseTimeSection timeSection = DateUtil.getTimeSection(startTime.getTime(), endTime.getTime());
         Integer count = userMapper.getUserCountInWeek(timeSection.getStartTime(), timeSection.getEndTime());
@@ -689,15 +699,15 @@ public class UserService {
     }
 
 
-    public ResultVO changeUserStatus(PersonStatusInfo personStatusInfo){
+    public ResultVO changeUserStatus(PersonStatusInfo personStatusInfo) {
         User user = new User();
         user.setId(personStatusInfo.getUid());
         user.setStatus(personStatusInfo.getStatus());
         int userUpdate = userMapper.updateByPrimaryKeySelective(user);
-        if(userUpdate>0){
+        if (userUpdate > 0) {
             return ResultUtil.success(userUpdate);
-        }else {
-            return ResultUtil.error(null,ResultEnum.MYSQL_OPERATION_FAILED);
+        } else {
+            return ResultUtil.error(null, ResultEnum.MYSQL_OPERATION_FAILED);
         }
     }
 

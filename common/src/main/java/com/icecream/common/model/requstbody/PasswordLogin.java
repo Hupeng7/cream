@@ -1,6 +1,5 @@
 package com.icecream.common.model.requstbody;
 
-import com.icecream.common.model.requstbody.LoginBaseParams;
 import lombok.Data;
 
 /**

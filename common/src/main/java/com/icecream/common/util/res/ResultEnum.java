@@ -31,7 +31,8 @@ public enum ResultEnum {
     ERROR_PHONE(2004,"手机号与用户id不符合"),
     SMS_CODE_SEND_FAILED(2005,"验证码发送失败"),
     EXIST_BINDING(2006,"该手机号已绑定其他雪糕群账号"),
-    CODE_AUTHENTICATION_FAILED(2007,"验证码授权失败");
+    CODE_AUTHENTICATION_FAILED(2007,"验证码授权失败"),
+    WRONG_CODE(2008,"验证码输入错误");
 
 
     private Integer code;

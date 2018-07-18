@@ -6,7 +6,6 @@ import com.icecream.common.model.requstbody.TokenInfo;
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
-import com.icecream.user.mapper.UserAuthMapper;
 import com.icecream.user.mapper.UserMapper;
 import com.icecream.user.mapper.UserStarMapper;
 import com.icecream.user.utils.jwt.JwtHelper;

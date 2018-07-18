@@ -18,7 +18,6 @@ public class SmsLoginParams extends LoginBaseParams {
     private String ituCode;
 
     @NotBlank(message = "手机号不能为空")
-    @NotNull(message = "手机号不能为null")
     private String phone;
 
     @NotNull(message = "验证码不能为空")

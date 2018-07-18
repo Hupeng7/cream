@@ -18,6 +18,7 @@ import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import java.io.IOException;
 import java.io.InputStream;
@@ -119,6 +120,9 @@ public class TokenFilter extends ZuulFilter {
         String body = StreamUtils.copyToString(in, Charset.forName("UTF-8"));
         System.out.println("body:" + body);
         JSONObject json = JSONObject.parseObject(body);
+        if(json==null||json.isEmpty()){
+            json = new JSONObject();
+        }
         json.put("id", id);
         String newBody = json.toString();
         final byte[] reqBodyBytes = newBody.getBytes();
