@@ -25,7 +25,6 @@ public class Good {
 
     private Integer type;
 
-    @ApiModelProperty(value="商品编码",name="goods_sn",required=true)
     private String goodsSn;
 
     private Integer isHot;

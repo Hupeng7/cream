@@ -3,6 +3,8 @@ package com.icecream.common.model.requstbody;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * @author Mr_h
  * @version 1.0
@@ -12,6 +14,9 @@ import org.hibernate.validator.constraints.NotBlank;
 
 @Data
 public class Password {
+
+    @NotNull
+    private Integer id;
 
     @NotBlank(message = "旧密码不能为空")
     private String oldPassword;

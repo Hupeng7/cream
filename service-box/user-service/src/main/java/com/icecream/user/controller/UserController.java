@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -144,7 +145,7 @@ public class UserController {
      */
     @RequestMapping("register")
     public ResultVO<LoginReturn> register(@Validated @RequestBody SmsLoginParams smsLoginParams) {
-           return userService.toRigster(smsLoginParams);
+        return userService.toRigster(smsLoginParams);
     }
     //------------------------------------登陆相关end------------------------------------------->
 
@@ -159,7 +160,7 @@ public class UserController {
      */
     @PatchMapping(value = "update")
     public ResultVO updateUserInfo(@RequestBody User user) {
-            return userService.update(user);
+        return userService.update(user);
     }
 
     /**
@@ -171,16 +172,7 @@ public class UserController {
      */
     @GetMapping(value = "{consumerId}")
     public ResultVO getUserInfo(@PathVariable("consumerId") Integer uid) {
-        try {
-            return userService.get(uid);
-        } catch (Exception e) {
-            e.printStackTrace();
-            if (e instanceof ConstraintViolationException) {
-                return ResultUtil.error(null, ResultEnum.PARAMS_ERROR);
-            }
-            e.printStackTrace();
-            return ResultUtil.error(null, ResultEnum.ERROR_UNKNOWN);
-        }
+        return userService.get(uid);
     }
 
     /**
@@ -194,17 +186,8 @@ public class UserController {
     @GetMapping("{itucode}/{phone}/existpwd")
     public ResultVO isSetPassword(@PathVariable("itucode") String itucode,
                                   @PathVariable("phone") String phone,
-                                  HttpServletRequest request) {
-        try {
-            return userService.isSetPassword(itucode, phone, RequestHandler.paramHandler(request));
-        } catch (Exception e) {
-            e.printStackTrace();
-            if (e instanceof ConstraintViolationException) {
-                return ResultUtil.error(null, ResultEnum.PARAMS_ERROR);
-            }
-            e.printStackTrace();
-            return ResultUtil.error(null, ResultEnum.ERROR_UNKNOWN);
-        }
+                                  @RequestBody Map<String, Object> map) {
+        return userService.isSetPassword(itucode, phone, RequestHandler.checkToken(map));
     }
 
 
@@ -212,12 +195,11 @@ public class UserController {
      * 绑定第三方平台
      *
      * @param bindingModel 绑定实体类
-     * @param request      获取请求中的token 解析出uid
      * @return
      */
     @PostMapping(value = "auth")
-    public ResultVO binding(@Validated @RequestBody BindingModel bindingModel, HttpServletRequest request) {
-        return userService.binding(bindingModel, RequestHandler.paramHandler(request));
+    public ResultVO binding(@Validated @RequestBody BindingModel bindingModel) {
+        return userService.binding(bindingModel);
 
     }
 
@@ -229,22 +211,14 @@ public class UserController {
      * @return ResultVO<T></>
      */
     @DeleteMapping("{type}/auth")
-    public ResultVO unbinding(@PathVariable("type") Integer type, HttpServletRequest request) {
-        try {
-            return userService.unbinding(type, RequestHandler.paramHandler(request));
-        } catch (Exception e) {
-            e.printStackTrace();
-            if (e instanceof ConstraintViolationException) {
-                return ResultUtil.error(null, ResultEnum.PARAMS_ERROR);
-            }
-            e.printStackTrace();
-            return ResultUtil.error(null, ResultEnum.ERROR_UNKNOWN);
-        }
+    public ResultVO unbinding(@PathVariable("type") Integer type,
+                              @RequestBody Map<String, Object> map) {
+        return userService.unbinding(type, RequestHandler.checkToken(map));
     }
 
     @GetMapping("authCodes/{Code}/verify")
-    public ResultVO checkCode(HttpServletRequest request, Integer code) {
-        return userService.checkCode(RequestHandler.paramHandler(request), code);
+    public ResultVO checkCode(@RequestBody Map<String, Object> map, Integer code) {
+        return userService.checkCode(RequestHandler.checkToken(map), code);
     }
 
     /**
@@ -254,8 +228,8 @@ public class UserController {
      * @return
      */
     @GetMapping("auths")
-    public ResultVO getAllAuths(HttpServletRequest request) {
-        return userService.getAllAuths(RequestHandler.paramHandler(request));
+    public ResultVO getAllAuths(@RequestBody Map<String, Object> map) {
+        return userService.getAllAuths(RequestHandler.checkToken(map));
     }
 
     /**
@@ -265,8 +239,8 @@ public class UserController {
      * @return resultVO<T></>
      */
     @GetMapping("consumerInfo")
-    public ResultVO<Object> getRedisInfo(HttpServletRequest request) {
-        return userService.getUserInfo(RequestHandler.paramHandler(request));
+    public ResultVO<Object> getRedisInfo(@RequestBody Map<String, Object> map) {
+        return userService.getUserInfo(RequestHandler.checkToken(map));
     }
 
     /**
@@ -279,8 +253,9 @@ public class UserController {
      */
     @PutMapping("ituphone/{itucode}/{phone}")
     public ResultVO updatePhone(@PathVariable("itucode") @NotBlank String itucode,
-                                @PathVariable("phone") @NotBlank String phone, HttpServletRequest request) {
-        return userService.updatePhone(RequestHandler.paramHandler(request), itucode, phone);
+                                @PathVariable("phone") @NotBlank String phone,
+                                @RequestBody Map<String, Object> map) {
+        return userService.updatePhone(RequestHandler.checkToken(map), itucode, phone);
     }
 
     /**
@@ -291,8 +266,8 @@ public class UserController {
      * @return
      */
     @PostMapping("pwdModifier")
-    public ResultVO updatePassword(@Validated @RequestBody Password password, HttpServletRequest request) {
-        return userService.updatePassword(password, RequestHandler.paramHandler(request));
+    public ResultVO updatePassword(@Validated @RequestBody Password password) {
+        return userService.updatePassword(password);
     }
 
     /**
@@ -303,8 +278,8 @@ public class UserController {
      * @return
      */
     @PostMapping("pwdModifierByPhone")
-    public ResultVO updateByCodeAndPasswrod(@Validated @RequestBody SmsLoginParams smsLoginParams, HttpServletRequest request) {
-        return userService.updateByCodeAndPasswrod(smsLoginParams, RequestHandler.paramHandler(request));
+    public ResultVO updateByCodeAndPasswrod(@Validated @RequestBody SmsLoginParams smsLoginParams) {
+        return userService.updateByCodeAndPasswrod(smsLoginParams);
     }
 
     /**
@@ -317,8 +292,9 @@ public class UserController {
      */
     @PostMapping("verifyphone/{itucode}/{phone}")
     public ResultVO ifExistPhone(@PathVariable("itucode") @NotBlank String itucode,
-                                 @PathVariable("phone") @NotBlank String phone, HttpServletRequest request) {
-        return userService.ifExistPhone(itucode + phone, RequestHandler.paramHandler(request));
+                                 @PathVariable("phone") @NotBlank String phone,
+                                 @RequestBody Map<String, Object> map) {
+        return userService.ifExistPhone(itucode + phone, RequestHandler.checkToken(map));
     }
 
     /**
@@ -329,8 +305,8 @@ public class UserController {
      * @return
      */
     @PostMapping("checkPhoneInfo")
-    public ResultVO checkNewPhoneInfo(@Validated @RequestBody Phone phone, HttpServletRequest request) {
-        return userService.checkPhoneInfo(phone, RequestHandler.paramHandler(request));
+    public ResultVO checkNewPhoneInfo(@Validated @RequestBody Phone phone) {
+        return userService.checkPhoneInfo(phone);
     }
 
     /**
@@ -341,14 +317,18 @@ public class UserController {
      * @return
      */
     @PostMapping("checkPassword")
-    public ResultVO checkPassword(@Validated @RequestBody Phone phone, HttpServletRequest request) {
-        return userService.checkPassword(phone, RequestHandler.paramHandler(request));
+    public ResultVO checkPassword(@Validated @RequestBody Phone phone) {
+        return userService.checkPassword(phone);
     }
 
-
+    /**
+     * 更换手机号
+     * @param smsLoginParams
+     * @return
+     */
     @PostMapping("phones")
-    public ResultVO changePhones(@Validated @RequestBody SmsLoginParams smsLoginParams, HttpServletRequest request) {
-        return userService.changePhones(smsLoginParams, request);
+    public ResultVO changePhones(@Validated @RequestBody SmsLoginParams smsLoginParams) {
+        return userService.changePhones(smsLoginParams);
 
     }
 

@@ -1,6 +1,5 @@
 package com.icecream.common.model.requstbody;
 
-import com.icecream.common.model.requstbody.LoginBaseParams;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -13,6 +12,9 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 public class SmsLoginParams extends LoginBaseParams {
+
+    @NotNull
+    private Integer id;
 
     @NotBlank(message = "区号不能为空")
     private String ituCode;

@@ -11,6 +11,8 @@ import lombok.Data;
 @Data
 public class BindingModel {
 
+    private Integer id;
+
     private Integer identityType;
 
     private String openId;

@@ -2,7 +2,6 @@ package com.icecream.common.model.requstbody;
 
 import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
-import org.springframework.validation.annotation.Validated;
 
 /**
  * @author Mr_h
@@ -12,6 +11,8 @@ import org.springframework.validation.annotation.Validated;
  */
 @Data
 public class SendCode {
+
+    private Integer id;
 
     private String itucode;
 

@@ -27,6 +27,10 @@ public class RequestHandler {
                 , "star").getUid();
     }
 
+    public static Integer checkToken(Map<String, Object> map){
+        return map.get("id") != null ? Integer.parseInt(map.get("id").toString()) : null;
+    }
+
 
     /**
      * 去掉url中的路径，留下请求参数部分
