@@ -38,7 +38,8 @@ public class UserStarService {
     @Autowired
     private TokenBuilder tokenBuilder;
 
-    public ResultVO<Object> getUserStarInfo(Integer uid) {
+    public ResultVO<Object> getUserStarInfo(String tid) {
+        Integer uid = Integer.parseInt(tid);
         try {
             Object o = RedisHandler.get(uid*(-1));
             if (o != null)

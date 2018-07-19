@@ -13,10 +13,6 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 public class Phone {
-
-    @NotNull
-    private Integer id;
-
     @NotBlank
     private String itucode;
 

@@ -15,9 +15,6 @@ import javax.validation.constraints.NotNull;
 @Data
 public class Password {
 
-    @NotNull
-    private Integer id;
-
     @NotBlank(message = "旧密码不能为空")
     private String oldPassword;
 

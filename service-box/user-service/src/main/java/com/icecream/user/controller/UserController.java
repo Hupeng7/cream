@@ -1,30 +1,22 @@
 package com.icecream.user.controller;
 
-import com.icecream.common.model.pojo.Order;
 import com.icecream.common.model.pojo.User;
 import com.icecream.common.model.requstbody.*;
 import com.icecream.user.config.login.AppIdConfig;
 import com.icecream.user.feignclients.CommentsClient;
-import com.icecream.common.util.res.ResultEnum;
-import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.service.UserService;
 import com.icecream.user.feignclients.OrderFeignClient;
 import com.icecream.user.utils.req.RequestHandler;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.ConstraintViolationException;
-import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -83,7 +75,7 @@ public class UserController {
      * @param bindingResult 参数校验返回信息的封装类
      * @return
      */
-    @RequestMapping("login")
+    @PostMapping("login")
     public ResultVO<String> login(@Validated @RequestBody PasswordLogin passwordLogin) {
         log.info("用户{}，用户类型{}，正在登陆", passwordLogin.getPhone(), passwordLogin.getPhoneModel());
         return userService.login(passwordLogin);
@@ -95,7 +87,7 @@ public class UserController {
      * 第三方登陆  QQ/微信/微博
      * 登陆并注册用户，针对于新用户
      */
-    @RequestMapping("loginByOpenid")
+    @PostMapping("loginByOpenid")
     public ResultVO<LoginReturn> thirdPartyLoginAndRegister(
             @Validated @RequestBody ThirdPartyLoginParam thirdPartyLoginParam) {
         return userService.oauthLoginAndRegister(thirdPartyLoginParam);
@@ -119,7 +111,7 @@ public class UserController {
      * @return LoginReturn
      * 手机验证码快速登陆
      */
-    @RequestMapping("fastlogin")
+    @PostMapping("fastlogin")
     public ResultVO<LoginReturn> fastLogin(@Validated @RequestBody SmsLoginParams smsLoginParams) {
         return userService.fastLogin(smsLoginParams);
     }
@@ -131,7 +123,7 @@ public class UserController {
      * @param phone   手机号
      * @return {@link ResultVO<T>}
      */
-    @RequestMapping(value = "sendauthcode", method = RequestMethod.POST)
+    @PostMapping(value = "sendauthcode")
     public ResultVO<String> sendCode(@Validated @RequestBody SendCode sendCode) {
         return userService.sendCode(sendCode.getItucode(), sendCode.getPhone());
     }
@@ -143,7 +135,7 @@ public class UserController {
      * @param phone   手机号
      * @return {@link ResultVO<T>}
      */
-    @RequestMapping("register")
+    @PostMapping("register")
     public ResultVO<LoginReturn> register(@Validated @RequestBody SmsLoginParams smsLoginParams) {
         return userService.toRigster(smsLoginParams);
     }
@@ -159,8 +151,8 @@ public class UserController {
      * @return ResultVO<T>
      */
     @PatchMapping(value = "update")
-    public ResultVO updateUserInfo(@RequestBody User user) {
-        return userService.update(user);
+    public ResultVO updateUserInfo(@RequestBody User user, @Param("specialTokenId") String specialTokenId) {
+        return userService.update(user, specialTokenId);
     }
 
     /**
@@ -186,8 +178,8 @@ public class UserController {
     @GetMapping("{itucode}/{phone}/existpwd")
     public ResultVO isSetPassword(@PathVariable("itucode") String itucode,
                                   @PathVariable("phone") String phone,
-                                  @RequestBody Map<String, Object> map) {
-        return userService.isSetPassword(itucode, phone, RequestHandler.checkToken(map));
+                                  @Param("specialTokenId") String specialTokenId) {
+        return userService.isSetPassword(itucode, phone, specialTokenId);
     }
 
 
@@ -198,8 +190,9 @@ public class UserController {
      * @return
      */
     @PostMapping(value = "auth")
-    public ResultVO binding(@Validated @RequestBody BindingModel bindingModel) {
-        return userService.binding(bindingModel);
+    public ResultVO binding(@Validated @RequestBody BindingModel bindingModel,
+                            @Param("specialTokenId") String specialTokenId) {
+        return userService.binding(bindingModel, specialTokenId);
 
     }
 
@@ -212,13 +205,14 @@ public class UserController {
      */
     @DeleteMapping("{type}/auth")
     public ResultVO unbinding(@PathVariable("type") Integer type,
-                              @RequestBody Map<String, Object> map) {
-        return userService.unbinding(type, RequestHandler.checkToken(map));
+                              @Param("specialTokenId") String specialTokenId) {
+        return userService.unbinding(type, specialTokenId);
     }
 
     @GetMapping("authCodes/{Code}/verify")
-    public ResultVO checkCode(@RequestBody Map<String, Object> map, Integer code) {
-        return userService.checkCode(RequestHandler.checkToken(map), code);
+    public ResultVO checkCode(@Param("specialTokenId") String specialTokenId,
+                              @PathVariable("Code") Integer code) {
+        return userService.checkCode(specialTokenId, code);
     }
 
     /**
@@ -228,8 +222,8 @@ public class UserController {
      * @return
      */
     @GetMapping("auths")
-    public ResultVO getAllAuths(@RequestBody Map<String, Object> map) {
-        return userService.getAllAuths(RequestHandler.checkToken(map));
+    public ResultVO getAllAuths(@Param("specialTokenId") String specialTokenId) {
+        return userService.getAllAuths(specialTokenId);
     }
 
     /**
@@ -239,8 +233,8 @@ public class UserController {
      * @return resultVO<T></>
      */
     @GetMapping("consumerInfo")
-    public ResultVO<Object> getRedisInfo(@RequestBody Map<String, Object> map) {
-        return userService.getUserInfo(RequestHandler.checkToken(map));
+    public ResultVO<Object> getRedisInfo(@Param("specialTokenId") String specialTokenId) {
+        return userService.getUserInfo(specialTokenId);
     }
 
     /**
@@ -254,8 +248,8 @@ public class UserController {
     @PutMapping("ituphone/{itucode}/{phone}")
     public ResultVO updatePhone(@PathVariable("itucode") @NotBlank String itucode,
                                 @PathVariable("phone") @NotBlank String phone,
-                                @RequestBody Map<String, Object> map) {
-        return userService.updatePhone(RequestHandler.checkToken(map), itucode, phone);
+                                @NotBlank @Param("specialTokenId") String specialTokenId) {
+        return userService.updatePhone(specialTokenId, itucode, phone);
     }
 
     /**
@@ -266,8 +260,9 @@ public class UserController {
      * @return
      */
     @PostMapping("pwdModifier")
-    public ResultVO updatePassword(@Validated @RequestBody Password password) {
-        return userService.updatePassword(password);
+    public ResultVO updatePassword(@Validated @RequestBody Password password,
+                                   @NotBlank @Param("specialTokenId") String specialTokenId) {
+        return userService.updatePassword(password, specialTokenId);
     }
 
     /**
@@ -278,8 +273,9 @@ public class UserController {
      * @return
      */
     @PostMapping("pwdModifierByPhone")
-    public ResultVO updateByCodeAndPasswrod(@Validated @RequestBody SmsSupplement smsSupplement) {
-        return userService.updateByCodeAndPasswrod(smsSupplement);
+    public ResultVO updateByCodeAndPasswrod(@Validated @RequestBody SmsLoginParams smsLoginParams,
+                                            @NotBlank @Param("specialTokenId") String specialTokenId) {
+        return userService.updateByCodeAndPasswrod(smsLoginParams, specialTokenId);
     }
 
     /**
@@ -293,8 +289,8 @@ public class UserController {
     @PostMapping("verifyphone/{itucode}/{phone}")
     public ResultVO ifExistPhone(@PathVariable("itucode") @NotBlank String itucode,
                                  @PathVariable("phone") @NotBlank String phone,
-                                 @RequestBody Map<String, Object> map) {
-        return userService.ifExistPhone(itucode + phone, RequestHandler.checkToken(map));
+                                 @NotBlank @Param("specialTokenId") String specialTokenId) {
+        return userService.ifExistPhone(itucode + phone, specialTokenId);
     }
 
     /**
@@ -305,8 +301,9 @@ public class UserController {
      * @return
      */
     @PostMapping("checkPhoneInfo")
-    public ResultVO checkNewPhoneInfo(@Validated @RequestBody Phone phone) {
-        return userService.checkPhoneInfo(phone);
+    public ResultVO checkNewPhoneInfo(@Validated @RequestBody Phone phone,
+                                      @NotBlank @Param("specialTokenId") String specialTokenId) {
+        return userService.checkPhoneInfo(phone, specialTokenId);
     }
 
     /**
@@ -317,18 +314,21 @@ public class UserController {
      * @return
      */
     @PostMapping("checkPassword")
-    public ResultVO checkPassword(@Validated @RequestBody Phone phone) {
-        return userService.checkPassword(phone);
+    public ResultVO checkPassword(@Validated @RequestBody Phone phone,
+                                  @NotBlank @Param("specialTokenId") String specialTokenId) {
+        return userService.checkPassword(phone, specialTokenId);
     }
 
     /**
      * 更换手机号
-     * @param smsLoginParams
+     *
+     * @param smsloginparams
      * @return
      */
     @PostMapping("phones")
-    public ResultVO changePhones(@Validated @RequestBody SmsSupplement smsSupplement) {
-        return userService.changePhones(smsSupplement);
+    public ResultVO changePhones(@Validated @RequestBody SmsLoginParams smsLoginParams,
+                                 @NotBlank @Param("specialTokenId") String specialTokenId) {
+        return userService.changePhones(smsLoginParams, specialTokenId);
     }
 
 

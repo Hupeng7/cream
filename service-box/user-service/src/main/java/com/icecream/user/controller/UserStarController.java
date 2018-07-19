@@ -6,13 +6,11 @@ import com.icecream.common.model.requstbody.SimpleLogin;
 import com.icecream.common.model.pojo.UserStar;
 import com.icecream.common.model.requstbody.PersonStatusInfo;
 import com.icecream.common.util.res.ResultVO;
-import com.icecream.user.utils.req.RequestHandler;
-import org.apache.ibatis.annotations.Param;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Mr_h
@@ -45,13 +43,12 @@ public class UserStarController {
 
     /**
      * 获取版主存在redis中的信息
-     *
-     * @param request 获取token的封装对象
+     * @param specialTokenId 获取token的封装对象
      * @return userStarInfo
      */
     @GetMapping("consumerInfo")
-    public ResultVO starGetUserInfoByRedis(HttpServletRequest request) {
-        return userStarService.getUserStarInfo(RequestHandler.paramHandlerForStar(request));
+    public ResultVO starGetUserInfoByRedis(@NotBlank @Param("specialTokenId") String specialTokenId) {
+        return userStarService.getUserStarInfo(specialTokenId);
     }
 
 

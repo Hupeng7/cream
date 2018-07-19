@@ -11,19 +11,17 @@ import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.http.ServletInputStreamWrapper;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static com.netflix.zuul.context.RequestContext.getCurrentContext;
@@ -115,15 +113,25 @@ public class TokenFilter extends ZuulFilter {
         }
     }
 
+    /**
+     * 设置认证成功的路由跳转
+     * @param ctx
+     * @param id
+     * @throws IOException
+     */
     private void setSuccessResponse(RequestContext ctx, Integer id) throws IOException {
         InputStream in = ctx.getRequest().getInputStream();
+        Map<String, List<String>> requestQueryParams = ctx.getRequestQueryParams();
+        requestQueryParams.remove("access_token");
+        List<String> requestList = new ArrayList<>();
+        requestList.add(id.toString());
+        requestQueryParams.put("specialTokenId",requestList);
         String body = StreamUtils.copyToString(in, Charset.forName("UTF-8"));
         System.out.println("body:" + body);
         JSONObject json = JSONObject.parseObject(body);
         if(json==null||json.isEmpty()){
             json = new JSONObject();
         }
-        json.put("id", id);
         String newBody = json.toString();
         final byte[] reqBodyBytes = newBody.getBytes();
         ctx.setRequest(new HttpServletRequestWrapper(ctx.getRequest()) {
