@@ -26,6 +26,9 @@ zuul:
     comment-api:
       path: /comment-api/**
       serviceId: comment-service
+    good-api:
+      path: /good-api/**
+      serviceId: good-service
 
 #设置断路器默认超时时间
 hystrix:

@@ -3,11 +3,9 @@ package com.icecream.good.controller;
 import com.icecream.common.model.pojo.Good;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.good.service.GoodService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,5 +32,6 @@ public class GoodController {
                                  @Param("count") Integer count){
         return goodService.findAll();
     }
+
 
 }

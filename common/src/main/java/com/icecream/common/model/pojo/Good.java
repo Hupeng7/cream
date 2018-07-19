@@ -1,6 +1,5 @@
 package com.icecream.common.model.pojo;
 
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.persistence.GeneratedValue;
@@ -8,8 +7,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.UUID;
 
 @Data
 @Table(name = "goods")
