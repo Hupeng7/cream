@@ -1,29 +1,25 @@
 package com.icecream.user.aspect;
 
-import com.icecream.common.model.pojo.Role;
-import com.icecream.common.model.pojo.RolePermission;
-import com.icecream.common.model.pojo.UserPermission;
-import com.icecream.common.model.pojo.UserRole;
+import com.icecream.common.model.pojo.*;
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
-import com.icecream.common.util.res.ResultVO;
+import com.icecream.user.aspect.annotation.Permission;
 import com.icecream.user.mapper.*;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 
 /**
@@ -37,7 +33,8 @@ import java.util.Set;
 @Component
 @Slf4j
 @SuppressWarnings("all")
-public class Permission {
+public class PermissionAspect {
+
 
     @Pointcut("@annotation(com.icecream.user.aspect.annotation.Permission)")
     public void fishingNet() {
@@ -55,14 +52,15 @@ public class Permission {
     @Autowired
     private UserRoleMapper userRoleMapper;
 
-    @Around(value = "fishingNet()")
-    public Object checkPermission(ProceedingJoinPoint target) {
+    @Around("fishingNet()&&@annotation(permissionAnnotation)")
+    public Object checkPermission(ProceedingJoinPoint target,Permission permissionAnnotation) {
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = requestAttributes.getRequest();
         String url = request.getRequestURL().toString();
         String uid = request.getParameter("specialTokenId");
-        Object[] args = target.getArgs();
-        log.info(args[0].toString());
+        MethodName method = permissionAnnotation.method();
+        String name = method.name();
+
         if (uid != null) {
             UserRole userRoleArg = new UserRole();
             userRoleArg.setUserId(uid);
@@ -78,16 +76,19 @@ public class Permission {
             String[] pid = permissionId.split(",");
             List<String> strings = Arrays.asList(pid);
             UserPermission userPermission = new UserPermission();
-            for(String p:strings) {
+            for (String p : strings) {
                 userPermission.setId(p);
+                userPermission.setPermissionName(name);
                 UserPermission result = userPermissionMapper.selectOne(userPermission);
-                if (url.contains(result.getPermissionUrl())) {
-                    try {
-                        return target.proceed();
-                    } catch (Throwable throwable) {
-                        log.error("执行方法内部出错");
-                        throwable.printStackTrace();
-                        return ResultUtil.error(null, ResultEnum.ERROR_UNKNOWN);
+                if (result != null) {
+                    if (url.contains(result.getPermissionUrl())) {
+                        try {
+                            return target.proceed();
+                        } catch (Throwable throwable) {
+                            log.error("执行方法内部出错");
+                            throwable.printStackTrace();
+                            return ResultUtil.error(null, ResultEnum.ERROR_UNKNOWN);
+                        }
                     }
                 }
             }

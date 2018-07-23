@@ -1,5 +1,6 @@
 package com.icecream.user.controller;
 
+import com.icecream.common.model.pojo.MethodName;
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.user.aspect.annotation.Permission;
@@ -9,12 +10,15 @@ import com.icecream.common.model.requstbody.SimpleLogin;
 import com.icecream.common.model.pojo.UserStar;
 import com.icecream.common.model.requstbody.PersonStatusInfo;
 import com.icecream.common.util.res.ResultVO;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.lang.annotation.Target;
 
 /**
  * @author Mr_h
@@ -123,8 +127,7 @@ public class UserStarController {
         return userService.changeUserStatus(personStatusInfo);
     }
 
-
-    @Permission(method = "delete")
+    @Permission(method=MethodName.DELETE)
     @DeleteMapping("user/delete")
     public ResultVO deleteUser(){
         log.info("接收到参数，访问数据库------>");
