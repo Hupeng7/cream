@@ -3,6 +3,7 @@ package com.icecream.common.model.pojo;
 import lombok.Data;
 
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
@@ -18,12 +19,12 @@ import java.time.LocalDateTime;
 public class UserRole {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-    private String roleId;
+    private Integer roleId;
 
-    private String userId;
+    private Integer userId;
 
     private LocalDateTime createTime;
 

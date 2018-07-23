@@ -60,10 +60,9 @@ public class PermissionAspect {
         String uid = request.getParameter("specialTokenId");
         MethodName method = permissionAnnotation.method();
         String name = method.name();
-
         if (uid != null) {
             UserRole userRoleArg = new UserRole();
-            userRoleArg.setUserId(uid);
+            userRoleArg.setUserId(Integer.parseInt(uid));
             UserRole userRole = userRoleMapper.selectOne(userRoleArg);
             Role roleArg = new Role();
             roleArg.setId(userRole.getRoleId());
@@ -77,7 +76,7 @@ public class PermissionAspect {
             List<String> strings = Arrays.asList(pid);
             UserPermission userPermission = new UserPermission();
             for (String p : strings) {
-                userPermission.setId(p);
+                userPermission.setId(Integer.parseInt(p));
                 userPermission.setPermissionName(name);
                 UserPermission result = userPermissionMapper.selectOne(userPermission);
                 if (result != null) {

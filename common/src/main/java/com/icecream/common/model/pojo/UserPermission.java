@@ -3,6 +3,7 @@ package com.icecream.common.model.pojo;
 import lombok.Data;
 
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
@@ -18,8 +19,8 @@ import java.time.LocalDateTime;
 public class UserPermission {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
     private String permissionName;
 
