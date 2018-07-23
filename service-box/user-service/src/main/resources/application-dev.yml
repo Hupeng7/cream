@@ -36,7 +36,6 @@ spring:
     sampler:
       percentage: 0.5
 
-
 #开启feign客户端路由
 feign:
   hystrix:

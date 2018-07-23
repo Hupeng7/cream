@@ -1,11 +1,15 @@
 package com.icecream.user.controller;
 
+import com.icecream.common.util.res.ResultEnum;
+import com.icecream.common.util.res.ResultUtil;
+import com.icecream.user.aspect.annotation.Permission;
 import com.icecream.user.service.UserService;
 import com.icecream.user.service.UserStarService;
 import com.icecream.common.model.requstbody.SimpleLogin;
 import com.icecream.common.model.pojo.UserStar;
 import com.icecream.common.model.requstbody.PersonStatusInfo;
 import com.icecream.common.util.res.ResultVO;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
@@ -18,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
  * description: 版主Controller
  * create by Mr_h on 2018/6/27 0027
  */
+@Slf4j
 @RestController
 @RequestMapping("Consumers/star")
 public class UserStarController {
@@ -117,5 +122,17 @@ public class UserStarController {
     public ResultVO updateStarStatus(@Validated @RequestBody PersonStatusInfo personStatusInfo){
         return userService.changeUserStatus(personStatusInfo);
     }
+
+
+    @Permission(method = "delete")
+    @DeleteMapping("user/delete")
+    public ResultVO deleteUser(){
+        log.info("接收到参数，访问数据库------>");
+        log.info("删除成功，再会");
+        return null;
+    }
+
+
+
 
 }

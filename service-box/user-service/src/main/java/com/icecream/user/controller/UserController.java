@@ -1,7 +1,9 @@
 package com.icecream.user.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.icecream.common.model.pojo.User;
 import com.icecream.common.model.requstbody.*;
+import com.icecream.common.redis.RedisHandler;
 import com.icecream.user.config.login.AppIdConfig;
 import com.icecream.user.feignclients.CommentsClient;
 import com.icecream.common.util.res.ResultVO;
@@ -11,6 +13,9 @@ import com.icecream.user.utils.req.RequestHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.repository.query.Param;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +27,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("Consumers")
 @SuppressWarnings("all")
-public class UserController {
+public class
+UserController {
 
     @Autowired
     private CommentsClient commentsClient;
@@ -35,6 +41,9 @@ public class UserController {
 
     @Autowired
     private AppIdConfig appIdConfig;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
 /*    @RequestMapping("uid")
     public String selectCommentList(@RequestBody Map<String,Object> body) {
