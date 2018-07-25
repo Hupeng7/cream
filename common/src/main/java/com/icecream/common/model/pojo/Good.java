@@ -95,6 +95,10 @@ public class Good {
 
     private String goodsDetail;
 
+    private BigDecimal maxPrice;
+
+    private BigDecimal minPrice;
+
     @Transient
     private List<GoodsSpec> goodsSpec;
 

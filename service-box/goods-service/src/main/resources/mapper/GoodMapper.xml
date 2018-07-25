@@ -228,6 +228,12 @@
       <if test="goodsDetail != null">
         goods_detail,
       </if>
+      <if test="maxPrice != null">
+        max_price,
+      </if>
+      <if test="minPrice != null">
+        min_price,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -355,6 +361,12 @@
       </if>
       <if test="goodsDetail != null">
         #{goodsDetail,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="maxPrice != null">
+        #{maxPrice},
+      </if>
+      <if test="minPrice != null">
+        #{minPrice},
       </if>
     </trim>
   </insert>
