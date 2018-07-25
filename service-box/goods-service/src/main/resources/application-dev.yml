@@ -56,7 +56,7 @@ hystrix:
 #日志处理/链路日志处理
 logging:
   level:
-    com.codingapi: debug
+    com.codingapi: info
     com.icecream.good.mapper: debug
 
 
@@ -70,6 +70,9 @@ tm:
   manager:
     url: http://10.40.255.238:8899/tx/manager/
 
+#设置mybatis mapper.xml扫描路径
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
 
 
 

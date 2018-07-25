@@ -19,7 +19,7 @@
                 password="2018">
         </jdbcConnection>
         <!--类型转换-->
-        <javaTypeResolver>
+        <javaTypeResolver >
             <!--是否使用BigDecimals false可转换为Integer,Long等类型-->
             <property name="forceBigDecimals" value="false"/>
             <!--是否针对String类型的字段在set的时候进行trim调用-->
@@ -32,18 +32,18 @@
             <property name="trimStrings" value="true"/>
         </javaModelGenerator>
         <!--生成映射文件存放位置-->
-       <!-- <sqlMapGenerator targetPackage="Mapper" targetProject="src/main/resources">
+        <sqlMapGenerator targetPackage="mapper" targetProject="src/main/resources">
             <property name="enableSubPackages" value="true"/>
-        </sqlMapGenerator>-->
+        </sqlMapGenerator>
         <!--生成Dao类存放位置-->
         <!-- 客户端代码，生成易于使用的针对Model对象和XML配置文件 的代码
                 type="ANNOTATEDMAPPER",生成Java Model 和基于注解的Mapper对象
                 type="MIXEDMAPPER",生成基于注解的Java Model 和相应的Mapper对象
                 type="XMLMAPPER",生成SQLMap XML文件和独立的Mapper接口
         -->
-        <!--<javaClientGenerator type="XMLMAPPER" targetPackage="com.icecream.user.mapper" targetProject="src/main/java">
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.icecream.good.mapper" targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
-        </javaClientGenerator>-->
+        </javaClientGenerator>
         <!--生成对应表及类名-->
         <table tableName="good_store"
                domainObjectName="GoodStore"

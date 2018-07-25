@@ -2,18 +2,15 @@ package com.icecream.common.model.pojo;
 
 import lombok.Data;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.List;
 
 @Data
-@Table(name = "goods")
 public class Good {
 
-    @Id
-    @GeneratedValue(generator = "UUID")
     private String id;
 
     private Integer sid;
@@ -78,10 +75,6 @@ public class Good {
 
     private String specGroup;
 
-    private String goodsIntroduct;
-
-    private String goodsDetail;
-
     private LocalDateTime createTime;
 
     private LocalDateTime updateTime;
@@ -97,4 +90,12 @@ public class Good {
     private LocalDateTime onflashsaleTime;
 
     private LocalDateTime offflashsaleTime;
+
+    private String goodsIntroduct;
+
+    private String goodsDetail;
+
+    @Transient
+    private List<GoodsSpec> goodsSpec;
+
 }

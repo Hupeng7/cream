@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.icecream.good.mapper.GoodStoreMapper">
+  <resultMap id="BaseResultMap" type="com.icecream.common.model.pojo.GoodStore">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="good_num" jdbcType="INTEGER" property="goodNum" />
+    <result column="warn_num" jdbcType="INTEGER" property="warnNum" />
+    <result column="good_id" jdbcType="VARCHAR" property="goodId" />
+    <result column="spec_id" jdbcType="VARCHAR" property="specId" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, good_num, warn_num, good_id, spec_id, update_time, create_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from good_store
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from good_store
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.icecream.common.model.pojo.GoodStore">
+    insert into good_store (id, good_num, warn_num, 
+      good_id, spec_id, update_time, 
+      create_time)
+    values (#{id,jdbcType=VARCHAR}, #{goodNum,jdbcType=INTEGER}, #{warnNum,jdbcType=INTEGER}, 
+      #{goodId,jdbcType=VARCHAR}, #{specId,jdbcType=VARCHAR}, #{updateTime,jdbcType=TIMESTAMP}, 
+      #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.icecream.common.model.pojo.GoodStore">
+    insert into good_store
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="goodNum != null">
+        good_num,
+      </if>
+      <if test="warnNum != null">
+        warn_num,
+      </if>
+      <if test="goodId != null">
+        good_id,
+      </if>
+      <if test="specId != null">
+        spec_id,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="goodNum != null">
+        #{goodNum,jdbcType=INTEGER},
+      </if>
+      <if test="warnNum != null">
+        #{warnNum,jdbcType=INTEGER},
+      </if>
+      <if test="goodId != null">
+        #{goodId,jdbcType=VARCHAR},
+      </if>
+      <if test="specId != null">
+        #{specId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.icecream.common.model.pojo.GoodStore">
+    update good_store
+    <set>
+      <if test="goodNum != null">
+        good_num = #{goodNum,jdbcType=INTEGER},
+      </if>
+      <if test="warnNum != null">
+        warn_num = #{warnNum,jdbcType=INTEGER},
+      </if>
+      <if test="goodId != null">
+        good_id = #{goodId,jdbcType=VARCHAR},
+      </if>
+      <if test="specId != null">
+        spec_id = #{specId,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.icecream.common.model.pojo.GoodStore">
+    update good_store
+    set good_num = #{goodNum,jdbcType=INTEGER},
+      warn_num = #{warnNum,jdbcType=INTEGER},
+      good_id = #{goodId,jdbcType=VARCHAR},
+      spec_id = #{specId,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

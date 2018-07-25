@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.icecream.good.mapper.GoodsSpecMapper">
+  <resultMap id="BaseResultMap" type="com.icecream.common.model.pojo.GoodsSpec">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="good_id" jdbcType="VARCHAR" property="goodId" />
+    <result column="spec" jdbcType="VARCHAR" property="spec" />
+    <result column="price" jdbcType="INTEGER" property="price" />
+    <result column="stock" jdbcType="INTEGER" property="stock" />
+    <result column="is_inuse" jdbcType="SMALLINT" property="isInuse" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="spec_opt" jdbcType="VARCHAR" property="specOpt" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, good_id, spec, price, stock, is_inuse, create_time, spec_opt, update_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from goods_spec
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from goods_spec
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.icecream.common.model.pojo.GoodsSpec">
+    insert into goods_spec (id, good_id, spec, 
+      price, stock, is_inuse, 
+      create_time, spec_opt, update_time
+      )
+    values (#{id,jdbcType=VARCHAR}, #{goodId,jdbcType=VARCHAR}, #{spec,jdbcType=VARCHAR}, 
+      #{price,jdbcType=INTEGER}, #{stock,jdbcType=INTEGER}, #{isInuse,jdbcType=SMALLINT}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{specOpt,jdbcType=VARCHAR}, #{updateTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.icecream.common.model.pojo.GoodsSpec">
+    insert into goods_spec
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="goodId != null">
+        good_id,
+      </if>
+      <if test="spec != null">
+        spec,
+      </if>
+      <if test="price != null">
+        price,
+      </if>
+      <if test="stock != null">
+        stock,
+      </if>
+      <if test="isInuse != null">
+        is_inuse,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="specOpt != null">
+        spec_opt,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="goodId != null">
+        #{goodId,jdbcType=VARCHAR},
+      </if>
+      <if test="spec != null">
+        #{spec,jdbcType=VARCHAR},
+      </if>
+      <if test="price != null">
+        #{price,jdbcType=INTEGER},
+      </if>
+      <if test="stock != null">
+        #{stock,jdbcType=INTEGER},
+      </if>
+      <if test="isInuse != null">
+        #{isInuse,jdbcType=SMALLINT},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="specOpt != null">
+        #{specOpt,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.icecream.common.model.pojo.GoodsSpec">
+    update goods_spec
+    <set>
+      <if test="goodId != null">
+        good_id = #{goodId,jdbcType=VARCHAR},
+      </if>
+      <if test="spec != null">
+        spec = #{spec,jdbcType=VARCHAR},
+      </if>
+      <if test="price != null">
+        price = #{price,jdbcType=INTEGER},
+      </if>
+      <if test="stock != null">
+        stock = #{stock,jdbcType=INTEGER},
+      </if>
+      <if test="isInuse != null">
+        is_inuse = #{isInuse,jdbcType=SMALLINT},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="specOpt != null">
+        spec_opt = #{specOpt,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.icecream.common.model.pojo.GoodsSpec">
+    update goods_spec
+    set good_id = #{goodId,jdbcType=VARCHAR},
+      spec = #{spec,jdbcType=VARCHAR},
+      price = #{price,jdbcType=INTEGER},
+      stock = #{stock,jdbcType=INTEGER},
+      is_inuse = #{isInuse,jdbcType=SMALLINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      spec_opt = #{specOpt,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+
+  <insert id="batchInsert" parameterType="java.util.List">
+    insert into goods_spec(id,good_id,spec,price,stock,spec_opt)
+    values
+    <foreach collection="list" index="index" item="item"  separator="," >
+      (#{item.id},#{item.goodId}, #{item.spec},#{item.price},#{item.stock},#{item.specOpt})
+    </foreach>
+  </insert>
+</mapper>

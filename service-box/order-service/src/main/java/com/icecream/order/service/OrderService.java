@@ -4,7 +4,7 @@ import com.codingapi.tx.annotation.ITxTransaction;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.icecream.common.util.idbuilder.staticfactroy.SnowflakeGlobalIdFactory;
-import com.icecream.order.utils.builder.OrderBuilder;
+import com.icecream.order.utils.OrderBuilder;
 import com.icecream.order.mapper.OrderMapper;
 import com.icecream.common.model.pojo.Order;
 import lombok.extern.slf4j.Slf4j;

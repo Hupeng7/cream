@@ -1,4 +1,4 @@
-package com.icecream.order.utils.builder;
+package com.icecream.order.utils;
 
 import com.icecream.common.model.pojo.Order;
 import com.icecream.common.util.uuid.UUIDFactory;

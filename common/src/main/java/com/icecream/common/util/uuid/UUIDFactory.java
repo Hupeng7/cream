@@ -12,6 +12,6 @@ public class UUIDFactory {
 
     public static String create(){
 
-        return UUID.randomUUID().toString().replace("-","");
+        return UUID.randomUUID().toString();
     }
 }

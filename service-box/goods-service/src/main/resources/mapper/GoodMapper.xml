@@ -1,0 +1,533 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.icecream.good.mapper.GoodMapper">
+  <resultMap id="BaseResultMap" type="com.icecream.common.model.pojo.Good">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="sid" jdbcType="INTEGER" property="sid" />
+    <result column="is_digital" jdbcType="BIT" property="isDigital" />
+    <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="goods_sn" jdbcType="VARCHAR" property="goodsSn" />
+    <result column="is_hot" jdbcType="BIT" property="isHot" />
+    <result column="is_best" jdbcType="BIT" property="isBest" />
+    <result column="is_new" jdbcType="BIT" property="isNew" />
+    <result column="goods_name" jdbcType="VARCHAR" property="goodsName" />
+    <result column="goods_ico" jdbcType="VARCHAR" property="goodsIco" />
+    <result column="small_url" jdbcType="VARCHAR" property="smallUrl" />
+    <result column="carousel_url" jdbcType="VARCHAR" property="carouselUrl" />
+    <result column="video_url" jdbcType="VARCHAR" property="videoUrl" />
+    <result column="page_url" jdbcType="VARCHAR" property="pageUrl" />
+    <result column="is_sale" jdbcType="BIT" property="isSale" />
+    <result column="dispalyflashsale_time" jdbcType="BIT" property="dispalyflashsaleTime" />
+    <result column="dispalyflashsale_countdown_time" jdbcType="BIT" property="dispalyflashsaleCountdownTime" />
+    <result column="goods_price" jdbcType="DECIMAL" property="goodsPrice" />
+    <result column="is_show_goods_price" jdbcType="BIT" property="isShowGoodsPrice" />
+    <result column="buylimit" jdbcType="INTEGER" property="buylimit" />
+    <result column="goods_introduct_url" jdbcType="VARCHAR" property="goodsIntroductUrl" />
+    <result column="goods_instructions" jdbcType="VARCHAR" property="goodsInstructions" />
+    <result column="activities_address" jdbcType="VARCHAR" property="activitiesAddress" />
+    <result column="status" jdbcType="TINYINT" property="status" />
+    <result column="goods_weight" jdbcType="DECIMAL" property="goodsWeight" />
+    <result column="score" jdbcType="INTEGER" property="score" />
+    <result column="is_check" jdbcType="BIT" property="isCheck" />
+    <result column="import_digital_card_total" jdbcType="INTEGER" property="importDigitalCardTotal" />
+    <result column="keywords" jdbcType="VARCHAR" property="keywords" />
+    <result column="note" jdbcType="VARCHAR" property="note" />
+    <result column="item_no" jdbcType="VARCHAR" property="itemNo" />
+    <result column="spec_group" jdbcType="VARCHAR" property="specGroup" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="onactivities_time" jdbcType="TIMESTAMP" property="onactivitiesTime" />
+    <result column="offactivities_time" jdbcType="TIMESTAMP" property="offactivitiesTime" />
+    <result column="onsale_time" jdbcType="TIMESTAMP" property="onsaleTime" />
+    <result column="offsale_time" jdbcType="TIMESTAMP" property="offsaleTime" />
+    <result column="onflashsale_time" jdbcType="TIMESTAMP" property="onflashsaleTime" />
+    <result column="offflashsale_time" jdbcType="TIMESTAMP" property="offflashsaleTime" />
+    <result column="goods_introduct" jdbcType="LONGVARCHAR" property="goodsIntroduct" />
+    <result column="goods_detail" jdbcType="LONGVARCHAR" property="goodsDetail" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, sid, is_digital, type, goods_sn, is_hot, is_best, is_new, goods_name, goods_ico, 
+    small_url, carousel_url, video_url, page_url, is_sale, dispalyflashsale_time, dispalyflashsale_countdown_time, 
+    goods_price, is_show_goods_price, buylimit, goods_introduct_url, goods_instructions, 
+    activities_address, status, goods_weight, score, is_check, import_digital_card_total, 
+    keywords, note, item_no, spec_group, create_time, update_time, onactivities_time, 
+    offactivities_time, onsale_time, offsale_time, onflashsale_time, offflashsale_time,
+    goods_introduct, goods_detail
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from goods
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from goods
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.icecream.common.model.pojo.Good">
+    insert into goods (id, sid, is_digital, 
+      type, goods_sn, is_hot, is_best, 
+      is_new, goods_name, goods_ico, 
+      small_url, carousel_url, video_url, 
+      page_url, is_sale, dispalyflashsale_time, 
+      dispalyflashsale_countdown_time, goods_price, 
+      is_show_goods_price, buylimit, goods_introduct_url, 
+      goods_instructions, activities_address, status, 
+      goods_weight, score, is_check, 
+      import_digital_card_total, keywords, note, 
+      item_no, spec_group, create_time, 
+      update_time, onactivities_time, offactivities_time, 
+      onsale_time, offsale_time, onflashsale_time, 
+      offflashsale_time, goods_introduct, 
+      goods_detail)
+    values (#{id,jdbcType=VARCHAR}, #{sid,jdbcType=INTEGER}, #{isDigital,jdbcType=BIT}, 
+      #{type,jdbcType=INTEGER}, #{goodsSn,jdbcType=VARCHAR}, #{isHot,jdbcType=BIT}, #{isBest,jdbcType=BIT}, 
+      #{isNew,jdbcType=BIT}, #{goodsName,jdbcType=VARCHAR}, #{goodsIco,jdbcType=VARCHAR}, 
+      #{smallUrl,jdbcType=VARCHAR}, #{carouselUrl,jdbcType=VARCHAR}, #{videoUrl,jdbcType=VARCHAR}, 
+      #{pageUrl,jdbcType=VARCHAR}, #{isSale,jdbcType=BIT}, #{dispalyflashsaleTime,jdbcType=BIT}, 
+      #{dispalyflashsaleCountdownTime,jdbcType=BIT}, #{goodsPrice,jdbcType=DECIMAL}, 
+      #{isShowGoodsPrice,jdbcType=BIT}, #{buylimit,jdbcType=INTEGER}, #{goodsIntroductUrl,jdbcType=VARCHAR}, 
+      #{goodsInstructions,jdbcType=VARCHAR}, #{activitiesAddress,jdbcType=VARCHAR}, #{status,jdbcType=TINYINT}, 
+      #{goodsWeight,jdbcType=DECIMAL}, #{score,jdbcType=INTEGER}, #{isCheck,jdbcType=BIT}, 
+      #{importDigitalCardTotal,jdbcType=INTEGER}, #{keywords,jdbcType=VARCHAR}, #{note,jdbcType=VARCHAR}, 
+      #{itemNo,jdbcType=VARCHAR}, #{specGroup,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP}, #{onactivitiesTime,jdbcType=TIMESTAMP}, #{offactivitiesTime,jdbcType=TIMESTAMP}, 
+      #{onsaleTime,jdbcType=TIMESTAMP}, #{offsaleTime,jdbcType=TIMESTAMP}, #{onflashsaleTime,jdbcType=TIMESTAMP}, 
+      #{offflashsaleTime,jdbcType=TIMESTAMP}, #{goodsIntroduct,jdbcType=LONGVARCHAR}, 
+      #{goodsDetail,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.icecream.common.model.pojo.Good">
+    <selectKey keyProperty="id" order="BEFORE" resultType="java.lang.String">
+      select UUID()
+    </selectKey>
+    insert into goods
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="sid != null">
+        sid,
+      </if>
+      <if test="isDigital != null">
+        is_digital,
+      </if>
+      <if test="type != null">
+        type,
+      </if>
+      <if test="goodsSn != null">
+        goods_sn,
+      </if>
+      <if test="isHot != null">
+        is_hot,
+      </if>
+      <if test="isBest != null">
+        is_best,
+      </if>
+      <if test="isNew != null">
+        is_new,
+      </if>
+      <if test="goodsName != null">
+        goods_name,
+      </if>
+      <if test="goodsIco != null">
+        goods_ico,
+      </if>
+      <if test="smallUrl != null">
+        small_url,
+      </if>
+      <if test="carouselUrl != null">
+        carousel_url,
+      </if>
+      <if test="videoUrl != null">
+        video_url,
+      </if>
+      <if test="pageUrl != null">
+        page_url,
+      </if>
+      <if test="isSale != null">
+        is_sale,
+      </if>
+      <if test="dispalyflashsaleTime != null">
+        dispalyflashsale_time,
+      </if>
+      <if test="dispalyflashsaleCountdownTime != null">
+        dispalyflashsale_countdown_time,
+      </if>
+      <if test="goodsPrice != null">
+        goods_price,
+      </if>
+      <if test="isShowGoodsPrice != null">
+        is_show_goods_price,
+      </if>
+      <if test="buylimit != null">
+        buylimit,
+      </if>
+      <if test="goodsIntroductUrl != null">
+        goods_introduct_url,
+      </if>
+      <if test="goodsInstructions != null">
+        goods_instructions,
+      </if>
+      <if test="activitiesAddress != null">
+        activities_address,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="goodsWeight != null">
+        goods_weight,
+      </if>
+      <if test="score != null">
+        score,
+      </if>
+      <if test="isCheck != null">
+        is_check,
+      </if>
+      <if test="importDigitalCardTotal != null">
+        import_digital_card_total,
+      </if>
+      <if test="keywords != null">
+        keywords,
+      </if>
+      <if test="note != null">
+        note,
+      </if>
+      <if test="itemNo != null">
+        item_no,
+      </if>
+      <if test="specGroup != null">
+        spec_group,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="onactivitiesTime != null">
+        onactivities_time,
+      </if>
+      <if test="offactivitiesTime != null">
+        offactivities_time,
+      </if>
+      <if test="onsaleTime != null">
+        onsale_time,
+      </if>
+      <if test="offsaleTime != null">
+        offsale_time,
+      </if>
+      <if test="onflashsaleTime != null">
+        onflashsale_time,
+      </if>
+      <if test="offflashsaleTime != null">
+        offflashsale_time,
+      </if>
+      <if test="goodsIntroduct != null">
+        goods_introduct,
+      </if>
+      <if test="goodsDetail != null">
+        goods_detail,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="sid != null">
+        #{sid,jdbcType=INTEGER},
+      </if>
+      <if test="isDigital != null">
+        #{isDigital,jdbcType=BIT},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="goodsSn != null">
+        #{goodsSn,jdbcType=VARCHAR},
+      </if>
+      <if test="isHot != null">
+        #{isHot,jdbcType=BIT},
+      </if>
+      <if test="isBest != null">
+        #{isBest,jdbcType=BIT},
+      </if>
+      <if test="isNew != null">
+        #{isNew,jdbcType=BIT},
+      </if>
+      <if test="goodsName != null">
+        #{goodsName,jdbcType=VARCHAR},
+      </if>
+      <if test="goodsIco != null">
+        #{goodsIco,jdbcType=VARCHAR},
+      </if>
+      <if test="smallUrl != null">
+        #{smallUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="carouselUrl != null">
+        #{carouselUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="videoUrl != null">
+        #{videoUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="pageUrl != null">
+        #{pageUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="isSale != null">
+        #{isSale,jdbcType=BIT},
+      </if>
+      <if test="dispalyflashsaleTime != null">
+        #{dispalyflashsaleTime,jdbcType=BIT},
+      </if>
+      <if test="dispalyflashsaleCountdownTime != null">
+        #{dispalyflashsaleCountdownTime,jdbcType=BIT},
+      </if>
+      <if test="goodsPrice != null">
+        #{goodsPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="isShowGoodsPrice != null">
+        #{isShowGoodsPrice,jdbcType=BIT},
+      </if>
+      <if test="buylimit != null">
+        #{buylimit,jdbcType=INTEGER},
+      </if>
+      <if test="goodsIntroductUrl != null">
+        #{goodsIntroductUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="goodsInstructions != null">
+        #{goodsInstructions,jdbcType=VARCHAR},
+      </if>
+      <if test="activitiesAddress != null">
+        #{activitiesAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=TINYINT},
+      </if>
+      <if test="goodsWeight != null">
+        #{goodsWeight,jdbcType=DECIMAL},
+      </if>
+      <if test="score != null">
+        #{score,jdbcType=INTEGER},
+      </if>
+      <if test="isCheck != null">
+        #{isCheck,jdbcType=BIT},
+      </if>
+      <if test="importDigitalCardTotal != null">
+        #{importDigitalCardTotal,jdbcType=INTEGER},
+      </if>
+      <if test="keywords != null">
+        #{keywords,jdbcType=VARCHAR},
+      </if>
+      <if test="note != null">
+        #{note,jdbcType=VARCHAR},
+      </if>
+      <if test="itemNo != null">
+        #{itemNo,jdbcType=VARCHAR},
+      </if>
+      <if test="specGroup != null">
+        #{specGroup,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="onactivitiesTime != null">
+        #{onactivitiesTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="offactivitiesTime != null">
+        #{offactivitiesTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="onsaleTime != null">
+        #{onsaleTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="offsaleTime != null">
+        #{offsaleTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="onflashsaleTime != null">
+        #{onflashsaleTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="offflashsaleTime != null">
+        #{offflashsaleTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="goodsIntroduct != null">
+        #{goodsIntroduct,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="goodsDetail != null">
+        #{goodsDetail,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.icecream.common.model.pojo.Good">
+    update goods
+    <set>
+      <if test="sid != null">
+        sid = #{sid,jdbcType=INTEGER},
+      </if>
+      <if test="isDigital != null">
+        is_digital = #{isDigital,jdbcType=BIT},
+      </if>
+      <if test="type != null">
+        type = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="goodsSn != null">
+        goods_sn = #{goodsSn,jdbcType=VARCHAR},
+      </if>
+      <if test="isHot != null">
+        is_hot = #{isHot,jdbcType=BIT},
+      </if>
+      <if test="isBest != null">
+        is_best = #{isBest,jdbcType=BIT},
+      </if>
+      <if test="isNew != null">
+        is_new = #{isNew,jdbcType=BIT},
+      </if>
+      <if test="goodsName != null">
+        goods_name = #{goodsName,jdbcType=VARCHAR},
+      </if>
+      <if test="goodsIco != null">
+        goods_ico = #{goodsIco,jdbcType=VARCHAR},
+      </if>
+      <if test="smallUrl != null">
+        small_url = #{smallUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="carouselUrl != null">
+        carousel_url = #{carouselUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="videoUrl != null">
+        video_url = #{videoUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="pageUrl != null">
+        page_url = #{pageUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="isSale != null">
+        is_sale = #{isSale,jdbcType=BIT},
+      </if>
+      <if test="dispalyflashsaleTime != null">
+        dispalyflashsale_time = #{dispalyflashsaleTime,jdbcType=BIT},
+      </if>
+      <if test="dispalyflashsaleCountdownTime != null">
+        dispalyflashsale_countdown_time = #{dispalyflashsaleCountdownTime,jdbcType=BIT},
+      </if>
+      <if test="goodsPrice != null">
+        goods_price = #{goodsPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="isShowGoodsPrice != null">
+        is_show_goods_price = #{isShowGoodsPrice,jdbcType=BIT},
+      </if>
+      <if test="buylimit != null">
+        buylimit = #{buylimit,jdbcType=INTEGER},
+      </if>
+      <if test="goodsIntroductUrl != null">
+        goods_introduct_url = #{goodsIntroductUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="goodsInstructions != null">
+        goods_instructions = #{goodsInstructions,jdbcType=VARCHAR},
+      </if>
+      <if test="activitiesAddress != null">
+        activities_address = #{activitiesAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=TINYINT},
+      </if>
+      <if test="goodsWeight != null">
+        goods_weight = #{goodsWeight,jdbcType=DECIMAL},
+      </if>
+      <if test="score != null">
+        score = #{score,jdbcType=INTEGER},
+      </if>
+      <if test="isCheck != null">
+        is_check = #{isCheck,jdbcType=BIT},
+      </if>
+      <if test="importDigitalCardTotal != null">
+        import_digital_card_total = #{importDigitalCardTotal,jdbcType=INTEGER},
+      </if>
+      <if test="keywords != null">
+        keywords = #{keywords,jdbcType=VARCHAR},
+      </if>
+      <if test="note != null">
+        note = #{note,jdbcType=VARCHAR},
+      </if>
+      <if test="itemNo != null">
+        item_no = #{itemNo,jdbcType=VARCHAR},
+      </if>
+      <if test="specGroup != null">
+        spec_group = #{specGroup,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="onactivitiesTime != null">
+        onactivities_time = #{onactivitiesTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="offactivitiesTime != null">
+        offactivities_time = #{offactivitiesTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="onsaleTime != null">
+        onsale_time = #{onsaleTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="offsaleTime != null">
+        offsale_time = #{offsaleTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="onflashsaleTime != null">
+        onflashsale_time = #{onflashsaleTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="offflashsaleTime != null">
+        offflashsale_time = #{offflashsaleTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="goodsIntroduct != null">
+        goods_introduct = #{goodsIntroduct,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="goodsDetail != null">
+        goods_detail = #{goodsDetail,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.icecream.common.model.pojo.Good">
+    update goods
+    set sid = #{sid,jdbcType=INTEGER},
+      is_digital = #{isDigital,jdbcType=BIT},
+      type = #{type,jdbcType=INTEGER},
+      goods_sn = #{goodsSn,jdbcType=VARCHAR},
+      is_hot = #{isHot,jdbcType=BIT},
+      is_best = #{isBest,jdbcType=BIT},
+      is_new = #{isNew,jdbcType=BIT},
+      goods_name = #{goodsName,jdbcType=VARCHAR},
+      goods_ico = #{goodsIco,jdbcType=VARCHAR},
+      small_url = #{smallUrl,jdbcType=VARCHAR},
+      carousel_url = #{carouselUrl,jdbcType=VARCHAR},
+      video_url = #{videoUrl,jdbcType=VARCHAR},
+      page_url = #{pageUrl,jdbcType=VARCHAR},
+      is_sale = #{isSale,jdbcType=BIT},
+      dispalyflashsale_time = #{dispalyflashsaleTime,jdbcType=BIT},
+      dispalyflashsale_countdown_time = #{dispalyflashsaleCountdownTime,jdbcType=BIT},
+      goods_price = #{goodsPrice,jdbcType=DECIMAL},
+      is_show_goods_price = #{isShowGoodsPrice,jdbcType=BIT},
+      buylimit = #{buylimit,jdbcType=INTEGER},
+      goods_introduct_url = #{goodsIntroductUrl,jdbcType=VARCHAR},
+      goods_instructions = #{goodsInstructions,jdbcType=VARCHAR},
+      activities_address = #{activitiesAddress,jdbcType=VARCHAR},
+      status = #{status,jdbcType=TINYINT},
+      goods_weight = #{goodsWeight,jdbcType=DECIMAL},
+      score = #{score,jdbcType=INTEGER},
+      is_check = #{isCheck,jdbcType=BIT},
+      import_digital_card_total = #{importDigitalCardTotal,jdbcType=INTEGER},
+      keywords = #{keywords,jdbcType=VARCHAR},
+      note = #{note,jdbcType=VARCHAR},
+      item_no = #{itemNo,jdbcType=VARCHAR},
+      spec_group = #{specGroup,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      onactivities_time = #{onactivitiesTime,jdbcType=TIMESTAMP},
+      offactivities_time = #{offactivitiesTime,jdbcType=TIMESTAMP},
+      onsale_time = #{onsaleTime,jdbcType=TIMESTAMP},
+      offsale_time = #{offsaleTime,jdbcType=TIMESTAMP},
+      onflashsale_time = #{onflashsaleTime,jdbcType=TIMESTAMP},
+      offflashsale_time = #{offflashsaleTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

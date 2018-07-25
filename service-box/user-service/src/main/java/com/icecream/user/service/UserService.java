@@ -243,7 +243,8 @@ public class UserService {
     }
 
     //插入user、user_auth、user_register表数据
-    public LoginReturn registerUser(User user, Integer type) throws RuntimeException {
+    @Transactional(rollbackFor = Exception.class)
+    public LoginReturn registerUser(User user, Integer type) {
         if (user != null) {
             LoginReturn loginReturn = new LoginReturn();
             Long time = LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));

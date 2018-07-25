@@ -2,17 +2,11 @@ package com.icecream.common.model.pojo;
 
 import lombok.Data;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Data
-@Table(name = "good_store")
 public class GoodStore {
-
-    @Id
-    @GeneratedValue(generator = "UUID")
     private String id;
 
     private Integer goodNum;
@@ -20,6 +14,8 @@ public class GoodStore {
     private Integer warnNum;
 
     private String goodId;
+
+    private String specId;
 
     private LocalDateTime updateTime;
 
