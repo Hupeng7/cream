@@ -14,10 +14,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static org.apache.tomcat.jni.Time.now;
 
 /**
  * @author Mr_h
@@ -56,10 +59,15 @@ public class GoodService {
         List<Good> resultList = new ArrayList<>();
         for (DiscoverGoods dg : discoverGoods) {
             Good good = goodMapper.selectByPrimaryKeySimpleInfo(dg.getGoodsid());
-            resultList.add(good);
+            LocalDateTime now = LocalDateTime.now();
+            if (good.getOnsaleTime().isBefore(now) & good.getOffsaleTime().isAfter(now) & good.getIsSale() == 1) {
+                resultList.add(good);
+            }
         }
         return ResultUtil.success(resultList);
+
     }
+
 
     public ResultVO getDiscoverLabelList() {
         List<DiscoverDisplay> list = discoverDisplayMapper.getSortList();
