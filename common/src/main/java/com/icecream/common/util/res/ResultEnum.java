@@ -28,7 +28,7 @@ public enum ResultEnum {
     SUCCESS(2000, "success"),
     NAME_REPETITION(2001,"昵称重复"),
     EXIST_ACCOUNT(2002,"账号已存在"),
-    PARAMS_ERROR(2003, "用户参数格式错误"),
+    PARAMS_ERROR(2003, "参数格式错误"),
     ERROR_PHONE(2004,"手机号与用户id不符合"),
     SMS_CODE_SEND_FAILED(2005,"验证码发送失败"),
     EXIST_BINDING(2006,"该手机号已绑定其他雪糕群账号"),

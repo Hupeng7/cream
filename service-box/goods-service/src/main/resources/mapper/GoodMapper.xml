@@ -60,6 +60,15 @@
     from goods
     where id = #{id,jdbcType=VARCHAR}
   </select>
+  <select id="selectByPrimaryKeySimpleInfo" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+     goods_sn,goods_name,is_digital,type,goods_ico,small_url,
+     onactivities_time,offactivities_time,onsale_time,offsale_time,onflashsale_time,
+     offflashsale_time,dispalyflashsale_time,dispalyflashsale_countdown_time,
+     goods_price,max_price,min_price
+    from goods
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from goods
     where id = #{id,jdbcType=VARCHAR}
@@ -542,4 +551,142 @@
       offflashsale_time = #{offflashsaleTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <select id="select" parameterType="com.icecream.common.model.pojo.Good" resultType="java.util.List" resultMap="BaseResultMap">
+    select * from goods
+    <where>
+      <if test="id != null">
+        id =#{id}
+      </if>
+      <if test="sid != null">
+        sid=#{sid}
+      </if>
+      <if test="isDigital != null">
+        is_digital=#{isDigital}
+      </if>
+      <if test="type != null">
+        type = #{type}
+      </if>
+      <if test="goodsSn != null">
+        goods_sn=#{goodsSn}
+      </if>
+      <if test="isHot != null">
+        is_hot==#{isHot}
+      </if>
+      <if test="isBest != null">
+        is_best=#{isBest}
+      </if>
+      <if test="isNew != null">
+        is_new=#{isNew}
+      </if>
+      <if test="goodsName != null">
+        goods_name=#{goodsName}
+      </if>
+      <if test="goodsIco != null">
+        goods_ico=#{goodsIco}
+      </if>
+      <if test="smallUrl != null">
+        small_url=#{smallUrl}
+      </if>
+      <if test="carouselUrl != null">
+        carousel_url=#{carouselUrl}
+      </if>
+      <if test="videoUrl != null">
+        video_url=#{videoUrl}
+      </if>
+      <if test="pageUrl != null">
+        page_url=#{pageUrl}
+      </if>
+      <if test="isSale != null">
+        is_sale=#{isSale}
+      </if>
+      <if test="dispalyflashsaleTime != null">
+        dispalyflashsale_time=#{dispalyflashsaleTime}
+      </if>
+      <if test="dispalyflashsaleCountdownTime != null">
+        dispalyflashsale_countdown_time=#{dispalyflashsaleCountdownTime}
+      </if>
+      <if test="goodsPrice != null">
+        goods_price=#{goodsPrice}
+      </if>
+      <if test="isShowGoodsPrice != null">
+        is_show_goods_price=#{isShowGoodsPrice}
+      </if>
+      <if test="buylimit != null">
+        buylimit=#{buylimit}
+      </if>
+      <if test="goodsIntroductUrl != null">
+        goods_introduct_url=#{goodsIntroductUrl}
+      </if>
+      <if test="goodsInstructions != null">
+        goods_instructions=#{goodsInstructions}
+      </if>
+      <if test="activitiesAddress != null">
+        activities_address=#{activitiesAddress}
+      </if>
+      <if test="status != null">
+        status=#{status}
+      </if>
+      <if test="goodsWeight != null">
+        goods_weight=#{goodsWeight}
+      </if>
+      <if test="score != null">
+        score=#{score}
+      </if>
+      <if test="isCheck != null">
+        is_check=#{isCheck}
+      </if>
+      <if test="importDigitalCardTotal != null">
+        import_digital_card_total=#{importDigitalCardTotal}
+      </if>
+      <if test="keywords != null">
+        keywords=#{keywords}
+      </if>
+      <if test="note != null">
+        note=#{note}
+      </if>
+      <if test="itemNo != null">
+        item_no=#{itemNo}
+      </if>
+      <if test="specGroup != null">
+        spec_group=#{specGroup}
+      </if>
+      <if test="createTime != null">
+        create_time=#{createTime}
+      </if>
+      <if test="updateTime != null">
+        update_time=#{updateTime}
+      </if>
+      <if test="onactivitiesTime != null">
+        onactivities_time=#{onactivitiesTime}
+      </if>
+      <if test="offactivitiesTime != null">
+        offactivities_time=#{offactivitiesTime}
+      </if>
+      <if test="onsaleTime != null">
+        onsale_time=#{onsaleTime}
+      </if>
+      <if test="offsaleTime != null">
+        offsale_time=#{offsaleTime}
+      </if>
+      <if test="onflashsaleTime != null">
+        onflashsale_time=#{onflashsaleTime}
+      </if>
+      <if test="offflashsaleTime != null">
+        offflashsale_time=#{offflashsaleTime}
+      </if>
+      <if test="goodsIntroduct != null">
+        goods_introduct=#{goodsIntroduct}
+      </if>
+      <if test="goodsDetail != null">
+        goods_detail=#{goodsDetail}
+      </if>
+      <if test="maxPrice != null">
+        max_price=#{maxPrice}
+      </if>
+      <if test="minPrice != null">
+        min_price=#{minPrice}
+      </if>
+    </where>
+  </select>
+
 </mapper>

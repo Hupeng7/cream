@@ -5,6 +5,7 @@ import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -45,6 +46,19 @@ public class GlobalExceptionHandler {
 
     }
 
+    /**
+     * Servlet底层自带的校验
+     * @param missingServletRequestParameterException 丢失servlet请求参数异常
+     * @return
+     * @throws Exception
+     */
+    @ExceptionHandler(value=MissingServletRequestParameterException.class)
+    public ResultVO beanValidation(MissingServletRequestParameterException missingServletRequestParameterException) throws Exception{
+        return ResultUtil.error("非法的参数"
+                +missingServletRequestParameterException.getParameterName()
+                , ResultEnum.PARAMS_ERROR);
+
+    }
 
 
 }

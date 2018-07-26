@@ -1,20 +1,23 @@
 package com.icecream.good.service;
 
+import com.icecream.common.model.pojo.DiscoverDisplay;
+import com.icecream.common.model.pojo.DiscoverGoods;
 import com.icecream.common.model.pojo.Good;
 import com.icecream.common.model.pojo.GoodsSpec;
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.common.util.uuid.UUIDFactory;
-import com.icecream.good.mapper.GoodMapper;
-import com.icecream.good.mapper.GoodStoreMapper;
-import com.icecream.good.mapper.GoodsSpecMapper;
+import com.icecream.good.mapper.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author Mr_h
@@ -38,8 +41,30 @@ public class GoodService {
     @Autowired
     private GoodsSpecMapper goodsSpecMapper;
 
-    public ResultVO findAll() {
-        return null;
+    @Autowired
+    private DiscoverDisplayMapper discoverDisplayMapper;
+
+    @Autowired
+    private DiscoverGoodsMapper discoverGoodsMapper;
+
+    public ResultVO getDiscoverGoods(Integer discoverId, Integer sid,
+                                     String lastGoodsSn, Integer count) {
+        Good arg = new Good();
+        arg.setGoodsSn(lastGoodsSn);
+        List<Good> select = goodMapper.select(arg);
+        List<DiscoverGoods> discoverGoods = discoverGoodsMapper.selectGoodsIdByDiscoverId(discoverId,select.get(0).getScore());
+        discoverGoods = discoverGoods.stream().limit(count).collect(Collectors.toList());
+        List<Good> resultList = new ArrayList<>();
+        for (DiscoverGoods dg : discoverGoods) {
+            Good good = goodMapper.selectByPrimaryKeySimpleInfo(dg.getGoodsid());
+            resultList.add(good);
+        }
+            return ResultUtil.success(resultList);
+    }
+
+    public ResultVO getDiscoverLabelList() {
+        List<DiscoverDisplay> list = discoverDisplayMapper.getSortList();
+        return ResultUtil.success(Optional.ofNullable(list).orElse(null));
     }
 
     @Transactional(rollbackFor = Exception.class)

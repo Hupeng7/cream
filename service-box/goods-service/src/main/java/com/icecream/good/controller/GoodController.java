@@ -4,9 +4,14 @@ import com.icecream.common.model.pojo.Good;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.good.service.GoodService;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author Mr_h
@@ -32,11 +37,16 @@ public class GoodController {
      * @return
      */
     @GetMapping("{discoverId}/{sid}")
-    public ResultVO findAllGoods(@PathVariable("discoverId")String discoverId,
-                                 @PathVariable("sid") String sid,
-                                 @Param("lastGoods_sn") String lastGoodsSn,
-                                 @Param("count") Integer count){
-        return goodService.findAll();
+    public ResultVO getDiscoverGoods(@PathVariable("discoverId")Integer discoverId,
+                                     @PathVariable("sid") Integer sid,
+                                     @RequestParam(value = "lastGoods_sn",required = true) String lastGoodsSn,
+                                     @RequestParam(value = "count",required = true)Integer count){
+        return goodService.getDiscoverGoods(discoverId,sid,lastGoodsSn,count);
+    }
+
+    @GetMapping("getDiscoverLabelList")
+    public ResultVO getDiscoverLabelList(){
+        return goodService.getDiscoverLabelList();
     }
 
 
