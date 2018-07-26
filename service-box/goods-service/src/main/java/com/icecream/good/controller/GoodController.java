@@ -11,7 +11,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 
 /**
  * @author Mr_h
@@ -39,7 +38,7 @@ public class GoodController {
     @GetMapping("{discoverId}/{sid}")
     public ResultVO getDiscoverGoods(@PathVariable("discoverId")Integer discoverId,
                                      @PathVariable("sid") Integer sid,
-                                     @RequestParam(value = "lastGoods_sn",required = true) String lastGoodsSn,
+                                     @RequestParam(value = "lastGoodsSn",required = true)String lastGoodsSn,
                                      @RequestParam(value = "count",required = true)Integer count){
         return goodService.getDiscoverGoods(discoverId,sid,lastGoodsSn,count);
     }

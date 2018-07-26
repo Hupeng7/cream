@@ -26,8 +26,6 @@ import java.util.stream.Collectors;
  * create by Mr_h on 2018/7/9 0009
  */
 @Slf4j
-
-
 @Service
 @SuppressWarnings("all")
 public class GoodService {
@@ -50,16 +48,17 @@ public class GoodService {
     public ResultVO getDiscoverGoods(Integer discoverId, Integer sid,
                                      String lastGoodsSn, Integer count) {
         Good arg = new Good();
-        arg.setGoodsSn(lastGoodsSn);
+        arg.setGoodsSn(lastGoodsSn.valueOf(lastGoodsSn));
         List<Good> select = goodMapper.select(arg);
-        List<DiscoverGoods> discoverGoods = discoverGoodsMapper.selectGoodsIdByDiscoverId(discoverId,select.get(0).getScore());
+        if (select.isEmpty()) return ResultUtil.error("lastGoodsSn为空或者无此商品", ResultEnum.PARAMS_ERROR);
+        List<DiscoverGoods> discoverGoods = discoverGoodsMapper.selectGoodsIdByDiscoverId(discoverId, select.get(0).getScore());
         discoverGoods = discoverGoods.stream().limit(count).collect(Collectors.toList());
         List<Good> resultList = new ArrayList<>();
         for (DiscoverGoods dg : discoverGoods) {
             Good good = goodMapper.selectByPrimaryKeySimpleInfo(dg.getGoodsid());
             resultList.add(good);
         }
-            return ResultUtil.success(resultList);
+        return ResultUtil.success(resultList);
     }
 
     public ResultVO getDiscoverLabelList() {
