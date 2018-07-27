@@ -65,7 +65,7 @@
      goods_sn,goods_name,is_digital,type,goods_ico,small_url,
      onactivities_time,offactivities_time,onsale_time,offsale_time,onflashsale_time,
      offflashsale_time,dispalyflashsale_time,dispalyflashsale_countdown_time,
-     goods_price,max_price,min_price,is_sale,score
+     goods_price,max_price,min_price,is_sale,score,max_price,min_price
     from goods
     where id = #{id,jdbcType=VARCHAR}
   </select>

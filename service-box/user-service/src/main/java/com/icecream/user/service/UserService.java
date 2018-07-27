@@ -35,7 +35,7 @@ import java.time.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.icecream.user.constants.Constans.TYPE_SMS;
+import static com.icecream.user.constants.Constants.TYPE_SMS;
 
 @Slf4j
 @Service

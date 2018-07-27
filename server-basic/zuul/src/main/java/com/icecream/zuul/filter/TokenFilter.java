@@ -3,6 +3,7 @@ package com.icecream.zuul.filter;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.icecream.common.model.requstbody.TokenInfo;
+import com.icecream.common.redis.RedisHandler;
 import com.icecream.common.util.json.JsonUtil;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
@@ -73,7 +74,7 @@ public class TokenFilter extends ZuulFilter {
         if (token == null) {
             //如果token没有,不允许访问api
             log.error("token is null ...");
-            setBadResponse(ctx);
+            setBadAuthResponse(ctx);
         } else {
             log.info("token:" + token);
             parseJwt(ctx, token);
@@ -89,7 +90,7 @@ public class TokenFilter extends ZuulFilter {
         } else if (token.startsWith("consumer")) {
             resultVO = userTokenFeignClient.checkConsumer(token.replace("consumer", ""));
         } else {
-            setBadResponse(ctx);
+            setBadAuthResponse(ctx);
         }
         if (resultVO != null) {
             localHandler(resultVO, ctx);
@@ -109,7 +110,7 @@ public class TokenFilter extends ZuulFilter {
                 e.printStackTrace();
             }
         } else {
-            setBadResponse(ctx);
+            setBadAuthResponse(ctx);
         }
     }
 
@@ -150,13 +151,14 @@ public class TokenFilter extends ZuulFilter {
                 return reqBodyBytes.length;
             }
         });
+        RedisHandler.set(id,id);
         ctx.setSendZuulResponse(true);
         ctx.setResponseStatusCode(200);
         ctx.set("isSuccess", true);
     }
 
     //设置过滤器返回内容
-    private void setBadResponse(RequestContext context) {
+    private void setBadAuthResponse(RequestContext context) {
         context.setSendZuulResponse(false);
         context.setResponseStatusCode(401);
         context.setResponseBody(JsonUtil.toJSONString(ResultUtil.error(401, "Unauthorized access")));
