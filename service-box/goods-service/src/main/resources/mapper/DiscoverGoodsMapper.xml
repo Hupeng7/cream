@@ -128,5 +128,4 @@
   <select id="selectGoodsIdByDiscoverId" parameterType="java.util.List" resultMap="BaseResultMap">
    select * from discover_goods where discover_displayid = #{discoverId} and score>#{frontScore} order by score desc
   </select>
-
 </mapper>

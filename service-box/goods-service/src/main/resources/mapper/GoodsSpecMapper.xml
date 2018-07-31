@@ -140,10 +140,10 @@
   </update>
 
   <insert id="batchInsert" parameterType="java.util.List">
-    insert into goods_spec(id,good_id,spec,price,stock,spec_opt)
+    insert into good_spec(id,goods_sn,spec,price,stock,spec_opt,ctime)
     values
     <foreach collection="list" index="index" item="item"  separator="," >
-      (#{item.id},#{item.goodId}, #{item.spec},#{item.price},#{item.stock},#{item.specOpt})
+      (#{item.id},#{item.goodsSn}, #{item.spec},#{item.price},#{item.stock},#{item.specOpt},#{item.ctime})
     </foreach>
   </insert>
 </mapper>

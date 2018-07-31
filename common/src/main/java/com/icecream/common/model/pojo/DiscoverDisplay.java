@@ -1,6 +1,12 @@
 package com.icecream.common.model.pojo;
 
+import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.icecream.common.util.time.DateUtil;
 import lombok.Data;
+
+import java.util.Date;
+
 
 @Data
 public class DiscoverDisplay {
@@ -12,7 +18,7 @@ public class DiscoverDisplay {
 
     private String remark;
 
-    private Byte isdel;
+    private Integer isdel;
 
     private Integer discoverid;
 
@@ -21,5 +27,4 @@ public class DiscoverDisplay {
     private Integer ctime;
 
     private Integer mtime;
-
 }

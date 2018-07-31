@@ -4,6 +4,7 @@ import com.icecream.common.model.pojo.DiscoverDisplay;
 import com.icecream.common.model.pojo.DiscoverGoods;
 import com.icecream.common.model.pojo.Good;
 import com.icecream.common.model.pojo.GoodsSpec;
+import com.icecream.common.util.idbuilder.staticfactroy.SnowflakeGlobalIdFactory;
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
@@ -14,13 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static org.apache.tomcat.jni.Time.now;
 
 /**
  * @author Mr_h
@@ -48,6 +49,9 @@ public class GoodService {
     @Autowired
     private DiscoverGoodsMapper discoverGoodsMapper;
 
+    @Autowired
+    private SnowflakeGlobalIdFactory snowflakeGlobalIdFactory;
+
     public ResultVO getDiscoverGoods(Integer discoverId, Integer sid,
                                      String lastGoodsSn, Integer count) {
         Good arg = new Good();
@@ -59,10 +63,11 @@ public class GoodService {
         List<Good> resultList = new ArrayList<>();
         for (DiscoverGoods dg : discoverGoods) {
             Good good = goodMapper.selectByPrimaryKeySimpleInfo(dg.getGoodsid());
-            LocalDateTime now = LocalDateTime.now();
-            if (good.getOnsaleTime().isBefore(now) & good.getOffsaleTime().isAfter(now) & good.getIsSale() == 1) {
+            int now = (int) (LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8")) / 1000);
+            if (good.getOnsaleTime() <= now & now <= good.getOffsaleTime() & good.getIsSale() == 1) {
                 resultList.add(good);
             }
+            log.info("" + good);
         }
         return ResultUtil.success(resultList);
 
@@ -80,13 +85,11 @@ public class GoodService {
             return ResultUtil.error(null, ResultEnum.PARAMS_ERROR);
         }
         List<GoodsSpec> goodsSpec = good.getGoodsSpec();
-        int count = goodMapper.insertSelective(good);
+        Good args = supplementaryData(good);
+        int count = goodMapper.insertSelective(args);
         if (null != goodsSpec) {
             Good result = goodMapper.selectByPrimaryKey(good.getId());
-            goodsSpec.forEach(gs -> {
-                gs.setGoodId(result.getId());
-                gs.setId(UUIDFactory.create());
-            });
+            goodsSpec.forEach(gs -> supplementaryData(gs, result));
             int row = goodsSpecMapper.batchInsert(goodsSpec);
             if (row > 0) {
                 return ResultUtil.success();
@@ -98,5 +101,20 @@ public class GoodService {
         return ResultUtil.error(null, ResultEnum.MYSQL_OPERATION_FAILED);
     }
 
+
+    private Good supplementaryData(Good good) {
+        good.setGoodsSn(String.valueOf((snowflakeGlobalIdFactory.create().nextId())));
+        good.setCategoryId(1);
+        good.setGoodsMarketPrice(new BigDecimal(0.5));
+        good.setCtime((int) (LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8")) / 1000));
+        return good;
+    }
+
+    private GoodsSpec supplementaryData(GoodsSpec goodsSpec, Good good) {
+        goodsSpec.setGoodsSn(good.getGoodsSn());
+        goodsSpec.setId(UUIDFactory.create());
+        goodsSpec.setCtime((int) (LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8")) / 1000));
+        return goodsSpec;
+    }
 
 }

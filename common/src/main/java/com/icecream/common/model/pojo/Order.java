@@ -18,8 +18,8 @@ public class Order {
      * 全局id
      */
     @Id
-    @GeneratedValue(generator = "UUID")
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
     /**
      * sid 1郑爽 2杨幂

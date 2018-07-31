@@ -2,6 +2,8 @@ package com.icecream.common.model.pojo;
 
 import lombok.Data;
 
+import java.util.Date;
+
 @Data
 public class DiscoverGoods {
 
@@ -11,7 +13,7 @@ public class DiscoverGoods {
 
     private Integer discoverDisplayid;
 
-    private String goodsid;
+    private Integer goodsid;
 
     private String goodsSn;
 
@@ -20,5 +22,6 @@ public class DiscoverGoods {
     private Integer ctime;
 
     private Integer mtime;
+
 
 }

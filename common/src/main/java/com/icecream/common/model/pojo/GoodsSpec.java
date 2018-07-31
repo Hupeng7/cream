@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 public class GoodsSpec {
     private String id;
 
-    private String goodId;
+    private String goodsSn;
 
     private String spec;
 
@@ -18,11 +18,10 @@ public class GoodsSpec {
 
     private Integer isInuse;
 
-    private LocalDateTime createTime;
-
     private String specOpt;
 
-    private LocalDateTime updateTime;
+    private Integer ctime;
 
+    private Integer mtime;
 
 }

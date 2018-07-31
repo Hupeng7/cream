@@ -7,18 +7,18 @@ import java.util.Date;
 
 @Data
 public class GoodStore {
-    private String id;
+    private Integer id;
 
     private Integer goodNum;
 
     private Integer warnNum;
 
-    private String goodId;
+    private Integer goodId;
 
     private String specId;
 
-    private LocalDateTime updateTime;
+    private Integer ctime;
 
-    private LocalDateTime createTime;
+    private Integer mtime;
 
 }

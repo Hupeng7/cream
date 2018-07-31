@@ -1,25 +1,25 @@
 package com.icecream.common.model.pojo;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import javax.persistence.Transient;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
-@Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class Good {
 
-    private String id;
+@Data
+public class Good {
+    private Integer id;
 
     private Integer sid;
 
     private Integer isDigital;
 
     private Integer type;
+
+    private Integer categoryId;
+
+    private String specGroup;
 
     private String goodsSn;
 
@@ -28,6 +28,8 @@ public class Good {
     private Integer isBest;
 
     private Integer isNew;
+
+    private Integer isPromote;
 
     private String goodsName;
 
@@ -43,13 +45,35 @@ public class Good {
 
     private Integer isSale;
 
+    private Integer onsaleTime;
+
+    private Integer offsaleTime;
+
+    private Integer onflashsaleTime;
+
+    private Integer offflashsaleTime;
+
     private Integer dispalyflashsaleTime;
 
     private Integer dispalyflashsaleCountdownTime;
 
+    private Integer sellNum;
+
+    private BigDecimal totalSalePrice;
+
+    private Integer goodsNum;
+
+    private Integer warnNum;
+
+    private BigDecimal goodsMarketPrice;
+
     private BigDecimal goodsPrice;
 
     private Integer isShowGoodsPrice;
+
+    private BigDecimal freightPrice;
+
+    private Integer freightTemplateId;
 
     private Integer buylimit;
 
@@ -59,13 +83,53 @@ public class Good {
 
     private String activitiesAddress;
 
-    private Integer status;
+    private Integer onactivitiesTime;
+
+    private Integer offactivitiesTime;
+
+    private Byte status;
+
+    private Integer provideInvoice;
+
+    private Integer provideWarranty;
 
     private BigDecimal goodsWeight;
+
+    private Integer clickCount;
+
+    private Integer browseCount;
+
+    private Integer shareCount;
+
+    private Integer favoriteCount;
+
+    private Integer likeCount;
+
+    private Integer tenantId;
 
     private Integer score;
 
     private Integer isCheck;
+
+    private Integer logisticsTemplateId;
+
+    private Integer commentsId;
+
+    private Integer shareId;
+
+    private Integer qaId;
+
+    private Integer sellmonthlyNum;
+
+    private BigDecimal promotePrice;
+
+    private Integer onpromoteTime;
+
+    private Integer offpromoteTime;
+
+    private BigDecimal rmbPrice;
+
+    private BigDecimal dollarPrice;
 
     private Integer importDigitalCardTotal;
 
@@ -73,33 +137,27 @@ public class Good {
 
     private String note;
 
-    private String itemNo;
+    private Integer isSynced;
 
-    private String specGroup;
+    private Integer syncedTime;
 
-    private LocalDateTime createTime;
+    private Integer channelId;
 
-    private LocalDateTime updateTime;
+    private Integer channelHId;
 
-    private LocalDateTime onactivitiesTime;
+    private Integer ctime;
 
-    private LocalDateTime offactivitiesTime;
-
-    private LocalDateTime onsaleTime;
-
-    private LocalDateTime offsaleTime;
-
-    private LocalDateTime onflashsaleTime;
-
-    private LocalDateTime offflashsaleTime;
+    private Integer mtime;
 
     private String goodsIntroduct;
 
     private String goodsDetail;
 
-    private BigDecimal maxPrice;
+    private String channelHData;
 
     private BigDecimal minPrice;
+
+    private BigDecimal maxPrice;
 
     @Transient
     private List<GoodsSpec> goodsSpec;

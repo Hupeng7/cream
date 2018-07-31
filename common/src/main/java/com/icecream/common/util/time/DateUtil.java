@@ -6,8 +6,11 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -868,5 +871,34 @@ public class DateUtil {
     }
 
 
+    /**
+     * 数据库timestrap类型转换成String会带小数点和0(毫秒精度)
+     * 该方法截取整数部分，并转换为标准的LocalDateTime类型
+     * @param time
+     * @return
+     */
+    public static LocalDateTime caseLocalDateFromString(String time){
+        String newTime = caseNewStringTime(time);
+        DateTimeFormatter df = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT_YYYY_MM_DD_HH_MI_SS);
+        LocalDateTime localDateTime = LocalDateTime.parse(newTime,df);
+        return localDateTime;
+    }
+    /**
+     * 数据库timestrap类型转换成String会带小数点和0(毫秒精度)
+     * 该方法截取整数部分，并转换为常用的时间字符串
+     * @param time
+     * @return
+     */
+    public static String caseNewStringTime(String time){
+       return time.substring(0, time.length() - 2);
+    }
+
+
+    public static LocalDateTime coverToLocalDateTime(Date date){
+        Instant instant = date.toInstant();
+        ZoneId zoneId = ZoneId.systemDefault();
+        LocalDateTime localDateTime = instant.atZone(zoneId).toLocalDateTime();
+        return localDateTime;
+    }
 }
 

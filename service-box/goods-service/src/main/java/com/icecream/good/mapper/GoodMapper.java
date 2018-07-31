@@ -13,9 +13,9 @@ public interface GoodMapper {
 
     int insertSelective(Good record);
 
-    Good selectByPrimaryKey(String id);
+    Good selectByPrimaryKey(Integer id);
 
-    Good selectByPrimaryKeySimpleInfo(String id);
+    Good selectByPrimaryKeySimpleInfo(Integer id);
 
     int updateByPrimaryKeySelective(Good record);
 

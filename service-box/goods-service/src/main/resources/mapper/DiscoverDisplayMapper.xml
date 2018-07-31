@@ -139,6 +139,6 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
   <select id="getSortList" resultType="java.util.List" resultMap="BaseResultMap">
-    select * from discover_display where discoverid =#{discoverId} order by score asc;
+    select * from discover_display  order by score asc;
   </select>
 </mapper>
