@@ -1,5 +1,6 @@
 package com.icecream.common.model.pojo;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import javax.persistence.Transient;
@@ -8,6 +9,7 @@ import java.util.List;
 
 
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Good {
     private Integer id;
 

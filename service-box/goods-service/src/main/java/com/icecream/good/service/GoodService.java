@@ -63,7 +63,7 @@ public class GoodService {
         List<Good> resultList = new ArrayList<>();
         for (DiscoverGoods dg : discoverGoods) {
             Good good = goodMapper.selectByPrimaryKeySimpleInfo(dg.getGoodsid());
-            int now = (int) (LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8")) / 1000);
+            int now = (int) (LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8")));
             if (good.getOnsaleTime() <= now & now <= good.getOffsaleTime() & good.getIsSale() == 1) {
                 resultList.add(good);
             }
