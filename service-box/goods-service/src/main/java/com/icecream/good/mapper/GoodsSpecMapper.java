@@ -1,5 +1,6 @@
 package com.icecream.good.mapper;
 
+import com.icecream.common.model.pojo.Good;
 import com.icecream.common.model.pojo.GoodsSpec;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.data.repository.query.Param;
@@ -21,4 +22,6 @@ public interface GoodsSpecMapper {
     int updateByPrimaryKey(GoodsSpec record);
 
     int batchInsert(@Param("list") List<GoodsSpec> goodsSpecList);
+
+    List select(GoodsSpec arg);
 }

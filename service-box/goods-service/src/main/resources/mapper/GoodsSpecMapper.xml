@@ -3,7 +3,7 @@
 <mapper namespace="com.icecream.good.mapper.GoodsSpecMapper">
   <resultMap id="BaseResultMap" type="com.icecream.common.model.pojo.GoodsSpec">
     <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="good_id" jdbcType="VARCHAR" property="goodId" />
+    <result column="goods_sn" jdbcType="VARCHAR" property="goodsSn" />
     <result column="spec" jdbcType="VARCHAR" property="spec" />
     <result column="price" jdbcType="INTEGER" property="price" />
     <result column="stock" jdbcType="INTEGER" property="stock" />
@@ -146,4 +146,38 @@
       (#{item.id},#{item.goodsSn}, #{item.spec},#{item.price},#{item.stock},#{item.specOpt},#{item.ctime})
     </foreach>
   </insert>
+
+  <select id="select" parameterType="com.icecream.common.model.pojo.GoodsSpec" resultType="java.util.List" resultMap="BaseResultMap">
+    select * from goods_spec
+    <where>
+      <if test="id != null">
+        id =#{id}
+      </if>
+      <if test="goodsSn != null">
+        goods_sn=#{goodsSn}
+      </if>
+      <if test="spec != null">
+        spec=#{spec}
+      </if>
+      <if test="specOpt != null">
+        specOpt=#{specOpt}
+      </if>
+      <if test="price != null">
+        price=#{price}
+      </if>
+      <if test="stock != null">
+        stock=#{stock}
+      </if>
+      <if test="isInuse != null">
+        isInuse=#{isInuse}
+      </if>
+      <if test="createTime != null">
+        createTime=#{createTime}
+      </if>
+      <if test="updateTime != null">
+        updateTime=#{updateTime}
+      </if>
+    </where>
+  </select>
+
 </mapper>

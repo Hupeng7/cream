@@ -22,4 +22,5 @@ public interface GoodMapper {
     int updateByPrimaryKey(Good record);
 
     List<Good> select(Good good);
+
 }

@@ -29,34 +29,47 @@ public class GoodController {
 
     /**
      * 发现频道 优品&活动
-     * @param discoverId 发现频道的id
-     * @param sid app端标识
+     *
+     * @param discoverId  发现频道的id
+     * @param sid         app端标识
      * @param lastGoodsSn 上一页最后一条的商品数据
-     * @param count 一页展示数据量
+     * @param count       一页展示数据量
      * @return
      */
     @GetMapping("{discoverId}/{sid}")
-    public ResultVO getDiscoverGoods(@PathVariable("discoverId")Integer discoverId,
+    public ResultVO getDiscoverGoods(@PathVariable("discoverId") Integer discoverId,
                                      @PathVariable("sid") Integer sid,
-                                     @RequestParam(value = "lastGoodsSn",required = true)String lastGoodsSn,
-                                     @RequestParam(value = "count",required = true)Integer count){
-        return goodService.getDiscoverGoods(discoverId,sid,lastGoodsSn,count);
+                                     @RequestParam(value = "lastGoodsSn", required = true) String lastGoodsSn,
+                                     @RequestParam(value = "count", required = true) Integer count) {
+        return goodService.getDiscoverGoods(discoverId, sid, lastGoodsSn, count);
     }
 
     @GetMapping("getDiscoverLabelList")
-    public ResultVO getDiscoverLabelList(){
+    public ResultVO getDiscoverLabelList() {
         return goodService.getDiscoverLabelList();
     }
 
 
     /**
      * 添加商品(多规格和无规格的商品)
+     *
      * @param good 商品对象
      * @return resultVo
      */
     @PostMapping("save")
-    public ResultVO save(@RequestBody Good good){
+    public ResultVO save(@RequestBody Good good) {
         return goodService.save(good);
+    }
+
+    /**
+     * 根据goodsSn获取商品详情
+     *
+     * @param goodsSn
+     * @return resultVo
+     */
+    @GetMapping("{goodsSn}")
+    public ResultVO getGoodsByGoodsSn(@PathVariable("goodsSn") String goodsSn) {
+        return goodService.getGoodsByGoodsSn(goodsSn);
     }
 
 }

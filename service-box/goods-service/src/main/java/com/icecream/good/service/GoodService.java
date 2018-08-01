@@ -1,9 +1,11 @@
 package com.icecream.good.service;
 
+import com.alibaba.fastjson.JSON;
 import com.icecream.common.model.pojo.DiscoverDisplay;
 import com.icecream.common.model.pojo.DiscoverGoods;
 import com.icecream.common.model.pojo.Good;
 import com.icecream.common.model.pojo.GoodsSpec;
+import com.icecream.common.model.requstbody.GoodSpecResponseModel;
 import com.icecream.common.util.idbuilder.staticfactroy.SnowflakeGlobalIdFactory;
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.*;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
@@ -89,6 +92,10 @@ public class GoodService {
         int count = goodMapper.insertSelective(args);
         if (null != goodsSpec) {
             Good result = goodMapper.selectByPrimaryKey(good.getId());
+            goodsSpec.forEach(gs -> {
+                gs.setGoodsSn(result.getGoodsSn());
+                gs.setId(UUIDFactory.create());
+            });
             goodsSpec.forEach(gs -> supplementaryData(gs, result));
             int row = goodsSpecMapper.batchInsert(goodsSpec);
             if (row > 0) {
@@ -102,6 +109,51 @@ public class GoodService {
     }
 
 
+    public ResultVO getGoodsByGoodsSn(String goodsSn) {
+        Good arg = new Good();
+        arg.setGoodsSn(goodsSn.valueOf(goodsSn));
+        List<Good> select = goodMapper.select(arg);
+        if (select.isEmpty()) return ResultUtil.error("goodsSn为空或者无此商品", ResultEnum.PARAMS_ERROR);
+
+        GoodsSpec argSpec = new GoodsSpec();
+        argSpec.setGoodsSn(goodsSn.valueOf(goodsSn));
+        List<GoodsSpec> selectGoodsSpec = goodsSpecMapper.select(argSpec);
+        Good good = select.get(0);
+        List<GoodSpecResponseModel> specList = new ArrayList<GoodSpecResponseModel>();
+        if (good.getSpecGroup() != null && !("").equals(good.getSpecGroup()) && !("-1").equals(good.getSpecGroup())) {
+            String[] specGroupArray = good.getSpecGroup().split("\\|");
+            if (0 < specGroupArray.length && specGroupArray.length <= 2) {
+                for (int i = 0; i < specGroupArray.length; i++) {
+                    GoodSpecResponseModel goodSpecResponseModel = new GoodSpecResponseModel();
+                    String[] splitString = specGroupArray[i].split(":");
+                    goodSpecResponseModel.setSpecName(splitString[0]);
+                    String[] goodSpecArray = splitString[1].split(",");
+                    List<String> goodSpecSizeTwoList = new ArrayList<String>();
+                    for (int j = 0; j < goodSpecArray.length; j++) {
+                        goodSpecSizeTwoList.add(goodSpecArray[j]);
+                    }
+                    goodSpecResponseModel.setSpecList(goodSpecSizeTwoList);
+                    specList.add(goodSpecResponseModel);
+                    goodSpecResponseModel = null;
+                }
+                good.setSpecGroup(JSON.toJSONString(specList));
+            } else if (specGroupArray.length > 2) {
+                GoodSpecResponseModel goodSpecResponseModel = new GoodSpecResponseModel();
+                goodSpecResponseModel.setSpecName("规格");
+                List<String> goodSpecList = new ArrayList<String>();
+                for (int j = 0; j < good.getGoodsSpec().size(); j++) {
+                    goodSpecList.add(good.getGoodsSpec().get(j).getSpec());
+                }
+                goodSpecResponseModel.setSpecList(goodSpecList);
+                specList.add(goodSpecResponseModel);
+                good.setSpecGroup(JSON.toJSONString(specList));
+            } else {
+                return null;
+            }
+        }
+        good.setGoodsSpec(selectGoodsSpec);
+        return ResultUtil.success(good);
+    }
     private Good supplementaryData(Good good) {
         good.setGoodsSn(String.valueOf((snowflakeGlobalIdFactory.create().nextId())));
         good.setCategoryId(1);
