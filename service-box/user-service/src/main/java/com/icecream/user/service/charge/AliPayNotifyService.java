@@ -50,10 +50,10 @@ public class AliPayNotifyService {
             // valueStr = new String(valueStr.getBytes("ISO-8859-1"), "utf-8");
             params.put(name, valueStr);
         }
-        //try {
+        try {
             //验证签名
-            //boolean flag = AlipaySignature.rsaCheckV1(params, AlipayConfig.ali_public_key, "utf-8", "RSA2");
-            if (true) { // 签名验证成功
+            boolean flag = AlipaySignature.rsaCheckV1(params, AlipayConfig.ali_public_key, "utf-8", "RSA2");
+            if (flag) { // 签名验证成功
                 if ("TRADE_SUCCESS".equals(params.get("trade_status"))) {
                     //付款金额
                     String passback_params = URLDecoder.decode(params.get("passback_params").toString());
@@ -90,10 +90,10 @@ public class AliPayNotifyService {
             } else {
                 log.debug("签名验证失败！");
             }
-      /*  } catch (AlipayApiException e) {
+        } catch (AlipayApiException e) {
             e.printStackTrace();
             return "SUCCESS";
-        }*/
+        }
         return "";
     }
 }
