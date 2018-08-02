@@ -17,8 +17,8 @@ import java.math.BigDecimal;
 public class WxPayChargeServiceImpl implements ChargeService {
 
     @Override
-    public ResultVO charge(BigDecimal price) {
-        log.info("收到金额数据------->{},准备请求微信...",price);
+    public ResultVO charge(String uid, BigDecimal price) {
+        log.info("开始微信支付。用户id------>{},充值金额------{}",uid,price);
         return null;
     }
 }

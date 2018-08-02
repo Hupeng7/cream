@@ -124,6 +124,16 @@
             <artifactId>mapper-spring-boot-starter</artifactId>
             <version>1.2.4</version>
         </dependency>
+        <dependency>
+            <groupId>alipay-sdk</groupId>
+            <artifactId>pay</artifactId>
+            <version>3.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alipay</groupId>
+            <artifactId>conmons-logging</artifactId>
+            <version>1.1.1</version>
+        </dependency>
     </dependencies>
 
     <build>

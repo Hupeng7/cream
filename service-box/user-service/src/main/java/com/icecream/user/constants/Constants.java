@@ -22,7 +22,4 @@ public class Constants {
      */
     public static final int TYPE_ALI_PAY =1;
     public static final int TYPE_WX_PAY =2;
-
-
-
 }

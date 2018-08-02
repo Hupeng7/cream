@@ -17,6 +17,8 @@ public class ChargeParamContainer<S> {
 
     private BigDecimal price;
 
+    private String uid;
+
     private S service;
 
 }

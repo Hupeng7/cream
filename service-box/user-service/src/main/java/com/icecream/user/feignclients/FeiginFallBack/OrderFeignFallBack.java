@@ -1,5 +1,7 @@
 package com.icecream.user.feignclients.FeiginFallBack;
 
+import com.icecream.common.model.pojo.AlipayNotifyRecord;
+import com.icecream.common.model.pojo.AlipayNotifyRecordErrorLog;
 import com.icecream.user.feignclients.OrderFeignClient;
 import com.icecream.common.model.pojo.Order;
 import lombok.extern.slf4j.Slf4j;
@@ -18,5 +20,15 @@ public class OrderFeignFallBack implements OrderFeignClient {
     public int insert() {
         log.info("调用order-service服务insert方法时发生异常/调用超时");
         throw new RuntimeException("order-service处理时异常，进入回退");
+    }
+
+    @Override
+    public String insertAliChargeRecord(AlipayNotifyRecord alipayNotifyRecord) {
+        return "支付宝成功记录录入异常";
+    }
+
+    @Override
+    public String insertAliChargeErrorRecord(AlipayNotifyRecordErrorLog alipayNotifyRecordErrorLog) {
+        return "支付宝错误记录录入异常";
     }
 }
