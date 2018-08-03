@@ -22,3 +22,4 @@ public class WxPayChargeServiceImpl implements ChargeService {
         return null;
     }
 }
+

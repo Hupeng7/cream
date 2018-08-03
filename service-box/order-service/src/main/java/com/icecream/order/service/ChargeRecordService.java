@@ -34,7 +34,7 @@ public class ChargeRecordService {
 
     @Transactional(rollbackFor = Exception.class)
     public String insert(AlipayNotifyRecord alipayNotifyRecord) {
-        int count = alipayNotifyRecordMapper.insert(alipayNotifyRecord);
+        int count = alipayNotifyRecordMapper.insertSelective(alipayNotifyRecord);
         Wallet slecetArgs = new Wallet();
         slecetArgs.setUid(alipayNotifyRecord.getUid());
         Wallet wallet = walletMapper.selectOne(slecetArgs);

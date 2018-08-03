@@ -61,10 +61,9 @@ public class AilPayChargeServiceImpl implements ChargeService {
         model.setTimeoutExpress("30m");
         model.setTotalAmount(price.toString());
         model.setProductCode("QUICK_MSECURITY_PAY");
-        String json = "{uid:"+uid+"}";
-        model.setPassbackParams(URLEncoder.encode(json));
+        model.setBody(uid);
         request.setBizModel(model);
-        request.setNotifyUrl("http://html.adinnet.cn/zanzhushang.html");
+        request.setNotifyUrl("http://icecream.natapp1.cc/notify/ali");
         String orderStr = "";
         try {
             //这里和普通的接口调用不同，使用的是sdkExecute
