@@ -4,7 +4,7 @@ import com.icecream.common.model.pojo.AlipayNotifyRecord;
 import com.icecream.common.model.pojo.AlipayNotifyRecordErrorLog;
 import com.icecream.user.config.OrderFeignConfig;
 import com.icecream.common.model.pojo.Order;
-import com.icecream.user.feignclients.FeiginFallBack.OrderFeignFallBack;
+import com.icecream.user.feignclients.fallback.OrderFeignFallBack;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PathVariable;

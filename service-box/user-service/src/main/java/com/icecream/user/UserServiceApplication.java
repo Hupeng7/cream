@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScans;
 import org.springframework.web.client.RestTemplate;
+import tk.mybatis.spring.annotation.MapperScan;
 
 /**
  * @author  mr_h
@@ -26,6 +27,8 @@ import org.springframework.web.client.RestTemplate;
 @ComponentScan(basePackages = {"com.icecream.common","com.icecream.user"})//托管类扫描路径
 public class UserServiceApplication {
 
+
+    //注入可以手动设定固定网址（如第三方登录、第三方支付）的httpClient对象
     @Bean
     public RestTemplate restTemplate(){
         return new RestTemplate();

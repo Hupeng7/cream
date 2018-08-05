@@ -4,8 +4,6 @@ import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -19,8 +17,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class UserGlobalExceptionHandler {
 
-    @ExceptionHandler(value = UnsupportedPaymenttypeException.class)
-    public ResultVO ChargeNonsupportPay(UnsupportedPaymenttypeException unsupportedPaymenttypeException) {
-        return ResultUtil.error(unsupportedPaymenttypeException.getMessage(),ResultEnum.PARAMS_ERROR);
+    @ExceptionHandler(value = UnsupportedPaymentTypeException.class)
+    public ResultVO ChargeNonsupportPay(UnsupportedPaymentTypeException unsupportedPaymentTypeException) {
+        return ResultUtil.error(unsupportedPaymentTypeException.getMessage(),ResultEnum.PARAMS_ERROR);
     }
 }
