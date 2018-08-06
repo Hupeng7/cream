@@ -2,6 +2,7 @@ package com.icecream.user.feignclients.fallback;
 
 import com.icecream.common.model.pojo.AlipayNotifyRecord;
 import com.icecream.common.model.pojo.AlipayNotifyRecordErrorLog;
+import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.feignclients.OrderFeignClient;
 import com.icecream.common.model.pojo.Order;
 import lombok.extern.slf4j.Slf4j;
@@ -30,5 +31,11 @@ public class OrderFeignFallBack implements OrderFeignClient {
     @Override
     public String insertAliChargeErrorRecord(AlipayNotifyRecordErrorLog alipayNotifyRecordErrorLog) {
         return "支付宝错误记录录入异常";
+    }
+
+    @Override
+    public ResultVO getMeal() {
+        log.info("获取充值列表失败。");
+        return null;
     }
 }

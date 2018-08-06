@@ -10,6 +10,7 @@ import com.icecream.order.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -43,7 +44,7 @@ public class OrderController {
     }
 
     @PostMapping("insertAliChargeRecord")
-    public String insertAliChargeRecord(@RequestBody AlipayNotifyRecord alipayNotifyRecord){
+    public String insertAliChargeRecord(@Validated @RequestBody AlipayNotifyRecord alipayNotifyRecord){
         return chargeRecordService.insert(alipayNotifyRecord);
     }
 

@@ -11,4 +11,14 @@ public interface Contants {
     Integer DEFAULT_PAGE_CURRENT = 1;
 
     Integer DEFAULT_PAGE_SIZE = 15;
+
+
+    /**
+     * 业务流水常量
+     */
+    Integer TYPE_CHARGE = 1; //充值
+
+    Integer TYPE_ORDER = 2; //订单
+
+    Integer TYPE_VALUE_ADDED_SERVICE =3;//增值业务
 }
