@@ -13,4 +13,5 @@ import java.math.BigDecimal;
 public interface ChargeService {
 
     ResultVO charge(String uid,BigDecimal price);
+
 }
