@@ -2,11 +2,14 @@ package com.icecream.user.feignclients.fallback;
 
 import com.icecream.common.model.pojo.AlipayNotifyRecord;
 import com.icecream.common.model.pojo.AlipayNotifyRecordErrorLog;
+import com.icecream.common.model.pojo.Wallet;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.feignclients.OrderFeignClient;
 import com.icecream.common.model.pojo.Order;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
 
 @Slf4j
 @Component
@@ -37,5 +40,14 @@ public class OrderFeignFallBack implements OrderFeignClient {
     public ResultVO getMeal() {
         log.info("获取充值列表失败。");
         return null;
+    }
+
+    @Override
+    public Wallet getWallet(Integer uid) {
+        log.info("获取我的钱包失败");
+        Wallet wallet = new Wallet();
+        wallet.setUid(uid);
+        wallet.setBalance(new BigDecimal(0));
+        return wallet;
     }
 }

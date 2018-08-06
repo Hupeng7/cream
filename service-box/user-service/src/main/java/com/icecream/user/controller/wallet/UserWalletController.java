@@ -1,6 +1,10 @@
 package com.icecream.user.controller.wallet;
 
+import com.icecream.common.util.res.ResultVO;
+import com.icecream.user.service.wallet.MyWalletService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -12,4 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("wallet")
 public class UserWalletController {
+
+    @Autowired
+    private MyWalletService myWalletService;
+
+    @RequestMapping("getBalance")
+    public ResultVO getMyWallet(@RequestParam("specialTokenId") Integer uid){
+        return myWalletService.getWallet(uid);
+    }
 }

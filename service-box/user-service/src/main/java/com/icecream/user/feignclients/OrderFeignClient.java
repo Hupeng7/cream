@@ -2,6 +2,7 @@ package com.icecream.user.feignclients;
 
 import com.icecream.common.model.pojo.AlipayNotifyRecord;
 import com.icecream.common.model.pojo.AlipayNotifyRecordErrorLog;
+import com.icecream.common.model.pojo.Wallet;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.config.OrderFeignConfig;
 import com.icecream.common.model.pojo.Order;
@@ -36,4 +37,7 @@ public interface OrderFeignClient {
 
     @RequestMapping(value = "charge/meal/get",method = RequestMethod.GET)
     ResultVO getMeal();
+
+    @RequestMapping(value = "wallet/getBalance",method = RequestMethod.GET)
+    Wallet getWallet(Integer uid);
 }
