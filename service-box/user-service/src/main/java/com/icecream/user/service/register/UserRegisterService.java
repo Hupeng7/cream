@@ -33,9 +33,6 @@ import java.util.Optional;
 public class UserRegisterService {
 
     @Autowired
-    private MybatisUserAuthMapper mybatisUserAuthMapper;
-
-    @Autowired
     private UserMapper userMapper;
 
     @Autowired
@@ -51,7 +48,7 @@ public class UserRegisterService {
     private CodeHandler codeHandler;
 
     public UserAuth isHaveBeenRegistered(String key, Integer type) {
-        UserAuth haveBeenRegistered = mybatisUserAuthMapper.isHaveBeenRegistered(type, key);
+        UserAuth haveBeenRegistered = userAuthService.get(type, key);
         return Optional.ofNullable(haveBeenRegistered).orElse(null);
     }
 
@@ -141,6 +138,7 @@ public class UserRegisterService {
         int time = (int) LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
         user.setCtime(time);
         user.setLastlogintime(time);
+        user.setMtime(0);
         return user;
     }
 
