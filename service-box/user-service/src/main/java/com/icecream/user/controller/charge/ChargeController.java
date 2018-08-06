@@ -24,6 +24,6 @@ public class ChargeController {
     public ResultVO toCharge(ChargeParamContainer chargeParamContainer) {
         return ((ChargeService) chargeParamContainer
                                 .getService())
-                                .charge(chargeParamContainer.getPrice());
+                                .charge(chargeParamContainer.getUid(),chargeParamContainer.getPrice());
     }
 }

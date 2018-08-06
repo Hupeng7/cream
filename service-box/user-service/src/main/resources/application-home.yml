@@ -92,6 +92,7 @@ sms:
     #请求地址请登录253云通讯自助通平台查看或者询问您的商务负责人获取
     url: http://sms.253.com/msg/send/json
     code-time-out: 60000
+
 redis:
   time-out: 600
   max-idle: 8
@@ -107,6 +108,10 @@ token:
   valid-time: 3600000000
   star-secret: star
   customer-secret: customer
+
+#mybatis mapper扫描路径
+mybatis:
+  mapper-locations: classpath:/mapper/*Mapper.xml
 
 
 

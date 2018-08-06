@@ -2,24 +2,15 @@ package com.icecream.user.aspect;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.icecream.common.model.pojo.*;
 import com.icecream.common.model.requstbody.ChargeParamContainer;
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
-import com.icecream.user.aspect.annotation.Permission;
-import com.icecream.user.exception.UnsupportedPaymenttypeException;
-import com.icecream.user.mapper.RoleMapper;
-import com.icecream.user.mapper.RolePermissionMapper;
-import com.icecream.user.mapper.UserPermissionMapper;
-import com.icecream.user.mapper.UserRoleMapper;
 import com.icecream.user.utils.factory.ChargeFactory;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
@@ -28,10 +19,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.List;
 
 
 /**
@@ -63,6 +51,7 @@ public class PayAspect {
         ChargeParamContainer chargeParamContainer =new ChargeParamContainer();
         chargeParamContainer.setType(jsonObject.getInteger("type"));
         chargeParamContainer.setPrice(jsonObject.getBigDecimal("price"));
+        chargeParamContainer.setUid(jsonObject.getString("specialTokenId"));
         chargeParamContainer = ChargeFactory.getServiceHandler(chargeParamContainer);
         Object[] obj=new Object[1];
         obj[0]=chargeParamContainer;

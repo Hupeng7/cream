@@ -1,6 +1,6 @@
 package com.icecream.user.feignclients;
 
-import com.icecream.user.feignclients.FeiginFallBack.CommentsFallback;
+import com.icecream.user.feignclients.fallback.CommentsFallback;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;

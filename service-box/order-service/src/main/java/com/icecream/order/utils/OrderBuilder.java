@@ -13,7 +13,7 @@ public class OrderBuilder {
 
     public static Order buildOrder(){
         Order order = new Order();
-        order.setId(UUIDFactory.create());
+        //order.setId(UUIDFactory.create());
         order.setSid(1);
         order.setUid(2082501);
         order.setCreater(-1);

@@ -1,5 +1,7 @@
 package com.icecream.common.redis;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.DataType;
@@ -426,6 +428,10 @@ public class RedisHandler {
         set(String.valueOf(key), value);
     }
 
+    public static void set(){
+
+    }
+
     public static void set(String key, Object value) {
         redisHandler.redisTemplate.boundValueOps(key).set(value);
     }
@@ -463,6 +469,11 @@ public class RedisHandler {
 
     public static <T> T getMapField(String key, String field) {
         return (T) redisHandler.redisTemplate.boundHashOps(key).get(field);
+    }
+
+    public static <K,V> void set(K key,V value){
+        JSONObject jsonObject = (JSONObject) JSON.toJSON(value);
+        set(String.valueOf(key), value);
     }
 
 

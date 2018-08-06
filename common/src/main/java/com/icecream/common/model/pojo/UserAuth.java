@@ -7,9 +7,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-/**
- * 用户登陆记录表
- */
 @Data
 @Table(name = "user_auth")
 public class UserAuth {
@@ -26,7 +23,6 @@ public class UserAuth {
 
     private String credential;
 
-    private Boolean isSync;
-
+    private Integer isSync;
 
 }

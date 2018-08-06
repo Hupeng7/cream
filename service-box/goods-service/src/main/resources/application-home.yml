@@ -15,7 +15,7 @@ spring:
     username: admin
     password: 123456
   datasource:
-    url: 'jdbc:mysql://localhost:3306/xgq?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&tinyInt1isBit=false&allowMultiQueries=true'
+    url: 'jdbc:mysql://localhost:3306/xgqoms?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&tinyInt1isBit=false&allowMultiQueries=true'
     username: root
     password: root
     driver-class-name: 'com.mysql.jdbc.Driver'
@@ -90,7 +90,7 @@ sms:
     #用户平台API密码(非登录密码)
     password: KsqAXCW2rueefa
     #请求地址请登录253云通讯自助通平台查看或者询问您的商务负责人获取
-    url: http://sms.253.com/msg/send/json
+    url: http://code.253.com/msg/send/json
     code-time-out: 60000
 redis:
   time-out: 600

@@ -18,7 +18,7 @@ spring:
     username: admin
     password: 123456
   datasource:
-    url: 'jdbc:mysql://10.40.254.59:4000/gms?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&tinyInt1isBit=false&allowMultiQueries=true'
+    url: 'jdbc:mysql://10.40.254.59:4000/xgqoms?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&tinyInt1isBit=false&allowMultiQueries=true'
     username: root
     password: 2018
     driver-class-name: 'com.mysql.jdbc.Driver'

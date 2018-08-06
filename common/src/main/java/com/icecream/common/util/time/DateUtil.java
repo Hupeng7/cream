@@ -900,5 +900,25 @@ public class DateUtil {
         LocalDateTime localDateTime = instant.atZone(zoneId).toLocalDateTime();
         return localDateTime;
     }
+
+    /**
+     * 获取当前时间的秒值
+     * @return
+     */
+    public static String getNowSecond(){
+        return String.valueOf(LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8")));
+    }
+
+    /**
+     * 将yyyy-mm-dd:hh:mm:ss格式的字符串时间转化为秒值
+     * @return
+     */
+    public static String getStringSecond(String time){
+        DateTimeFormatter df = DateTimeFormatter.ofPattern(DateUtil.DATE_TIME_FORMAT_YYYY_MM_DD_HH_MI_SS);
+        LocalDateTime localDateTime = LocalDateTime.parse(time,df);
+        return String.valueOf(localDateTime.toEpochSecond(ZoneOffset.of("+8")));
+    }
+
+
 }
 

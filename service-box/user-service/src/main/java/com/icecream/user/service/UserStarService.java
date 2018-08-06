@@ -8,6 +8,7 @@ import com.icecream.common.model.requstbody.SimpleLogin;
 import com.icecream.common.model.pojo.UserStar;
 import com.icecream.common.redis.RedisHandler;
 import com.icecream.user.mapper.UserStarMapper;
+import com.icecream.user.service.binding.UserAuthService;
 import com.icecream.user.utils.jwt.TokenBuilder;
 import com.icecream.user.utils.time.DateUtil;
 import com.icecream.common.util.res.ResultEnum;
@@ -20,7 +21,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * @author Mr_h
- * @version 1.0
+ * @version 2.0
  * description:
  * create by Mr_h on 2018/6/28 0028
  */
@@ -70,7 +71,7 @@ public class UserStarService {
             UserStar cache = userStarMapper.getCache(result.getId());
             setUserStarInfoToRedis(cache);
             LoginReturn loginReturn = new LoginReturn();
-            loginReturn.setUser(result);
+            loginReturn.setAdmin(result);
             loginReturn.setToken(tokenBuilder.createToken(result));
             return ResultUtil.success(loginReturn);
         }

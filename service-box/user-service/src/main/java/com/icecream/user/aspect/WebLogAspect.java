@@ -26,7 +26,7 @@ import java.util.Arrays;
 public class WebLogAspect {
 
     //切点
-    @Pointcut("execution(*  com.icecream.user.controller.UserController.*(..))")
+    @Pointcut("execution(*  com.icecream.user.controller.root.UserController.*(..))")
     public void webLog(){}
 
     /**

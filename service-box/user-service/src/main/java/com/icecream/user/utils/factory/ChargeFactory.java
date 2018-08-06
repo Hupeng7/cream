@@ -1,11 +1,11 @@
 package com.icecream.user.utils.factory;
 
 
-import com.alibaba.fastjson.JSONObject;
 import com.icecream.common.model.requstbody.ChargeParamContainer;
-import com.icecream.user.exception.UnsupportedPaymenttypeException;
+import com.icecream.user.exception.UnsupportedPaymentTypeException;
 import com.icecream.user.service.charge.AilPayChargeServiceImpl;
 import com.icecream.user.service.charge.WxPayChargeServiceImpl;
+import com.icecream.user.utils.factory.builder.FactoryBuilder;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -22,7 +22,7 @@ import static com.icecream.user.constants.Constants.TYPE_WX_PAY;
  */
 @Component
 @SuppressWarnings("all")
-public class ChargeFactory implements ApplicationContextAware {
+public class ChargeFactory extends FactoryBuilder implements ApplicationContextAware{
 
     private static ApplicationContext context = null;
 
@@ -36,7 +36,7 @@ public class ChargeFactory implements ApplicationContextAware {
         return context.getBean(clazz);
     }
 
-    public static ChargeParamContainer getServiceHandler(ChargeParamContainer chargeParamContainer) throws UnsupportedPaymenttypeException {
+    public static ChargeParamContainer getServiceHandler(ChargeParamContainer chargeParamContainer) throws UnsupportedPaymentTypeException {
         switch (chargeParamContainer.getType()) {
             case TYPE_ALI_PAY:
                 chargeParamContainer.setService(getBean(AilPayChargeServiceImpl.class));
@@ -45,7 +45,7 @@ public class ChargeFactory implements ApplicationContextAware {
                 chargeParamContainer.setService(getBean(WxPayChargeServiceImpl.class));
                 return chargeParamContainer;
             default:
-                throw new UnsupportedPaymenttypeException("不支持的支付方式");
+                throw new UnsupportedPaymentTypeException("不支持的支付方式");
         }
     }
 }

@@ -1,11 +1,13 @@
 package com.icecream.common.model.pojo;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import javax.persistence.*;
 
 @Data
 @Table(name = "user")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class User{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

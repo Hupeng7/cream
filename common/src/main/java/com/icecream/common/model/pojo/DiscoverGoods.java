@@ -2,8 +2,6 @@ package com.icecream.common.model.pojo;
 
 import lombok.Data;
 
-import java.util.Date;
-
 @Data
 public class DiscoverGoods {
 

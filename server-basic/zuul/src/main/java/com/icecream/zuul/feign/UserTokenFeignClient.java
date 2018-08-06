@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * @author Mr_h
- * @version 1.0
+ * @version 2.0
  * description:
  * create by Mr_h on 2018/7/17 0017
  */
@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient(name ="user-service")
 public interface UserTokenFeignClient {
 
-    @RequestMapping(value = "token/star",method = RequestMethod.GET)
+    @RequestMapping(value = "user/token/star",method = RequestMethod.GET)
     ResultVO checkStar(@RequestParam("token") String token);
 
-    @RequestMapping(value = "token/consumer",method = RequestMethod.GET)
+    @RequestMapping(value = "user/token/consumer",method = RequestMethod.GET)
     ResultVO checkConsumer(@RequestParam("token")String token);
 }
