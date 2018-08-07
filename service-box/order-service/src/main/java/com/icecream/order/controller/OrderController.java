@@ -52,7 +52,4 @@ public class OrderController {
     public String insertAliChargeErrorRecord(@RequestBody AlipayNotifyRecordErrorLog alipayNotifyRecordErrorLog){
         return chargeRecordService.insert(alipayNotifyRecordErrorLog);
     }
-
-
-
 }

@@ -1,7 +1,6 @@
 package com.icecream.order.controller;
 
 import com.icecream.common.model.pojo.Wallet;
-import com.icecream.common.util.res.ResultVO;
 import com.icecream.order.service.WalletService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
