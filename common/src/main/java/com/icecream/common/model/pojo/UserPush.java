@@ -12,7 +12,7 @@ import javax.persistence.Table;
  * @version 2.0
  */
 @Data
-@Table(name = "user_push")
+@Table(name = "user_register")
 public class UserPush {
 
     @Id

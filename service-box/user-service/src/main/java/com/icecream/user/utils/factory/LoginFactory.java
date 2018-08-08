@@ -4,6 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.icecream.common.model.requstbody.*;
 import com.icecream.user.service.login.account.AccountLoginService;
 import com.icecream.user.service.login.auth.QQLoginService;
+import com.icecream.user.service.login.auth.WbLoginService;
+import com.icecream.user.service.login.auth.WxLoginService;
+import com.icecream.user.service.login.sms.SmsLoginService;
 import com.icecream.user.utils.factory.builder.FactoryBuilder;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -32,7 +35,7 @@ public class LoginFactory extends FactoryBuilder implements ApplicationContextAw
             case TYPE_SMS:
                 SmsLoginOrRegisterParams smsLoginOrRegisterParams = JSON.parseObject((String) loginParamContainer.getBody(), SmsLoginOrRegisterParams.class);
                 smsLoginOrRegisterParams.setType(TYPE_SMS);
-                return build(smsLoginOrRegisterParams, getBeanByClass(AccountLoginService.class));
+                return build(smsLoginOrRegisterParams, getBeanByClass(SmsLoginService.class));
             case TYPE_ACCOUNT:
                 AccountLoginParams accountLoginParams = JSON.parseObject((String) loginParamContainer.getBody(), AccountLoginParams.class);
                 accountLoginParams.setType(TYPE_ACCOUNT);
@@ -44,11 +47,11 @@ public class LoginFactory extends FactoryBuilder implements ApplicationContextAw
             case TYPE_AUTH_WB:
                 WbLoginParams wbLoginParams = JSON.parseObject((String) loginParamContainer.getBody(), WbLoginParams.class);
                 wbLoginParams.setType(TYPE_AUTH_WB);
-                return build(wbLoginParams, getBeanByClass(QQLoginService.class));
+                return build(wbLoginParams, getBeanByClass(WbLoginService.class));
             case TYPE_AUTH_WX:
                 WxLoginParams wxLoginParams = JSON.parseObject((String) loginParamContainer.getBody(), WxLoginParams.class);
                 wxLoginParams.setType(TYPE_AUTH_WX);
-                return build(wxLoginParams, getBeanByClass(QQLoginService.class));
+                return build(wxLoginParams, getBeanByClass(WxLoginService.class));
             default:
                 throw new RuntimeException("未知的type类型");
         }

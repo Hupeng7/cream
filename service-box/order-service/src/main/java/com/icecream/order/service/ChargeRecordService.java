@@ -2,10 +2,12 @@ package com.icecream.order.service;
 
 import com.icecream.common.model.pojo.AlipayNotifyRecord;
 import com.icecream.common.model.pojo.AlipayNotifyRecordErrorLog;
+import com.icecream.common.model.pojo.PointInout;
 import com.icecream.common.model.pojo.Wallet;
 import com.icecream.common.util.time.DateUtil;
 import com.icecream.order.mapper.AlipayNotifyRecordErrorLogMapper;
 import com.icecream.order.mapper.AlipayNotifyRecordMapper;
+import com.icecream.order.mapper.PointInoutMapper;
 import com.icecream.order.mapper.WalletMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+
+import static com.icecream.order.contants.Contants.ADD;
+import static com.icecream.order.contants.Contants.TYPE_CHARGE;
 
 /**
  * @author Mr_h
@@ -34,21 +39,32 @@ public class ChargeRecordService {
     @Autowired
     private WalletMapper walletMapper;
 
+    @Autowired
+    private PointInoutMapper pointInoutMapper;
+
     @Transactional(rollbackFor = Exception.class)
     public String insert(AlipayNotifyRecord alipayNotifyRecord) {
         try {
-            int count = alipayNotifyRecordMapper.insertSelective(alipayNotifyRecord);
+            BigDecimal charge = alipayNotifyRecord.getTotal_amount();
+            int warn = charge.compareTo(BigDecimal.ZERO);
+            if (warn < 0) {
+                throw new Exception();
+            }
+            //插入支付宝记录表
+            int countOne = alipayNotifyRecordMapper.insertSelective(alipayNotifyRecord);
+            //插入流水表
+            int countTwo = pointInoutMapper.insertSelective(caseToPointOut(alipayNotifyRecord));
             Wallet slecetArgs = new Wallet();
             slecetArgs.setUid(alipayNotifyRecord.getUid());
             Wallet wallet = walletMapper.selectOne(slecetArgs);
             //如果该用户从未充值过，数据库操作为insert
             if (wallet == null) {
-                BigDecimal money = alipayNotifyRecord.getTotal_amount();
-                int row = walletMapper.insertSelective(buildWallet(-1, alipayNotifyRecord.getUid(), money));
+                int row = walletMapper.insertSelective(buildWallet(-1, alipayNotifyRecord.getUid(), charge));
                 return row > 0 ? "ok" : "";
             }
             //用户充值过，则在原来钱包的基础上加钱,数据库操作为update
-            BigDecimal money = wallet.getBalance().add(alipayNotifyRecord.getTotal_amount());
+            BigDecimal money = wallet.getBalance().add(charge);
+
             int row = walletMapper.updateByPrimaryKeySelective(buildWallet(
                     wallet.getId(), alipayNotifyRecord.getUid(), money));
             return row > 0 ? "ok" : "";
@@ -87,12 +103,25 @@ public class ChargeRecordService {
         alipayNotifyRecordErrorLog.setCtime(Integer.parseInt(DateUtil.getNowSecond()));
         alipayNotifyRecordErrorLog.setNotifyId(alipayNotifyRecord.getNotify_id());
         alipayNotifyRecordErrorLog.setNotifyTime(alipayNotifyRecord.getNotify_time());
-        alipayNotifyRecordErrorLog.setOutTradeNo(alipayNotifyRecord.getOut_tradeNo() );
+        alipayNotifyRecordErrorLog.setOutTradeNo(alipayNotifyRecord.getOut_tradeNo());
         alipayNotifyRecordErrorLog.setNotifyType(alipayNotifyRecord.getNotify_type());
         alipayNotifyRecordErrorLog.setSign(alipayNotifyRecord.getSign());
         alipayNotifyRecordErrorLog.setTradeNo(alipayNotifyRecord.getTradeNo());
         alipayNotifyRecordErrorLog.setOutTradeNo(alipayNotifyRecord.getOut_tradeNo());
         alipayNotifyRecordErrorLog.setCtime(Integer.parseInt(DateUtil.getNowSecond()));
         return alipayNotifyRecordErrorLog;
+    }
+
+
+    private PointInout caseToPointOut(
+            AlipayNotifyRecord alipayNotifyRecord) {
+        PointInout pointInout = new PointInout();
+        pointInout.setCtime(Integer.parseInt(DateUtil.getNowSecond()));
+        pointInout.setIntout(ADD);
+        pointInout.setIsInuse(1);
+        pointInout.setObjectId(alipayNotifyRecord.getId().toString());
+        pointInout.setObjectType(TYPE_CHARGE);
+        pointInout.setPoint(Integer.parseInt(alipayNotifyRecord.getTotal_amount().toString()));
+        return pointInout;
     }
 }

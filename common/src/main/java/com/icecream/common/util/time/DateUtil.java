@@ -869,6 +869,9 @@ public class DateUtil {
     public static long caseLocalDateTimeMillsion(LocalDateTime localDateTime) {
        return localDateTime.toInstant(ZoneOffset.of("+8")).toEpochMilli();
     }
+    public static long caseLocalDateTimeSecond(LocalDateTime localDateTime) {
+        return localDateTime.toEpochSecond(ZoneOffset.of("+8"));
+    }
 
 
     /**
@@ -901,12 +904,22 @@ public class DateUtil {
         return localDateTime;
     }
 
+
+
     /**
      * 获取当前时间的秒值
      * @return
      */
     public static String getNowSecond(){
         return String.valueOf(LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8")));
+    }
+
+    /**
+     * 获取当前时间的秒值
+     * @return
+     */
+    public static int getNowSecondIntTime(){
+        return (int)LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
     }
 
     /**
@@ -917,6 +930,14 @@ public class DateUtil {
         DateTimeFormatter df = DateTimeFormatter.ofPattern(DateUtil.DATE_TIME_FORMAT_YYYY_MM_DD_HH_MI_SS);
         LocalDateTime localDateTime = LocalDateTime.parse(time,df);
         return String.valueOf(localDateTime.toEpochSecond(ZoneOffset.of("+8")));
+    }
+
+    /**
+     * 获取24小时的秒数
+     */
+    public static int get24HoursSecond(){
+        int second = 60*60*24;
+        return second;
     }
 
 

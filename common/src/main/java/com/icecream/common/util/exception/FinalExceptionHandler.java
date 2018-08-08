@@ -29,7 +29,8 @@ public class FinalExceptionHandler implements ErrorController {
     @RequestMapping(value = "/error")
     public ResultVO error(HttpServletResponse resp, HttpServletRequest req) {
         // 错误处理逻辑
-        log.error("错误的请求路径--->{},请求方式--->{}",req.getRequestURL(),req.getMethod());
+        log.error("错误的请求路径--->{},请求方式--->{},请求参数---->{}"
+                ,req.getRequestURL(),req.getMethod(),req.getQueryString());
         int code = resp.getStatus();
         log.error("http状态码--->{}",code);
         switch (code){

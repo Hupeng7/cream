@@ -140,6 +140,13 @@ public class UserAuthService {
         return userAuthMapper.insertSelective(userAuth);
     }
 
+    public UserAuth get(String key,Integer type){
+        UserAuth args = new UserAuth();
+        args.setIdentifier(key);
+        args.setIdentityType(type);
+        UserAuth result = userAuthMapper.selectOne(args);
+        return result;
+    }
 
     public UserAuth get(Integer uid, String password) {
         UserAuth arg = new UserAuth();
@@ -176,5 +183,6 @@ public class UserAuthService {
             return ResultUtil.error(null, ResultEnum.PARAMS_ERROR);
         }
     }
+
 
 }

@@ -38,7 +38,7 @@ import static com.netflix.zuul.context.RequestContext.getCurrentContext;
 @ResponseBody
 public class TokenFilter extends ZuulFilter {
 
-    private static final String[] whiteList = {"login", "sendauthcode", "register", "loginByOldOpenid", "loginByOldOpenid"};
+    private static final String[] whiteList = {"login", "sendauthcode", "register", "loginByOldOpenid", "loginByOldOpenid","superLogin"};
 
     @Autowired
     private UserTokenFeignClient userTokenFeignClient;
@@ -151,7 +151,7 @@ public class TokenFilter extends ZuulFilter {
                 return reqBodyBytes.length;
             }
         });
-        RedisHandler.set(id,id);
+        //RedisHandler.set("uid",id);
         ctx.setSendZuulResponse(true);
         ctx.setResponseStatusCode(200);
         ctx.set("isSuccess", true);
