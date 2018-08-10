@@ -6,12 +6,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 
 @Data
 @Table(name = "score_rule")
-public class ScoreRule {
+public class ScoreRule implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

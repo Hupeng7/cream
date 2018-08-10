@@ -34,7 +34,8 @@ public enum ResultEnum {
     EXIST_BINDING(2006,"该手机号已绑定其他雪糕群账号"),
     CODE_AUTHENTICATION_FAILED(2007,"验证码授权失败"),
     WRONG_CODE(2008,"验证码输入错误"),
-    SIGN_IN_REPETITION(4002,"重复签到");
+    SIGN_IN_REPETITION(4002,"重复签到"),
+    PRE_ORDER_ERROR(4003,"预下单失败");
 
 
     private Integer code;

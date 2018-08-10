@@ -1,11 +1,8 @@
 package com.icecream.user.feignclients.fallback;
 
-import com.icecream.common.model.pojo.AlipayNotifyRecord;
-import com.icecream.common.model.pojo.AlipayNotifyRecordErrorLog;
-import com.icecream.common.model.pojo.Wallet;
+import com.icecream.common.model.pojo.*;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.feignclients.OrderFeignClient;
-import com.icecream.common.model.pojo.Order;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -20,10 +17,10 @@ public class OrderFeignFallBack implements OrderFeignClient {
         log.info("调用order-service服务getOrderByOrderNo方法时发生异常/调用超时");
         throw new RuntimeException("order-service查询失败，进入回退");
     }
+
     @Override
-    public int insert() {
-        log.info("调用order-service服务insert方法时发生异常/调用超时");
-        throw new RuntimeException("order-service处理时异常，进入回退");
+    public int insert(Order order) {
+        return 0;
     }
 
     @Override
@@ -34,6 +31,11 @@ public class OrderFeignFallBack implements OrderFeignClient {
     @Override
     public String insertAliChargeErrorRecord(AlipayNotifyRecordErrorLog alipayNotifyRecordErrorLog) {
         return "支付宝错误记录录入异常";
+    }
+
+    @Override
+    public String insertWxChargeRecord(WechatpayNotifyRecord wechatpayNotifyRecord) {
+        return null;
     }
 
     @Override
@@ -50,4 +52,5 @@ public class OrderFeignFallBack implements OrderFeignClient {
         wallet.setBalance(new BigDecimal(0));
         return wallet;
     }
+
 }

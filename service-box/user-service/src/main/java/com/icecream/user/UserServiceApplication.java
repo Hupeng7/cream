@@ -1,6 +1,7 @@
 package com.icecream.user;
 
 
+import com.icecream.user.utils.charge.RSAUtil;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -13,6 +14,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScans;
 import org.springframework.web.client.RestTemplate;
 import tk.mybatis.spring.annotation.MapperScan;
+
+import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 
 /**
  * @author  mr_h
@@ -35,5 +40,7 @@ public class UserServiceApplication {
     }
 
 
-    public static void main(String[] args){SpringApplication.run(UserServiceApplication.class);}
+    public static void main(String[] args) throws Exception{
+        SpringApplication.run(UserServiceApplication.class);
+    }
 }

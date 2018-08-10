@@ -23,8 +23,11 @@ public interface SysConstants {
 
     /**
      * user_type
-      */
-   String USER_STAR = "star";
-   String USER_CONSUMER = "consumer";
+     */
+    String USER_STAR = "star";
+    String USER_CONSUMER = "consumer";
+
+
+    String ORDER_ROUTING_KEY = "order-queue";
 
 }

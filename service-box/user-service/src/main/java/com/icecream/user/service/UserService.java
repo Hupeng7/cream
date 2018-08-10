@@ -81,7 +81,7 @@ public class UserService {
     @Transactional
     public Integer insert() {
         int count1 = userMapper.insert(UserBuilder.buildUser());
-        int count2 = orderFeignClient.insert();
+        int count2 = 1;
         if (count1 > 0 && count2 > 0) {
             log.info("插入成功");
             return 1;
