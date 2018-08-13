@@ -1,16 +1,14 @@
 package com.icecream.user.service.binding;
 
+import com.icecream.common.model.pojo.User;
+import com.icecream.common.model.pojo.UserAuth;
+import com.icecream.common.model.pojo.UserStar;
 import com.icecream.common.model.requstbody.BindingModel;
-import com.icecream.common.model.requstbody.ThirdPartyDataTransform;
-import com.icecream.common.model.requstbody.ThirdPartyLoginParam;
 import com.icecream.common.model.requstbody.WxLoginParams;
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.mapper.UserAuthMapper;
-import com.icecream.common.model.pojo.User;
-import com.icecream.common.model.pojo.UserAuth;
-import com.icecream.common.model.pojo.UserStar;
 import com.icecream.user.service.UserService;
 import com.icecream.user.service.login.auth.WxLoginService;
 import lombok.extern.slf4j.Slf4j;

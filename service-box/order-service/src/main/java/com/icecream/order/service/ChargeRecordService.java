@@ -2,6 +2,7 @@ package com.icecream.order.service;
 
 import com.icecream.common.model.pojo.*;
 import com.icecream.common.util.time.DateUtil;
+import com.icecream.common.util.uuid.UUIDFactory;
 import com.icecream.order.mapper.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,9 @@ public class ChargeRecordService {
 
     @Autowired
     private WalletService walletService;
+
+    @Autowired
+    private OrderService orderService;
 
     @Transactional(rollbackFor = Exception.class)
     public String insert(AlipayNotifyRecord alipayNotifyRecord) {
@@ -83,6 +87,18 @@ public class ChargeRecordService {
         return count > 0 ? "ok" : "";
     }
 
+
+    @Transactional(rollbackFor = Exception.class)
+    public void insert(WechatpayNotifyRecord wechatpayNotifyRecord) {
+        orderService.updateOrderForCharge(buildOrder(wechatpayNotifyRecord));
+        wechatpayNotifyRecord.setCtime(DateUtil.getNowSecondIntTime());
+        wechatpayNotifyRecordMapper.insertSelective(wechatpayNotifyRecord);
+        pointInoutMapper.insertSelective(caseToPointOut(wechatpayNotifyRecord));
+        walletService.insertOrUpateHandler(wechatpayNotifyRecord.getUid(),
+                new BigDecimal(wechatpayNotifyRecord.getTotal_fee() / 100));
+
+    }
+
     public Wallet buildWallet(Integer id, Integer uid, BigDecimal money) {
         Wallet inserArgs = new Wallet();
         if (id != -1) {
@@ -95,6 +111,8 @@ public class ChargeRecordService {
         inserArgs.setStatus(1);
         return inserArgs;
     }
+
+
 
     private AlipayNotifyRecordErrorLog caseToAlipayNotifyRecordErrorLog(
             AlipayNotifyRecord alipayNotifyRecord) {
@@ -129,6 +147,7 @@ public class ChargeRecordService {
     private PointInout caseToPointOut(
             WechatpayNotifyRecord wechatpayNotifyRecord) {
         PointInout pointInout = new PointInout();
+        pointInout.setId(UUIDFactory.create());
         pointInout.setCtime(Integer.parseInt(DateUtil.getNowSecond()));
         pointInout.setIntout(ADD);
         pointInout.setIsInuse(1);
@@ -138,12 +157,15 @@ public class ChargeRecordService {
         return pointInout;
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    public void insert(WechatpayNotifyRecord wechatpayNotifyRecord) {
-        wechatpayNotifyRecordMapper.insertSelective(wechatpayNotifyRecord);
-        pointInoutMapper.insertSelective(caseToPointOut(wechatpayNotifyRecord));
-        walletService.insertOrUpateHandler(wechatpayNotifyRecord.getUid(),
-                new BigDecimal(wechatpayNotifyRecord.getTotal_fee()));
 
+    private Order buildOrder(WechatpayNotifyRecord wechatpayNotifyRecord) {
+        Order order = new Order();
+        order.setIsPay(1);
+        order.setPaymentType(2);
+        order.setOrderStatus(4);
+        order.setPayPrice(new BigDecimal(wechatpayNotifyRecord.getTotal_fee() / 100));
+        order.setPayTime(DateUtil.getNowSecondIntTime());
+        order.setMtime(DateUtil.getNowSecondIntTime());
+        return order;
     }
 }

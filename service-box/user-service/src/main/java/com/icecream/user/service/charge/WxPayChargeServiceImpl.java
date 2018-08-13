@@ -52,19 +52,21 @@ public class WxPayChargeServiceImpl implements ChargeService {
 
     @Override
     public ResultVO charge(String uid, BigDecimal price) {
-        log.info("开始微信支付。用户id------>{},充值金额------{}", uid, price);
-        String trade_no = LocalDate.now().toString().replace("-","")+String.valueOf(snowflakeGlobalIdFactory.create().nextId());
-        //第一次请求，获取perOrderId
+        log.info("开始微信支付。用户id{},充值金额{}", uid, price);
+        //生成唯一订单号
+        String trade_no = LocalDate.now().toString().replace("-", "") + String.valueOf(snowflakeGlobalIdFactory.create().nextId());
+        //第一次请求生成preOrderId
         Map<String, String> map = weixinPrePay(trade_no, price, uid);
-        if(map.isEmpty()){return ResultUtil.error(null,ResultEnum.PRE_ORDER_ERROR);}
-        //准备返回给前端的请求数据
+        if (map.isEmpty()) {
+            return ResultUtil.error(null, ResultEnum.PRE_ORDER_ERROR);
+        }
+        //第二次请求生成成功结果map
         SortedMap<String, Object> prePay = buildCallRemoteInterfaceParams(map);
-        //向队列里放入订单对象json串
-        rabbitSender.send(JSON.toJSONString(buildPreOrder(uid,trade_no,price)));
+        rabbitSender.send(JSON.toJSONString(buildPreOrder(uid, trade_no, price)));
         try {
-            //使用rsa加密
-            String byte2Base64 = getDecodeStr(prePay);
-            return ResultUtil.success(Optional.ofNullable(byte2Base64).orElse(""));
+            //rsa加密
+            String RsaDecode = getDecodeStr(prePay);
+            return ResultUtil.success(Optional.ofNullable(RsaDecode).orElse(""));
         } catch (Exception e) {
             e.printStackTrace();
             return ResultUtil.error("RSA加密失败", ResultEnum.DATA_ERROR);
@@ -73,17 +75,13 @@ public class WxPayChargeServiceImpl implements ChargeService {
 
     private String getDecodeStr(SortedMap<String, Object> prePay) throws Exception {
         String json = JSON.toJSONString(prePay);
-        //将Base64编码后的公钥转换成PublicKey对象
         PublicKey publicKey = RSAUtil.string2PublicKey(public_key);
-        //用公钥加密
         byte[] publicEncrypt = RSAUtil.publicEncrypt(json.getBytes(), publicKey);
-        //加密后的内容Base64编码
         String byte2Base64 = RSAUtil.byte2Base64(publicEncrypt);
         PrivateKey privateKey = RSAUtil.string2PrivateKey(private_key);
-        //加密后的内容Base64解码
         byte[] base642Byte = RSAUtil.base642Byte(byte2Base64);
-        //用私钥解密
         byte[] privateDecrypt = RSAUtil.privateDecrypt(base642Byte, privateKey);
+        log.info("解密后的密文为{}" + privateDecrypt);
         return byte2Base64;
     }
 
@@ -149,11 +147,16 @@ public class WxPayChargeServiceImpl implements ChargeService {
     }
 
     //构建预下单对象
-    private Order buildPreOrder(String uid,String order_no,BigDecimal price) {
+    private Order buildPreOrder(String uid, String order_no, BigDecimal price) {
         Order order = new Order();
         order.setUid(Integer.parseInt(uid));
         order.setOrderNo(order_no);
         order.setPayPrice(price);
+        order.setPaymentType(2); //支付类型 微信
+        order.setStatus(1); //状态为正常
+        order.setOrderStatus(0);//订单状态为待付款
+        order.setIsDigital(1);//虚拟商品
+        order.setIsPay(0);//未支付
         return order;
     }
 
