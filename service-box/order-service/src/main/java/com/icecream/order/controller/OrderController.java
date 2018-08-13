@@ -1,18 +1,14 @@
 package com.icecream.order.controller;
 
-import com.icecream.common.model.pojo.AlipayNotifyRecord;
-import com.icecream.common.model.pojo.AlipayNotifyRecordErrorLog;
 import com.icecream.common.model.pojo.Order;
-import com.icecream.common.model.pojo.WechatpayNotifyRecord;
-import com.icecream.common.util.res.ResultUtil;
-import com.icecream.common.util.res.ResultVO;
 import com.icecream.order.service.ChargeRecordService;
 import com.icecream.order.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RefreshScope
@@ -30,12 +26,6 @@ public class OrderController {
     @RequestMapping("/detail/{orderNo}")
     public Order getOrderByOrderNo(@PathVariable("orderNo") String orderNo){
         return orderService.getOrderByOrderNo(orderNo);
-    }
-
-    //测试查询分表后的全部订单
-    @RequestMapping("/list")
-    public ResultVO getOrderByOrderNo(){
-        return ResultUtil.success(orderService.list());
     }
 
     //测试订单插入

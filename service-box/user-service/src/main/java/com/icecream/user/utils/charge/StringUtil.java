@@ -19,7 +19,6 @@ public class StringUtil {
      */
     public static String supplementZeroGenerateThirteen(int num){
         String str = String.format("%013d", num);
-
         return str;
     }
 

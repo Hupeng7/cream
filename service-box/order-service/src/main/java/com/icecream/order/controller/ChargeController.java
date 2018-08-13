@@ -56,8 +56,7 @@ public class ChargeController {
      */
     @PostMapping("insertWxChargeRecord")
     public void insertWxChargeRecord(@RequestBody WechatpayNotifyRecord WechatpayNotifyRecord){
-        chargeRecordService.insert(WechatpayNotifyRecord);
-    }
+        chargeRecordService.insert(WechatpayNotifyRecord); }
 
     /**
      * 用户获取充值星星的套餐列表

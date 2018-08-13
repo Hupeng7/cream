@@ -1,24 +1,17 @@
 package com.icecream.user.controller.root;
 
-import com.icecream.common.model.pojo.MethodName;
-import com.icecream.common.util.res.ResultEnum;
-import com.icecream.common.util.res.ResultUtil;
-import com.icecream.user.aspect.annotation.Permission;
-import com.icecream.user.service.UserService;
-import com.icecream.user.service.UserStarService;
-import com.icecream.common.model.requstbody.SimpleLogin;
 import com.icecream.common.model.pojo.UserStar;
 import com.icecream.common.model.requstbody.PersonStatusInfo;
+import com.icecream.common.model.requstbody.SimpleLogin;
 import com.icecream.common.util.res.ResultVO;
-import io.swagger.annotations.ApiOperation;
+import com.icecream.user.service.UserService;
+import com.icecream.user.service.UserStarService;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.lang.annotation.Target;
 
 /**
  * @author Mr_h
