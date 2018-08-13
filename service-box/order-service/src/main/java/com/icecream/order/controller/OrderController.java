@@ -3,6 +3,7 @@ package com.icecream.order.controller;
 import com.icecream.common.model.pojo.AlipayNotifyRecord;
 import com.icecream.common.model.pojo.AlipayNotifyRecordErrorLog;
 import com.icecream.common.model.pojo.Order;
+import com.icecream.common.model.pojo.WechatpayNotifyRecord;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.order.service.ChargeRecordService;
@@ -43,13 +44,6 @@ public class OrderController {
         return orderService.insert();
     }
 
-    @PostMapping("insertAliChargeRecord")
-    public String insertAliChargeRecord(@Validated @RequestBody AlipayNotifyRecord alipayNotifyRecord){
-        return chargeRecordService.insert(alipayNotifyRecord);
-    }
 
-    @PostMapping("insertAliChargeErrorRecord")
-    public String insertAliChargeErrorRecord(@RequestBody AlipayNotifyRecordErrorLog alipayNotifyRecordErrorLog){
-        return chargeRecordService.insert(alipayNotifyRecordErrorLog);
-    }
+
 }

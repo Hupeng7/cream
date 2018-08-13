@@ -1,14 +1,8 @@
 package com.icecream.order.service;
 
-import com.icecream.common.model.pojo.AlipayNotifyRecord;
-import com.icecream.common.model.pojo.AlipayNotifyRecordErrorLog;
-import com.icecream.common.model.pojo.PointInout;
-import com.icecream.common.model.pojo.Wallet;
+import com.icecream.common.model.pojo.*;
 import com.icecream.common.util.time.DateUtil;
-import com.icecream.order.mapper.AlipayNotifyRecordErrorLogMapper;
-import com.icecream.order.mapper.AlipayNotifyRecordMapper;
-import com.icecream.order.mapper.PointInoutMapper;
-import com.icecream.order.mapper.WalletMapper;
+import com.icecream.order.mapper.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,10 +36,17 @@ public class ChargeRecordService {
     @Autowired
     private PointInoutMapper pointInoutMapper;
 
+    @Autowired
+    private WechatpayNotifyRecordMapper wechatpayNotifyRecordMapper;
+
+    @Autowired
+    private WalletService walletService;
+
     @Transactional(rollbackFor = Exception.class)
     public String insert(AlipayNotifyRecord alipayNotifyRecord) {
         try {
-            BigDecimal charge = alipayNotifyRecord.getTotal_amount();
+            //支付宝的单位是元，与微信有区别
+            BigDecimal charge = alipayNotifyRecord.getTotal_amount().multiply(new BigDecimal(100));
             int warn = charge.compareTo(BigDecimal.ZERO);
             if (warn < 0) {
                 throw new Exception();
@@ -123,5 +124,26 @@ public class ChargeRecordService {
         pointInout.setObjectType(TYPE_CHARGE);
         pointInout.setPoint(Integer.parseInt(alipayNotifyRecord.getTotal_amount().toString()));
         return pointInout;
+    }
+
+    private PointInout caseToPointOut(
+            WechatpayNotifyRecord wechatpayNotifyRecord) {
+        PointInout pointInout = new PointInout();
+        pointInout.setCtime(Integer.parseInt(DateUtil.getNowSecond()));
+        pointInout.setIntout(ADD);
+        pointInout.setIsInuse(1);
+        pointInout.setObjectId(wechatpayNotifyRecord.getId().toString());
+        pointInout.setObjectType(TYPE_CHARGE);
+        pointInout.setPoint(Integer.parseInt(wechatpayNotifyRecord.getTotal_fee().toString()));
+        return pointInout;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void insert(WechatpayNotifyRecord wechatpayNotifyRecord) {
+        wechatpayNotifyRecordMapper.insertSelective(wechatpayNotifyRecord);
+        pointInoutMapper.insertSelective(caseToPointOut(wechatpayNotifyRecord));
+        walletService.insertOrUpateHandler(wechatpayNotifyRecord.getUid(),
+                new BigDecimal(wechatpayNotifyRecord.getTotal_fee()));
+
     }
 }

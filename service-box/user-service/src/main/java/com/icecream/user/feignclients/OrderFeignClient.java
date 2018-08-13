@@ -1,11 +1,8 @@
 package com.icecream.user.feignclients;
 
-import com.icecream.common.model.pojo.AlipayNotifyRecord;
-import com.icecream.common.model.pojo.AlipayNotifyRecordErrorLog;
-import com.icecream.common.model.pojo.Wallet;
+import com.icecream.common.model.pojo.*;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.config.OrderFeignConfig;
-import com.icecream.common.model.pojo.Order;
 import com.icecream.user.feignclients.fallback.OrderFeignFallBack;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.stereotype.Component;
@@ -13,6 +10,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+
+import java.math.BigDecimal;
 
 /**
  * Feign调用服务栗子
@@ -27,17 +26,21 @@ public interface OrderFeignClient {
     Order getOrderByOrderNo(@PathVariable("orderNo") String orderNo);
 
     @RequestMapping("order/insert")
-    int insert();
+    int insert(Order order);
 
-    @RequestMapping(value = "order/insertAliChargeRecord",method = RequestMethod.POST)
+    @RequestMapping(value = "charge/insertAliChargeRecord",method = RequestMethod.POST)
     String insertAliChargeRecord(AlipayNotifyRecord alipayNotifyRecord);
 
-    @RequestMapping(value = "order/insertAliChargeErrorRecord",method = RequestMethod.POST)
+    @RequestMapping(value = "charge/insertAliChargeErrorRecord",method = RequestMethod.POST)
     String insertAliChargeErrorRecord(AlipayNotifyRecordErrorLog alipayNotifyRecordErrorLog);
+
+    @RequestMapping(value = "charge/insertWxChargeRecord",method = RequestMethod.POST)
+    String insertWxChargeRecord(WechatpayNotifyRecord wechatpayNotifyRecord);
 
     @RequestMapping(value = "charge/meal/get",method = RequestMethod.GET)
     ResultVO getMeal();
 
     @RequestMapping(value = "wallet/getBalance",method = RequestMethod.GET)
     Wallet getWallet(Integer uid);
+
 }

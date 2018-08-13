@@ -1,5 +1,6 @@
 package com.icecream.order;
 
+import org.springframework.amqp.core.Queue;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
@@ -7,6 +8,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.context.annotation.ComponentScan;
+
 
 /**
  * @author mr_h
@@ -25,5 +27,5 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan(basePackages = {"com.icecream.common","com.icecream.order"})
 public class OrderServiceApplication {
 
-    public static void main(String[] args){SpringApplication.run(OrderServiceApplication.class,args);}
+    public static void main(String[] args){SpringApplication.run(OrderServiceApplication.class,args); }
 }

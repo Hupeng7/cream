@@ -64,13 +64,9 @@ public class AilPayChargeServiceImpl implements ChargeService {
         model.setBody(uid);
         request.setBizModel(model);
         request.setNotifyUrl("http://icecream.natapp1.cc/notify/ali");
-        String orderStr = "";
         try {
-            //这里和普通的接口调用不同，使用的是sdkExecute
             AlipayTradeAppPayResponse response = alipayClient.sdkExecute(request);
-            orderStr = response.getBody();
-            System.out.println(response.getBody());//就是orderString 可以直接给客户端请求，无需再做处理。
-            return orderStr;
+            return response.getBody();
         } catch (AlipayApiException e) {
             e.printStackTrace();
         }

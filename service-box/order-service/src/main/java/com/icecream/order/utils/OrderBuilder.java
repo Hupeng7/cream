@@ -1,12 +1,10 @@
 package com.icecream.order.utils;
 
 import com.icecream.common.model.pojo.Order;
-import com.icecream.common.util.uuid.UUIDFactory;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.UUID;
 
 public class OrderBuilder {
 

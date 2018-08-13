@@ -1,6 +1,7 @@
 package com.icecream.user.controller.charge;
 
 import com.icecream.user.service.charge.AliPayNotifyService;
+import com.icecream.user.service.charge.WxPayNotifyService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,15 +26,18 @@ public class ChargeNotifyController {
     @Autowired
     private AliPayNotifyService aliPayNotifyService;
 
+    @Autowired
+    private WxPayNotifyService wxPayNotifyService;
+
 
     @PostMapping("ali")
-    public String handlerAliNotifyPayMessage(HttpServletRequest request, HttpServletResponse httpServletResponse) {
+    public String handlerAliNotifyPayMessage(HttpServletRequest request) {
         return aliPayNotifyService.aliNotify(request);
     }
 
     @RequestMapping("wx")
-    public String handlerWxNotifyPayMessage() {
-        return "";
+    public String handlerWxNotifyPayMessage(HttpServletRequest request, HttpServletResponse response) {
+        return wxPayNotifyService.wxNotify(request,response);
     }
 
 }

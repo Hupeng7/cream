@@ -1,10 +1,12 @@
 package com.icecream.common.model.pojo;
 
 import lombok.Data;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.NotNull;
 
 @Data
 public class WechatpayNotifyRecord {
@@ -15,59 +17,79 @@ public class WechatpayNotifyRecord {
 
     private Integer uid;
 
+    @NotBlank(message = "appid不能为空")
     private String appid;
 
+    @NotBlank(message = "传递的uid参数不能为空")
     private String attach;
 
     private Integer ctime;
 
     private Integer mtime;
 
-    private String bankType;
+    @NotBlank(message = "付款银行不能为空")
+    private String bank_type;
 
-    private String feeType;
+    private String fee_type;
 
-    private String isSubscribe;
+    private String is_subscribe;
 
-    private String mchId;
+    @NotBlank(message = "商户号不能为空")
+    private String mch_id;
 
-    private String nonceStr;
+    @NotBlank(message = "随机字符串不能为空")
+    private String nonce_str;
 
+    @NotBlank(message = "用户在商户appid下的唯一标识不能为空")
     private String openid;
 
-    private String outTradeNo;
+    @NotBlank(message = "商户自生成订单号不能为空")
+    private String out_trade_no;
 
-    private String resultCode;
+    @NotBlank(message = "返回状态码不能为空")
+    private String result_code;
 
-    private String returnCode;
+    //默认与result_code一致
+    private String return_code;
 
+    @NotBlank(message = "签名不能为空")
     private String sign;
 
-    private String timeEnd;
+    @NotBlank(message = "支付完成时间不能为空")
+    private String time_end;
 
-    private Integer totalFee;
+    @NotBlank(message = "充值金额不能为空")
+    private Integer total_fee;
 
-    private String tradeType;
+    @NotBlank(message = "交易类型不能为空")
+    private String trade_type;
 
-    private String transactionId;
+    @NotBlank(message = "微信支付订单号不能为空")
+    private String transaction_id;
 
-    private String returnMsg;
+    private String return_msg;
 
-    private String deviceInfo;
+    //微信支付分配的终端设备号
+    private String device_info;
 
+    //微信支付返回的支付错误代码编号(SYSTEMERROR)
     private String errCode;
 
+    //微信支付返回的支付错误解释说明(系统说明)
     private String errCodeDes;
 
-    private Integer cashFee;
+    @NotNull(message = "现金支付金额不能为空")
+    private Integer cash_fee;
 
-    private String cashFeeType;
+    //后面的属性基本用不到,默认值即可----->
+    private String cash_fee_type;
 
-    private Integer couponFee;
+    private Integer coupon_fee;
 
-    private Integer couponCount;
+    private Integer coupon_count;
 
-    private String couponIdN;
+    private String coupon_id_$n;
 
-    private Integer couponFeeN;
+    private Integer coupon_fee_$n;
+    //--------------------------------->
 }
