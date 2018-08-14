@@ -1,14 +1,15 @@
 package com.icecream.order.controller;
 
-import com.icecream.common.model.pojo.Order;
-import com.icecream.order.service.ChargeRecordService;
+import com.icecream.common.util.req.RequestHandler;
+import com.icecream.common.util.res.ResultUtil;
+import com.icecream.common.util.res.ResultVO;
 import com.icecream.order.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Slf4j
 @RefreshScope
@@ -19,9 +20,27 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
-    @RequestMapping("/{sid}/{order_no}")
-    public Order getOrderByOrderNo(@PathVariable("sid")Integer sid,@PathVariable("order_no") String orderNo){
-        return orderService.getOrderByOrderNo(sid,orderNo);
+    /**
+     * 获取订单详情
+     * @param sid 小星空等级
+     * @param orderNo 订单编号
+     * @return {@link ResultVO}
+     */
+    @GetMapping("/{sid}/{order_no}")
+    public ResultVO getOrderByOrderNo(@PathVariable("sid")Integer sid, @PathVariable("order_no") String orderNo){
+        return ResultUtil.success(orderService.getOrderByOrderNo(sid,orderNo));
+    }
+
+    /**
+     * 修改订单地址
+     * @param sid 小星空等级
+     * @param orderNo 订单编号
+     * @return {@link ResultVO}
+     */
+    @PutMapping("address/{sid}/{order_no}")
+    public ResultVO updateOrderAddress(@PathVariable("sid")Integer sid, @PathVariable("order_no")String orderNo
+            , HttpServletRequest request){
+        return orderService.updateOrderAddress(sid,orderNo, RequestHandler.getParams(request,"address"));
     }
 
     //测试订单插入
