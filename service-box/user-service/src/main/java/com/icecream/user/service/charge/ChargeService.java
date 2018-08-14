@@ -1,5 +1,6 @@
 package com.icecream.user.service.charge;
 
+import com.icecream.common.model.pojo.Order;
 import com.icecream.common.util.res.ResultVO;
 
 import java.math.BigDecimal;
@@ -12,6 +13,22 @@ import java.math.BigDecimal;
  */
 public interface ChargeService {
 
+    /**
+     * 充值
+     * @param uid 用户id
+     * @param price 充值金额
+     * @return ResultVO
+     */
     ResultVO charge(String uid,BigDecimal price);
+
+    /**
+     * 构建预下单的对象
+     * @param uid  用户id
+     * @param price 充值金额
+     * @param orderNo 生成的订单号
+     * @return Order
+     */
+    Order buildPreOrder(String uid,String orderNo,BigDecimal price);
+
 
 }

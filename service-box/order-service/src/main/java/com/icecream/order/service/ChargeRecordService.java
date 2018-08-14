@@ -90,12 +90,14 @@ public class ChargeRecordService {
 
     @Transactional(rollbackFor = Exception.class)
     public void insert(WechatpayNotifyRecord wechatpayNotifyRecord) {
-        orderService.updateOrderForCharge(buildOrder(wechatpayNotifyRecord));
+        Order order = orderService.getOrderByOrderNo(wechatpayNotifyRecord.getOut_trade_no());
+        BigDecimal goodsPrice = order.getGoodsPrice();
+        wechatpayNotifyRecord.setUid(Integer.parseInt(wechatpayNotifyRecord.getAttach()));
         wechatpayNotifyRecord.setCtime(DateUtil.getNowSecondIntTime());
+        orderService.updateOrderForCharge(buildOrder(wechatpayNotifyRecord));
         wechatpayNotifyRecordMapper.insertSelective(wechatpayNotifyRecord);
-        pointInoutMapper.insertSelective(caseToPointOut(wechatpayNotifyRecord));
-        walletService.insertOrUpateHandler(wechatpayNotifyRecord.getUid(),
-                new BigDecimal(wechatpayNotifyRecord.getTotal_fee() / 100));
+        pointInoutMapper.insertSelective(caseToPointOut(wechatpayNotifyRecord,goodsPrice));
+        walletService.insertOrUpateHandler(wechatpayNotifyRecord.getUid(),goodsPrice);
 
     }
 
@@ -111,7 +113,6 @@ public class ChargeRecordService {
         inserArgs.setStatus(1);
         return inserArgs;
     }
-
 
 
     private AlipayNotifyRecordErrorLog caseToAlipayNotifyRecordErrorLog(
@@ -135,6 +136,8 @@ public class ChargeRecordService {
     private PointInout caseToPointOut(
             AlipayNotifyRecord alipayNotifyRecord) {
         PointInout pointInout = new PointInout();
+        pointInout.setId(UUIDFactory.create());
+        pointInout.setUid(alipayNotifyRecord.getUid());
         pointInout.setCtime(Integer.parseInt(DateUtil.getNowSecond()));
         pointInout.setIntout(ADD);
         pointInout.setIsInuse(1);
@@ -145,15 +148,16 @@ public class ChargeRecordService {
     }
 
     private PointInout caseToPointOut(
-            WechatpayNotifyRecord wechatpayNotifyRecord) {
+            WechatpayNotifyRecord wechatpayNotifyRecord,BigDecimal goodsPrice) {
         PointInout pointInout = new PointInout();
         pointInout.setId(UUIDFactory.create());
+        pointInout.setUid(wechatpayNotifyRecord.getUid());
         pointInout.setCtime(Integer.parseInt(DateUtil.getNowSecond()));
         pointInout.setIntout(ADD);
         pointInout.setIsInuse(1);
-        pointInout.setObjectId(wechatpayNotifyRecord.getId().toString());
+        pointInout.setObjectId(wechatpayNotifyRecord. getId().toString());
         pointInout.setObjectType(TYPE_CHARGE);
-        pointInout.setPoint(Integer.parseInt(wechatpayNotifyRecord.getTotal_fee().toString()));
+        pointInout.setPoint(goodsPrice.intValue());
         return pointInout;
     }
 

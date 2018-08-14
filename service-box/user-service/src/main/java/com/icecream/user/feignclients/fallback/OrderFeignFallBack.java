@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -51,6 +52,11 @@ public class OrderFeignFallBack implements OrderFeignClient {
         wallet.setUid(uid);
         wallet.setBalance(new BigDecimal(0));
         return wallet;
+    }
+
+    @Override
+    public ScoreRule getRule(Integer type, BigDecimal changePrice, Integer status) {
+        return null;
     }
 
 }

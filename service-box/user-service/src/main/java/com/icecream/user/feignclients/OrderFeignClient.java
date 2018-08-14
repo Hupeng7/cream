@@ -6,12 +6,10 @@ import com.icecream.user.config.OrderFeignConfig;
 import com.icecream.user.feignclients.fallback.OrderFeignFallBack;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * Feign调用服务栗子
@@ -42,5 +40,10 @@ public interface OrderFeignClient {
 
     @RequestMapping(value = "wallet/getBalance",method = RequestMethod.GET)
     Wallet getWallet(Integer uid);
+
+    @RequestMapping(value = "rule/get",method = RequestMethod.GET)
+    ScoreRule getRule(@RequestParam("type")Integer type,
+                      @RequestParam("changePrice")BigDecimal changePrice,
+                      @RequestParam("status")Integer status);
 
 }

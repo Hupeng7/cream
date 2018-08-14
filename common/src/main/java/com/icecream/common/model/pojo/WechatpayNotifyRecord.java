@@ -2,6 +2,7 @@ package com.icecream.common.model.pojo;
 
 import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.Range;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -15,12 +16,11 @@ public class WechatpayNotifyRecord {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private Integer uid;
-
     @NotBlank(message = "appid不能为空")
     private String appid;
 
-    @NotBlank(message = "传递的uid参数不能为空")
+    private Integer uid;
+
     private String attach;
 
     private Integer ctime;
@@ -58,7 +58,8 @@ public class WechatpayNotifyRecord {
     @NotBlank(message = "支付完成时间不能为空")
     private String time_end;
 
-    @NotBlank(message = "充值金额不能为空")
+    @NotNull
+    @Range(min = 500, max = 50000, message = "total_fee最低500,最高50000")
     private Integer total_fee;
 
     @NotBlank(message = "交易类型不能为空")
@@ -78,7 +79,8 @@ public class WechatpayNotifyRecord {
     //微信支付返回的支付错误解释说明(系统说明)
     private String errCodeDes;
 
-    @NotNull(message = "现金支付金额不能为空")
+    @NotNull
+    @Range(min = 500, max = 50000, message = "total_fee最低500,最高50000")
     private Integer cash_fee;
 
     //后面的属性基本用不到,默认值即可----->
