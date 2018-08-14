@@ -159,7 +159,7 @@ public class WxPayChargeServiceImpl implements ChargeService {
     //构建预下单对象
     @Override
     public Order buildPreOrder(String uid, String order_no, BigDecimal price) {
-        ScoreRule rule = orderFeignClient.getRule(6, price, 1);
+        ScoreRule rule = orderFeignClient.getRuleForCreateOrder(6, price, 1);
         Order order = new Order();
         order.setPayPrice(price);
         order.setUid(Integer.parseInt(uid));

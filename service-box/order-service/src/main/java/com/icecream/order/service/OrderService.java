@@ -11,11 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
-import java.util.List;
-
-import static com.icecream.order.contants.Contants.DEFAULT_PAGE_CURRENT;
-import static com.icecream.order.contants.Contants.DEFAULT_PAGE_SIZE;
-
 
 @Slf4j
 @Service

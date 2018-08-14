@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import static com.icecream.order.contants.Contants.ADD;
 import static com.icecream.order.contants.Contants.TYPE_CHARGE;
@@ -49,30 +50,13 @@ public class ChargeRecordService {
     @Transactional(rollbackFor = Exception.class)
     public String insert(AlipayNotifyRecord alipayNotifyRecord) {
         try {
-            //支付宝的单位是元，与微信有区别
-            BigDecimal charge = alipayNotifyRecord.getTotal_amount().multiply(new BigDecimal(100));
-            int warn = charge.compareTo(BigDecimal.ZERO);
-            if (warn < 0) {
-                throw new Exception();
-            }
-            //插入支付宝记录表
-            int countOne = alipayNotifyRecordMapper.insertSelective(alipayNotifyRecord);
-            //插入流水表
-            int countTwo = pointInoutMapper.insertSelective(caseToPointOut(alipayNotifyRecord));
-            Wallet slecetArgs = new Wallet();
-            slecetArgs.setUid(alipayNotifyRecord.getUid());
-            Wallet wallet = walletMapper.selectOne(slecetArgs);
-            //如果该用户从未充值过，数据库操作为insert
-            if (wallet == null) {
-                int row = walletMapper.insertSelective(buildWallet(-1, alipayNotifyRecord.getUid(), charge));
-                return row > 0 ? "ok" : "";
-            }
-            //用户充值过，则在原来钱包的基础上加钱,数据库操作为update
-            BigDecimal money = wallet.getBalance().add(charge);
-
-            int row = walletMapper.updateByPrimaryKeySelective(buildWallet(
-                    wallet.getId(), alipayNotifyRecord.getUid(), money));
-            return row > 0 ? "ok" : "";
+            Order order = orderService.getOrderByOrderNo(alipayNotifyRecord.getOut_tradeNo());
+            BigDecimal goodsPrice = order.getGoodsPrice();
+            orderService.updateOrderForCharge(buildOrder(alipayNotifyRecord, order.getPaymentType()));
+            alipayNotifyRecordMapper.insertSelective(alipayNotifyRecord);
+            pointInoutMapper.insertSelective(caseToPointOut(alipayNotifyRecord, goodsPrice, order.getPaymentType()));
+            walletService.insertOrUpateHandler(alipayNotifyRecord.getUid(), goodsPrice);
+            return "ok";
         } catch (Exception e) {
             e.printStackTrace();
             log.info("错误的数据为------>", alipayNotifyRecord);
@@ -92,28 +76,11 @@ public class ChargeRecordService {
     public void insert(WechatpayNotifyRecord wechatpayNotifyRecord) {
         Order order = orderService.getOrderByOrderNo(wechatpayNotifyRecord.getOut_trade_no());
         BigDecimal goodsPrice = order.getGoodsPrice();
-        wechatpayNotifyRecord.setUid(Integer.parseInt(wechatpayNotifyRecord.getAttach()));
-        wechatpayNotifyRecord.setCtime(DateUtil.getNowSecondIntTime());
-        orderService.updateOrderForCharge(buildOrder(wechatpayNotifyRecord));
+        orderService.updateOrderForCharge(buildOrder(wechatpayNotifyRecord, order.getPaymentType()));
         wechatpayNotifyRecordMapper.insertSelective(wechatpayNotifyRecord);
-        pointInoutMapper.insertSelective(caseToPointOut(wechatpayNotifyRecord,goodsPrice));
-        walletService.insertOrUpateHandler(wechatpayNotifyRecord.getUid(),goodsPrice);
-
+        pointInoutMapper.insertSelective(caseToPointOut(wechatpayNotifyRecord, goodsPrice, order.getPaymentType()));
+        walletService.insertOrUpateHandler(wechatpayNotifyRecord.getUid(), goodsPrice);
     }
-
-    public Wallet buildWallet(Integer id, Integer uid, BigDecimal money) {
-        Wallet inserArgs = new Wallet();
-        if (id != -1) {
-            inserArgs.setId(id);
-        }
-        inserArgs.setUid(uid);
-        inserArgs.setBalance(money);
-        inserArgs.setCtime(Integer.parseInt(DateUtil.getNowSecond()));
-        inserArgs.setSid(1);
-        inserArgs.setStatus(1);
-        return inserArgs;
-    }
-
 
     private AlipayNotifyRecordErrorLog caseToAlipayNotifyRecordErrorLog(
             AlipayNotifyRecord alipayNotifyRecord) {
@@ -133,43 +100,41 @@ public class ChargeRecordService {
     }
 
 
-    private PointInout caseToPointOut(
-            AlipayNotifyRecord alipayNotifyRecord) {
+    private PointInout caseToPointOut(Object o, BigDecimal goodsPrice, Integer paymentType) {
         PointInout pointInout = new PointInout();
         pointInout.setId(UUIDFactory.create());
-        pointInout.setUid(alipayNotifyRecord.getUid());
         pointInout.setCtime(Integer.parseInt(DateUtil.getNowSecond()));
         pointInout.setIntout(ADD);
         pointInout.setIsInuse(1);
-        pointInout.setObjectId(alipayNotifyRecord.getId().toString());
         pointInout.setObjectType(TYPE_CHARGE);
-        pointInout.setPoint(Integer.parseInt(alipayNotifyRecord.getTotal_amount().toString()));
+        if (paymentType == 1) {
+            AlipayNotifyRecord alipayNotifyRecord = (AlipayNotifyRecord) o;
+            pointInout.setUid(alipayNotifyRecord.getUid());
+            pointInout.setObjectId(alipayNotifyRecord.getId().toString());
+            pointInout.setPoint(goodsPrice.intValue());
+        } else if (paymentType == 2) {
+            WechatpayNotifyRecord wechatpayNotifyRecord = (WechatpayNotifyRecord) o;
+            pointInout.setUid(wechatpayNotifyRecord.getUid());
+            pointInout.setObjectId(wechatpayNotifyRecord.getId().toString());
+            pointInout.setPoint(goodsPrice.intValue());
+        }
         return pointInout;
     }
 
-    private PointInout caseToPointOut(
-            WechatpayNotifyRecord wechatpayNotifyRecord,BigDecimal goodsPrice) {
-        PointInout pointInout = new PointInout();
-        pointInout.setId(UUIDFactory.create());
-        pointInout.setUid(wechatpayNotifyRecord.getUid());
-        pointInout.setCtime(Integer.parseInt(DateUtil.getNowSecond()));
-        pointInout.setIntout(ADD);
-        pointInout.setIsInuse(1);
-        pointInout.setObjectId(wechatpayNotifyRecord. getId().toString());
-        pointInout.setObjectType(TYPE_CHARGE);
-        pointInout.setPoint(goodsPrice.intValue());
-        return pointInout;
-    }
-
-
-    private Order buildOrder(WechatpayNotifyRecord wechatpayNotifyRecord) {
+    private Order buildOrder(Object o, Integer paymentType) {
         Order order = new Order();
         order.setIsPay(1);
         order.setPaymentType(2);
         order.setOrderStatus(4);
-        order.setPayPrice(new BigDecimal(wechatpayNotifyRecord.getTotal_fee() / 100));
         order.setPayTime(DateUtil.getNowSecondIntTime());
         order.setMtime(DateUtil.getNowSecondIntTime());
+        if (paymentType == 1) {
+            AlipayNotifyRecord alipayNotifyRecord = (AlipayNotifyRecord) o;
+            order.setPayPrice(alipayNotifyRecord.getTotal_amount());
+        } else if (paymentType == 2) {
+            WechatpayNotifyRecord wechatpayNotifyRecord = (WechatpayNotifyRecord) o;
+            order.setPayPrice(new BigDecimal(wechatpayNotifyRecord.getTotal_fee() / 100));
+        }
         return order;
     }
 }

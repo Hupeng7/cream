@@ -25,6 +25,6 @@ public class ScoreRuleController {
 
     @GetMapping("get")
     public ScoreRule getRule(Integer type, BigDecimal changePrice, Integer status){
-        return scoreRuleService.getRule(type,changePrice,status);
+        return scoreRuleService.getRuleForCreateOrder(type,changePrice,status);
     }
 }

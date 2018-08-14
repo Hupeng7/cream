@@ -55,8 +55,9 @@ public class OrderFeignFallBack implements OrderFeignClient {
     }
 
     @Override
-    public ScoreRule getRule(Integer type, BigDecimal changePrice, Integer status) {
+    public ScoreRule getRuleForCreateOrder(Integer type, BigDecimal changePrice, Integer status) {
         return null;
     }
+
 
 }

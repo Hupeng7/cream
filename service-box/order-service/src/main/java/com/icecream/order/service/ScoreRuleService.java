@@ -41,7 +41,7 @@ public class ScoreRuleService {
         return scoreRuleMapper.select(scoreRule);
     }
 
-    public ScoreRule getRule(Integer type,BigDecimal changePrice,Integer status){
+    public ScoreRule getRuleForCreateOrder(Integer type,BigDecimal changePrice,Integer status){
         ScoreRule scoreRule = new ScoreRule();
         scoreRule.setRechargePrice(changePrice);
         scoreRule.setStatus(status);

@@ -5,6 +5,7 @@ import com.icecream.common.model.pojo.WechatpayNotifyRecord;
 import com.icecream.user.feignclients.OrderFeignClient;
 import com.icecream.user.utils.charge.PayCommonUtil;
 import com.icecream.user.utils.charge.StringUtil;
+import com.icecream.user.utils.time.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom2.JDOMException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,7 @@ public class WxPayNotifyService {
         log.info("===============付款成功==============");
         //获取交易状态码
         String result_code = params.get("result_code");
-        if (!result_code.isEmpty()) wxNotifyNormalRecord(return_data);
+        if (!result_code.isEmpty()) wxNotifyNormalRecord(params);
         return_data.put("return_code", "SUCCESS");
         return_data.put("return_msg", "OK");
         return StringUtil.GetMapToXML(return_data);
@@ -99,6 +100,8 @@ public class WxPayNotifyService {
     private void wxNotifyNormalRecord(Map<String, String> return_data) {
         WechatpayNotifyRecord wechatpayNotifyRecord = JSON.parseObject(JSON.toJSONString(return_data),
                 WechatpayNotifyRecord.class);
+        wechatpayNotifyRecord.setUid(Integer.parseInt(wechatpayNotifyRecord.getAttach()));
+        wechatpayNotifyRecord.setCtime(DateUtil.getNowTimeBySecond());
         orderFeignClient.insertWxChargeRecord(wechatpayNotifyRecord);
     }
 }

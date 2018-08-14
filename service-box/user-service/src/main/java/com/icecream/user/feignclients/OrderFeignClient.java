@@ -42,7 +42,7 @@ public interface OrderFeignClient {
     Wallet getWallet(Integer uid);
 
     @RequestMapping(value = "rule/get",method = RequestMethod.GET)
-    ScoreRule getRule(@RequestParam("type")Integer type,
+    ScoreRule getRuleForCreateOrder(@RequestParam("type")Integer type,
                       @RequestParam("changePrice")BigDecimal changePrice,
                       @RequestParam("status")Integer status);
 
