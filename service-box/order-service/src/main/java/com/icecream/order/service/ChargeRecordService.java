@@ -50,7 +50,7 @@ public class ChargeRecordService {
     @Transactional(rollbackFor = Exception.class)
     public String insert(AlipayNotifyRecord alipayNotifyRecord) {
         try {
-            Order order = orderService.getOrderByOrderNo(alipayNotifyRecord.getOut_tradeNo());
+            Order order = orderService.getOrderByOrderNo(1,alipayNotifyRecord.getOut_tradeNo());
             BigDecimal goodsPrice = order.getGoodsPrice();
             orderService.updateOrderForCharge(buildOrder(alipayNotifyRecord, order.getPaymentType()));
             alipayNotifyRecordMapper.insertSelective(alipayNotifyRecord);
@@ -74,7 +74,7 @@ public class ChargeRecordService {
 
     @Transactional(rollbackFor = Exception.class)
     public void insert(WechatpayNotifyRecord wechatpayNotifyRecord) {
-        Order order = orderService.getOrderByOrderNo(wechatpayNotifyRecord.getOut_trade_no());
+        Order order = orderService.getOrderByOrderNo(1,wechatpayNotifyRecord.getOut_trade_no());
         BigDecimal goodsPrice = order.getGoodsPrice();
         orderService.updateOrderForCharge(buildOrder(wechatpayNotifyRecord, order.getPaymentType()));
         wechatpayNotifyRecordMapper.insertSelective(wechatpayNotifyRecord);

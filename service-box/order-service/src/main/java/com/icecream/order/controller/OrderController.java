@@ -19,13 +19,9 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
-    @Autowired
-    private ChargeRecordService chargeRecordService;
-
-    //测试查询订单
-    @RequestMapping("/detail/{orderNo}")
-    public Order getOrderByOrderNo(@PathVariable("orderNo") String orderNo){
-        return orderService.getOrderByOrderNo(orderNo);
+    @RequestMapping("/{sid}/{order_no}")
+    public Order getOrderByOrderNo(@PathVariable("sid")Integer sid,@PathVariable("order_no") String orderNo){
+        return orderService.getOrderByOrderNo(sid,orderNo);
     }
 
     //测试订单插入

@@ -23,11 +23,10 @@ public class OrderService implements ITxTransaction {
     @Autowired
     private SnowflakeGlobalIdFactory snowflakeGlobalIdFactory;
 
-    public Order getOrderByOrderNo(String orderNo){
+    public Order getOrderByOrderNo(Integer sid,String orderNo){
         Order order = new Order();
         order.setOrderNo(orderNo);
-        Order order1 = orderMapper.selectOne(order);
-        return order1;
+        return orderMapper.selectOne(order);
     }
 
     @Transactional
