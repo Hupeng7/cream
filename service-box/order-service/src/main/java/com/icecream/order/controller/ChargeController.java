@@ -55,7 +55,7 @@ public class ChargeController {
      * @see WechatpayNotifyRecord
      */
     @PostMapping("insertWxChargeRecord")
-    public void insertWxChargeRecord(@RequestBody WechatpayNotifyRecord WechatpayNotifyRecord){
+    public void insertWxChargeRecord(@Validated @RequestBody WechatpayNotifyRecord WechatpayNotifyRecord){
         chargeRecordService.insert(WechatpayNotifyRecord); }
 
     /**

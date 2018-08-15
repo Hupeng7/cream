@@ -48,9 +48,6 @@ public class RabbitConsumer {
 
 
     public Order replenishOrder(Order order){
-        ScoreRule rule = scoreRuleService.getRule(6, order.getPayPrice(), 1);
-        order.setGoodsPrice(rule.getPrice());
-        order.setGoodsId(rule.getCode());
         order.setAccount("-1");
         order.setSid(1);//粉丝端
         order.setPayTime(0);//支付时间(预下单时还没有支付)
@@ -59,7 +56,7 @@ public class RabbitConsumer {
         order.setReportType(1);//充值账单
         order.setAmount(new BigDecimal(1));
         order.setChangeTime(0);//变动时间
-        order.setChangePrice(rule.getRechargePrice());
+        order.setChangePrice(order.getGoodsPrice());
         order.setCtime(DateUtil.getNowSecondIntTime());
         return order;
     }

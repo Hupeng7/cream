@@ -2,11 +2,14 @@ package com.icecream.user.service.charge;
 
 import com.alibaba.fastjson.JSON;
 import com.icecream.common.model.pojo.Order;
+import com.icecream.common.model.pojo.ScoreRule;
 import com.icecream.common.util.idbuilder.staticfactroy.SnowflakeGlobalIdFactory;
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.config.charge.WxPayConfig;
+import com.icecream.user.feignclients.CommentsClient;
+import com.icecream.user.feignclients.OrderFeignClient;
 import com.icecream.user.rabbitmq.RabbitSender;
 import com.icecream.user.utils.charge.PayCommonUtil;
 import com.icecream.user.utils.charge.RSAUtil;
@@ -14,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jdom2.JDOMException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -22,8 +26,10 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.icecream.user.config.charge.WxPayConfig.*;
+import static com.icecream.user.constants.Constants.CHARGE;
 
 /**
  * @author Mr_h
@@ -42,6 +48,9 @@ public class WxPayChargeServiceImpl implements ChargeService {
     @Autowired
     private RabbitSender rabbitSender;
 
+    @Autowired
+    private OrderFeignClient orderFeignClient;
+
 
     @Value("${rsa.public-key}")
     private String public_key;
@@ -51,7 +60,7 @@ public class WxPayChargeServiceImpl implements ChargeService {
 
 
     @Override
-    public ResultVO charge(String uid, BigDecimal price) {
+    public ResultVO charge(@Param("specialTokenId")String uid, BigDecimal price) {
         log.info("开始微信支付。用户id{},充值金额{}", uid, price);
         //生成唯一订单号
         String trade_no = LocalDate.now().toString().replace("-", "") + String.valueOf(snowflakeGlobalIdFactory.create().nextId());
@@ -72,6 +81,7 @@ public class WxPayChargeServiceImpl implements ChargeService {
             return ResultUtil.error("RSA加密失败", ResultEnum.DATA_ERROR);
         }
     }
+
 
     private String getDecodeStr(SortedMap<String, Object> prePay) throws Exception {
         String json = JSON.toJSONString(prePay);
@@ -147,16 +157,20 @@ public class WxPayChargeServiceImpl implements ChargeService {
     }
 
     //构建预下单对象
-    private Order buildPreOrder(String uid, String order_no, BigDecimal price) {
+    @Override
+    public Order buildPreOrder(String uid, String order_no, BigDecimal price) {
+        ScoreRule rule = orderFeignClient.getRuleForCreateOrder(6, price, 1);
         Order order = new Order();
+        order.setPayPrice(price);
         order.setUid(Integer.parseInt(uid));
         order.setOrderNo(order_no);
-        order.setPayPrice(price);
         order.setPaymentType(2); //支付类型 微信
         order.setStatus(1); //状态为正常
         order.setOrderStatus(0);//订单状态为待付款
         order.setIsDigital(1);//虚拟商品
         order.setIsPay(0);//未支付
+        order.setGoodsId(rule.getCode());
+        order.setGoodsPrice(rule.getPrice());
         return order;
     }
 

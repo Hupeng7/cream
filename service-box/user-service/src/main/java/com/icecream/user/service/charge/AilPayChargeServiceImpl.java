@@ -1,5 +1,6 @@
 package com.icecream.user.service.charge;
 
+import com.alibaba.fastjson.JSON;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.DefaultAlipayClient;
@@ -7,10 +8,14 @@ import com.alipay.api.domain.AlipayTradeAppPayModel;
 import com.alipay.api.internal.util.StringUtils;
 import com.alipay.api.request.AlipayTradeAppPayRequest;
 import com.alipay.api.response.AlipayTradeAppPayResponse;
+import com.icecream.common.model.pojo.Order;
+import com.icecream.common.model.pojo.ScoreRule;
 import com.icecream.common.util.idbuilder.staticfactroy.SnowflakeGlobalIdFactory;
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
+import com.icecream.user.feignclients.OrderFeignClient;
+import com.icecream.user.rabbitmq.RabbitSender;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
@@ -18,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.net.URLEncoder;
+import java.time.LocalDate;
 
 /**
  * @author Mr_h
@@ -33,14 +39,39 @@ public class AilPayChargeServiceImpl implements ChargeService {
     @Autowired
     private SnowflakeGlobalIdFactory snowflakeGlobalIdFactory;
 
+    @Autowired
+    private RabbitSender rabbitSender;
+
+    @Autowired
+    private OrderFeignClient orderFeignClient;
+
     @Override
     public ResultVO charge(@Param("specialTokenId")String uid, BigDecimal price) {
+        String trade_no = LocalDate.now().toString().replace("-", "") + String.valueOf(snowflakeGlobalIdFactory.create().nextId());
         log.info("收到金额数据------>{},准备请求支付宝接口", price);
-        String result = callAliPayOpenApi(uid,price);
+      /*  String result = callAliPayOpenApi(uid,price);
         if(StringUtils.areNotEmpty(result)){
             return ResultUtil.success(result);
-        }
+        }*/
+        rabbitSender.send(JSON.toJSONString(buildPreOrder(uid, trade_no, price)));
         return ResultUtil.error("支付宝预下单请求失败",ResultEnum.PARAMS_ERROR);
+    }
+
+    @Override
+    public Order buildPreOrder(String uid, String orderNo, BigDecimal price) {
+        ScoreRule rule = orderFeignClient.getRuleForCreateOrder(6, price, 1);
+        Order order = new Order();
+        order.setPayPrice(price);
+        order.setUid(Integer.parseInt(uid));
+        order.setOrderNo(orderNo);
+        order.setPaymentType(1); //支付类型支付宝
+        order.setStatus(1); //状态为正常
+        order.setOrderStatus(0);//订单状态为待付款
+        order.setIsDigital(1);//虚拟商品
+        order.setIsPay(0);//未支付
+        order.setGoodsId(rule.getCode());
+        order.setGoodsPrice(rule.getPrice());
+        return order;
     }
 
     public String callAliPayOpenApi(String uid,BigDecimal price) {
