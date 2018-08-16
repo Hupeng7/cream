@@ -60,6 +60,15 @@ public class WalletService {
         return wallet;
     }
 
+    //根据查询出的钱包对象进行更新(减钱)
+    public int updateForConsume(BigDecimal stars,Integer uid){
+        Wallet wallet = get(uid);
+        BigDecimal balance = wallet.getBalance();
+        BigDecimal finalStars = balance.subtract(stars);
+        wallet.setBalance(finalStars);
+        wallet.setMtime(DateUtil.getNowSecondIntTime());
+        return walletMapper.updateByPrimaryKeySelective(wallet);
+    }
     //根据查询出的钱包对象进行更新(加钱)
     public int update(BigDecimal stars, Wallet wallet){
         BigDecimal finalStars = getFinalStars(stars, wallet);
@@ -67,6 +76,7 @@ public class WalletService {
         wallet.setMtime(DateUtil.getNowSecondIntTime());
         return walletMapper.updateByPrimaryKeySelective(wallet);
     }
+
 
     //获取最终的星星余额(如果数额为负数，则抛出异常)
     private BigDecimal getFinalStars(BigDecimal stars, Wallet wallet) {
@@ -77,6 +87,7 @@ public class WalletService {
         }
         return add;
     }
+
 
     //判断对于钱包对象是插入还是更新
     public int insertOrUpateHandler(Integer uid, BigDecimal stars){

@@ -108,6 +108,12 @@ public class GoodService {
         return ResultUtil.error(null, ResultEnum.MYSQL_OPERATION_FAILED);
     }
 
+    public Good get(String goodsSn){
+        Good good = new Good();
+        good.setGoodsSn(goodsSn);
+        List<Good> select = goodMapper.select(good);
+        return select.get(0);
+    }
 
     public ResultVO getGoodsByGoodsSn(String goodsSn) {
         Good arg = new Good();
@@ -167,6 +173,10 @@ public class GoodService {
         goodsSpec.setId(UUIDFactory.create());
         goodsSpec.setCtime((int) (LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8")) / 1000));
         return goodsSpec;
+    }
+
+    public int update(Good good){
+        return goodMapper.updateByPrimaryKey(good);
     }
 
 }
