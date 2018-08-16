@@ -35,7 +35,8 @@ public enum ResultEnum {
     CODE_AUTHENTICATION_FAILED(2007,"验证码授权失败"),
     WRONG_CODE(2008,"验证码输入错误"),
     SIGN_IN_REPETITION(4002,"重复签到"),
-    PRE_ORDER_ERROR(4003,"预下单失败");
+    PRE_ORDER_ERROR(4003,"预下单失败"),
+    CREATE_ORDER_FAILED(4004,"创建订单失败");
 
 
     private Integer code;

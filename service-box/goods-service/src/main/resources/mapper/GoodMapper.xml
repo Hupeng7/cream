@@ -75,6 +75,8 @@
         <result column="channel_h_id" jdbcType="INTEGER" property="channelHId"/>
         <result column="ctime" jdbcType="INTEGER" property="ctime"/>
         <result column="mtime" jdbcType="INTEGER" property="mtime"/>
+        <result column="min_price" jdbcType="DECIMAL" property="minPrice"/>
+        <result column="max_price" jdbcType="DECIMAL" property="maxPrice"/>
     </resultMap>
     <sql id="Base_Column_List">
     id, sid, is_digital, type, category_id, spec_group, goods_sn, is_hot, is_best, is_new,

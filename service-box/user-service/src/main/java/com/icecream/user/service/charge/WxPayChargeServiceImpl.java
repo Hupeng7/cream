@@ -7,6 +7,7 @@ import com.icecream.common.util.idbuilder.staticfactroy.SnowflakeGlobalIdFactory
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
+import com.icecream.common.util.time.DateUtil;
 import com.icecream.user.config.charge.WxPayConfig;
 import com.icecream.user.feignclients.CommentsClient;
 import com.icecream.user.feignclients.OrderFeignClient;
@@ -169,8 +170,18 @@ public class WxPayChargeServiceImpl implements ChargeService {
         order.setOrderStatus(0);//订单状态为待付款
         order.setIsDigital(1);//虚拟商品
         order.setIsPay(0);//未支付
+        order.setSid(1);//粉丝端
+        order.setAccount("-1");
+        order.setPayTime(0);//支付时间(预下单时还没有支付)
+        order.setIsDigital(1);//虚拟商品
+        order.setOrderType(1);//平台交易
+        order.setReportType(1);//充值账单
+        order.setAmount(new BigDecimal(1));
+        order.setChangeTime(0);//变动时间
+        order.setChangePrice(order.getGoodsPrice());
         order.setGoodsId(rule.getCode());
         order.setGoodsPrice(rule.getPrice());
+        order.setCtime(DateUtil.getNowSecondIntTime());
         return order;
     }
 

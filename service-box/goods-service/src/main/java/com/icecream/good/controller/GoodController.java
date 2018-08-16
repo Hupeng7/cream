@@ -18,7 +18,6 @@ import javax.validation.Valid;
  * description:
  * create by Mr_h on 2018/7/9 0009
  */
-@Slf4j
 @RestController
 @RequestMapping("Goods")
 public class GoodController {
@@ -59,4 +58,12 @@ public class GoodController {
         return goodService.save(good);
     }
 
+    /**
+     * feign调用根据商品编号获取商品信息
+     * @return
+     */
+    @GetMapping("get")
+    public Good get(String goodsSn){
+        return goodService.get(goodsSn);
+    }
 }

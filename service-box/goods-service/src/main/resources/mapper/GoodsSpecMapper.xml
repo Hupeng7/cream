@@ -3,17 +3,18 @@
 <mapper namespace="com.icecream.good.mapper.GoodsSpecMapper">
   <resultMap id="BaseResultMap" type="com.icecream.common.model.pojo.GoodsSpec">
     <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="good_id" jdbcType="VARCHAR" property="goodId" />
+    <result column="goods_sn" jdbcType="VARCHAR" property="goodsSn" />
     <result column="spec" jdbcType="VARCHAR" property="spec" />
+    <result column="spec_opt" jdbcType="VARCHAR" property="specOpt" />
+    <result column="spec_pic" jdbcType="VARCHAR" property="specPic" />
     <result column="price" jdbcType="INTEGER" property="price" />
     <result column="stock" jdbcType="INTEGER" property="stock" />
-    <result column="is_inuse" jdbcType="SMALLINT" property="isInuse" />
-    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
-    <result column="spec_opt" jdbcType="VARCHAR" property="specOpt" />
-    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="ctime" jdbcType="INTEGER" property="ctime" />
+    <result column="mtime" jdbcType="INTEGER" property="mtime" />
+    <result column="is_inuse" jdbcType="INTEGER" property="isInuse" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, good_id, spec, price, stock, is_inuse, create_time, spec_opt, update_time
+    id, goods_sn, spec, spec_opt, spec_pic, price, stock, ctime,mtime,is_inuse
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select
@@ -99,29 +100,35 @@
   <update id="updateByPrimaryKeySelective" parameterType="com.icecream.common.model.pojo.GoodsSpec">
     update goods_spec
     <set>
-      <if test="goodId != null">
-        good_id = #{goodId,jdbcType=VARCHAR},
+      <if test="id != null">
+        id = #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="goodsSn != null">
+        goods_sn = #{goodsSn,jdbcType=VARCHAR},
       </if>
       <if test="spec != null">
-        spec = #{spec,jdbcType=VARCHAR},
-      </if>
-      <if test="price != null">
-        price = #{price,jdbcType=INTEGER},
-      </if>
-      <if test="stock != null">
-        stock = #{stock,jdbcType=INTEGER},
-      </if>
-      <if test="isInuse != null">
-        is_inuse = #{isInuse,jdbcType=SMALLINT},
-      </if>
-      <if test="createTime != null">
-        create_time = #{createTime,jdbcType=TIMESTAMP},
+        spec = #{spec,jdbcType=INTEGER},
       </if>
       <if test="specOpt != null">
-        spec_opt = #{specOpt,jdbcType=VARCHAR},
+        spec_opt = #{specOpt,jdbcType=INTEGER},
       </if>
-      <if test="updateTime != null">
-        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      <if test="specPic != null">
+        spec_pic = #{specPic,jdbcType=SMALLINT},
+      </if>
+      <if test="price != null">
+        price = #{price,jdbcType=TIMESTAMP},
+      </if>
+      <if test="stock != null">
+        stock = #{stock,jdbcType=VARCHAR},
+      </if>
+      <if test="ctime != null">
+        ctime = #{ctime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="mtime != null">
+        mtime = #{mtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isInuse != null">
+        is_inuse = #{isInuse,jdbcType=TIMESTAMP},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -138,7 +145,6 @@
       update_time = #{updateTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=VARCHAR}
   </update>
-
   <insert id="batchInsert" parameterType="java.util.List">
     insert into good_spec(id,goods_sn,spec,price,stock,spec_opt,ctime)
     values

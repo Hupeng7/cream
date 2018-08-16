@@ -101,6 +101,12 @@ public class GoodService {
         return ResultUtil.error(null, ResultEnum.MYSQL_OPERATION_FAILED);
     }
 
+    public Good get(String goodsSn){
+        Good good = new Good();
+        good.setGoodsSn(goodsSn);
+        List<Good> select = goodMapper.select(good);
+        return select.get(0);
+    }
 
     private Good supplementaryData(Good good) {
         good.setGoodsSn(String.valueOf((snowflakeGlobalIdFactory.create().nextId())));
@@ -115,6 +121,10 @@ public class GoodService {
         goodsSpec.setId(UUIDFactory.create());
         goodsSpec.setCtime((int) (LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8")) / 1000));
         return goodsSpec;
+    }
+
+    public int update(Good good){
+        return goodMapper.updateByPrimaryKey(good);
     }
 
 }

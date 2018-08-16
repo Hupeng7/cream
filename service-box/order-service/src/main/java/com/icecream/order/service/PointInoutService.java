@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 
 import static com.icecream.order.contants.Contants.ADD;
+import static com.icecream.order.contants.Contants.REDUCE;
 
 /**
  * @author Mr_h
@@ -36,6 +37,21 @@ public class PointInoutService {
         pointInout.setPoint(stars.intValue());
         pointInout.setCtime(Integer.parseInt(DateUtil.getNowSecond()));
         pointInout.setObjectId(uid.toString());
+        pointInout.setId(UUIDFactory.create());
+        return pointInoutMapper.insertSelective(pointInout);
+    }
+
+    //购买商品时插入流水表
+    public int insertPointInoutOrder(BigDecimal stars,Integer uid,String orderNo){
+        PointInout pointInout = new PointInout();
+        pointInout.setPoint(stars.intValue());
+        pointInout.setObjectType(2);
+        pointInout.setIsInuse(1);
+        pointInout.setUid(uid);
+        pointInout.setIntout(REDUCE);
+        pointInout.setPoint(stars.intValue());
+        pointInout.setCtime(Integer.parseInt(DateUtil.getNowSecond()));
+        pointInout.setObjectId(orderNo);
         pointInout.setId(UUIDFactory.create());
         return pointInoutMapper.insertSelective(pointInout);
     }

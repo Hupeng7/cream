@@ -17,4 +17,5 @@ public class SnowflakeGlobalIdFactory implements GlobalIdFactory<SnowflakeArithm
     public SnowflakeArithmeticHandler create() {
         return new SnowflakeArithmeticHandler(0,0);
     }
+
 }

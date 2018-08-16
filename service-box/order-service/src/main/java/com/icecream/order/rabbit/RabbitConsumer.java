@@ -36,29 +36,11 @@ public class RabbitConsumer {
     @Autowired
     private OrderService orderService;
 
-    @Autowired
-    private ScoreRuleService scoreRuleService;
 
     @RabbitHandler
     public void process(String json) {
         log.info("Receiver  : " + json);
         Order order = JSON.parseObject(json, Order.class);
-        orderService.insert( replenishOrder(order));
+        orderService.insert(order);
     }
-
-
-    public Order replenishOrder(Order order){
-        order.setAccount("-1");
-        order.setSid(1);//粉丝端
-        order.setPayTime(0);//支付时间(预下单时还没有支付)
-        order.setIsDigital(1);//虚拟商品
-        order.setOrderType(1);//平台交易
-        order.setReportType(1);//充值账单
-        order.setAmount(new BigDecimal(1));
-        order.setChangeTime(0);//变动时间
-        order.setChangePrice(order.getGoodsPrice());
-        order.setCtime(DateUtil.getNowSecondIntTime());
-        return order;
-    }
-
 }
