@@ -1,6 +1,5 @@
 package com.icecream.order.service;
 
-import com.icecream.common.model.pojo.Order;
 import com.icecream.common.model.pojo.PointInout;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;

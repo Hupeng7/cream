@@ -6,11 +6,14 @@ import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.order.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.validator.constraints.Range;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.data.repository.query.Param;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 
 @Slf4j
@@ -50,7 +53,7 @@ public class OrderController {
 
     /**
      * 创建订单
-     * @param uid 用户id
+     * @param specialTokenId 用户id
      * @param createOrderModel {@link CreateOrderModel}
      * @return {@link ResultVO}
      * 该创建订单流程为普通的商城订单
@@ -61,8 +64,8 @@ public class OrderController {
      * 用户库，订单库，商品库
      */
     @PostMapping("create")
-    public ResultVO createOrder(@RequestParam("specialTokenIds") String uid, @Validated @RequestBody CreateOrderModel createOrderModel) {
-        return orderService.create(Integer.parseInt(uid), createOrderModel);
+    public ResultVO createOrder(@Param("specialTokenId") String specialTokenId, @Validated @RequestBody CreateOrderModel createOrderModel) {
+        return orderService.create(Integer.parseInt(specialTokenId), createOrderModel);
     }
 
 
@@ -70,14 +73,14 @@ public class OrderController {
      * 查询某个订单的详情
      * @param sid 小星空等级
      * @param orderNo 订单编号
-     * @param uid 用户id
+     * @param specialTokenId 用户id
      * @return {@link ResultVO}
      */
     @GetMapping("detail/{sid}/{order_no}")
     public ResultVO getOrderDetail(@PathVariable("sid") Integer sid,
                                    @PathVariable("order_no") String orderNo,
-                                   @RequestParam("specialTokenIds") String uid) {
-        return orderService.getOrderDetail(sid, orderNo, Integer.parseInt(uid));
+                                   @Param("specialTokenId") String specialTokenId) {
+        return orderService.getOrderDetail(sid, orderNo, Integer.parseInt(specialTokenId));
     }
 
 
@@ -85,8 +88,8 @@ public class OrderController {
     public ResultVO getOrderListAndSort(@PathVariable("count")Integer count,
                                         @PathVariable("lastTime")Integer lastTime,
                                         @PathVariable("sort")Integer sort,
-                                        @RequestParam("specialTokenIds") String uid){
-        return orderService.getOrderListSort(count,lastTime,sort,Integer.parseInt(uid));
+                                        @Param("specialTokenId") String specialTokenId){
+        return orderService.getOrderListSort(count,lastTime,sort,Integer.parseInt(specialTokenId));
     }
 
 
