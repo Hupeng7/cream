@@ -23,6 +23,7 @@ import tk.mybatis.mapper.entity.Example;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -86,7 +87,7 @@ public class OrderService {
             String orderNo = LocalDate.now().toString().replace("-", "") + String.valueOf(snowflakeGlobalIdFactory.create().nextId());
             AddressInfo addressInfo = getAddressInfo(createOrderModel.getAddress());
             BigDecimal goodsPrice = BigDecimal.ZERO;
-            if ( null != createOrderModel.getSpecId()) {
+            if (null != createOrderModel.getSpecId()) {
                 GoodsSpec goodsSpec = goodsFeignClient.getSpec(createOrderModel.getSpecId());
                 goodsPrice = new BigDecimal(goodsSpec.getPrice());
                 spec = goodsSpec.getSpecOpt();
@@ -99,7 +100,7 @@ public class OrderService {
             if (-1 == symbol) {
                 return ResultUtil.error("星星不够啦!", ResultEnum.CREATE_ORDER_FAILED);
             }
-            Order order = buildOrder(createOrderModel, uid, orderNo, addressInfo, goodsPrice,spec);
+            Order order = buildOrder(createOrderModel, uid, orderNo, addressInfo, goodsPrice, spec);
             if (isSync) {
                 toAsynCreate(order);
                 return ResultUtil.success("订单创建成功");
@@ -157,10 +158,22 @@ public class OrderService {
         return orderMapper.updateByExampleSelective(order, example);
     }
 
-    public ResultVO getOrderDetail(Integer sid,String orderNo,Integer uid){
+    public ResultVO getOrderDetail(Integer sid, String orderNo, Integer uid) {
         Order orderDetail = orderMapper.getOrderDetail(sid, orderNo, uid);
-        return orderDetail==null?ResultUtil.error(null,ResultEnum.PARAMS_ERROR):
+
+        return orderDetail == null ? ResultUtil.error(null, ResultEnum.PARAMS_ERROR) :
                 ResultUtil.success(orderDetail);
+    }
+
+    public ResultVO getOrderListSort(Integer count, Integer lastTime, Integer sort,Integer uid) {
+        Example example = new Example(Order.class);
+        example.setOrderByClause(sort==-1?"ctime desc limit "+count:" ctime asc limit "+count);
+        example.setCountProperty(count.toString());
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("uid",uid);
+        criteria.andGreaterThan("ctime",lastTime);
+        List<Order> orders = orderMapper.selectByExample(example);
+        return ResultUtil.success(Optional.ofNullable(orders).orElse(null));
     }
 
     private AddressInfo getAddressInfo(String address) {
@@ -187,7 +200,7 @@ public class OrderService {
 
     private Order buildOrder(CreateOrderModel createOrderModel,
                              Integer uid, String orderNo, AddressInfo addressInfo,
-                             BigDecimal goodsPrice,String spec) {
+                             BigDecimal goodsPrice, String spec) {
         Order order = new Order();
         order.setUid(uid);
         order.setGoodsId(createOrderModel.getGoodsSn());
