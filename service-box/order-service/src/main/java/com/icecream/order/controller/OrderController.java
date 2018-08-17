@@ -13,6 +13,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
 
 @Slf4j
 @RefreshScope
@@ -53,6 +54,11 @@ public class OrderController {
     }
 
 
-
+    @GetMapping("detail/{sid}/{order_no}")
+    public ResultVO getOrderDetail(@PathVariable("sid")Integer sid,
+                                   @PathVariable("order_no")String orderNo,
+                                   @RequestParam("specialTokenIds")String uid){
+        return orderService.getOrderDetail(sid,orderNo,Integer.parseInt(uid));
+    }
 
 }

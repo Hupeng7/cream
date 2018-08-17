@@ -1,8 +1,10 @@
 package com.icecream.order.service;
 
-import com.codingapi.tx.annotation.ITxTransaction;
 import com.codingapi.tx.annotation.TxTransaction;
-import com.icecream.common.model.pojo.*;
+import com.icecream.common.model.pojo.Good;
+import com.icecream.common.model.pojo.GoodsSpec;
+import com.icecream.common.model.pojo.Order;
+import com.icecream.common.model.pojo.Wallet;
 import com.icecream.common.model.requstbody.AddressInfo;
 import com.icecream.common.model.requstbody.CreateOrderModel;
 import com.icecream.common.util.idbuilder.staticfactroy.SnowflakeGlobalIdFactory;
@@ -24,7 +26,6 @@ import java.time.LocalDate;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 
 @Slf4j
@@ -154,6 +155,12 @@ public class OrderService {
         criteria.andEqualTo("paymentType", 2);
         criteria.andEqualTo("isDigital", 1);
         return orderMapper.updateByExampleSelective(order, example);
+    }
+
+    public ResultVO getOrderDetail(Integer sid,String orderNo,Integer uid){
+        Order orderDetail = orderMapper.getOrderDetail(sid, orderNo, uid);
+        return orderDetail==null?ResultUtil.error(null,ResultEnum.PARAMS_ERROR):
+                ResultUtil.success(orderDetail);
     }
 
     private AddressInfo getAddressInfo(String address) {
