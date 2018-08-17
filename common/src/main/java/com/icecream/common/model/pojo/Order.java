@@ -1,6 +1,7 @@
 package com.icecream.common.model.pojo;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -8,6 +9,7 @@ import java.math.BigDecimal;
 
 @Data
 @Table(name = "order_info")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Order {
 
     /**
