@@ -152,4 +152,7 @@
       (#{item.id},#{item.goodsSn}, #{item.spec},#{item.price},#{item.stock},#{item.specOpt},#{item.ctime})
     </foreach>
   </insert>
+  <update id="reduceSpecStock">
+    update goods_spec set stock = stock-#{count} where id = #{specId}
+  </update>
 </mapper>

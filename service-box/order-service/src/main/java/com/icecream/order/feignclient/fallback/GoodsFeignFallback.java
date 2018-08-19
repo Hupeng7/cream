@@ -4,6 +4,7 @@ import com.icecream.common.model.pojo.Good;
 import com.icecream.common.model.pojo.GoodsSpec;
 import com.icecream.common.model.pojo.Order;
 import com.icecream.common.model.requstbody.CreateOrderModel;
+import com.icecream.common.model.requstbody.GoodsStoreModel;
 import com.icecream.order.feignclient.GoodsFeignClient;
 import org.springframework.stereotype.Component;
 
@@ -26,8 +27,8 @@ public class GoodsFeignFallback implements GoodsFeignClient {
     }
 
     @Override
-    public boolean checkBuyCount(CreateOrderModel createOrderModel) {
-        return false;
+    public GoodsStoreModel checkBuyCount(CreateOrderModel createOrderModel) {
+        return null;
     }
 
     @Override

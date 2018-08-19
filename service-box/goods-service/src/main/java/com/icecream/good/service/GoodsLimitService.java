@@ -1,14 +1,25 @@
 package com.icecream.good.service;
 
 import com.codingapi.tx.annotation.ITxTransaction;
+import com.codingapi.tx.annotation.TxTransaction;
 import com.icecream.common.model.pojo.Good;
 import com.icecream.common.model.pojo.GoodsLimit;
 import com.icecream.common.model.pojo.GoodsSpec;
 import com.icecream.common.model.requstbody.CreateOrderModel;
+import com.icecream.common.model.requstbody.GoodsStoreModel;
 import com.icecream.common.util.time.DateUtil;
 import com.icecream.good.mapper.GoodsLimitMapper;
+import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
+
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * @author Mr_h
@@ -87,38 +98,41 @@ public class GoodsLimitService implements ITxTransaction {
         return goodsLimit;
     }
 
-    public boolean checkCount(CreateOrderModel createOrderModel) {
-        Integer goodsCount = 0;
+    public GoodsStoreModel checkCount(CreateOrderModel createOrderModel) {
+        GoodsStoreModel goodsStoreModel = null;
+        //商品库存
         Integer store = 0;
-        String goodsSn = createOrderModel.getGoodsSn();
+        //用户已经购买了多少件
+        Integer yetNum = 0;
+        //用户订单中的商品件数
         Integer buyNum = createOrderModel.getGoodsCount();
+        //商品唯一标识
+        String goodsSn = createOrderModel.getGoodsSn();
+        //多规格标识
         String specId = createOrderModel.getSpecId();
         GoodsLimit userLimit = goodsLimitMapper.selectByGoodsSn(goodsSn);
-        Good good = goodService.get(goodsSn);
-        //如果是多规格商品
-        if (null != specId) {
-            GoodsSpec goodsSpec = goodsSpecService.get(createOrderModel.getSpecId());
-            //多规格商品的库存
-            store = goodsSpec.getStock();
+        if (null != userLimit) {
+            yetNum = userLimit.getGoodsCount();
+        }
+        Good result = goodService.get(goodsSn);
+        //用户还能买多少件该商品
+        Integer canBuyNum = result.getBuylimit() - yetNum;
+        if (null == specId) {
+            goodsStoreModel = goodService.reduceGoodsNumOrRollBack(createOrderModel);
+            if (goodsStoreModel != null) {
+                Integer buylimit = goodsStoreModel.getLimit();
+                store = goodsStoreModel.getStore();
+            }
         } else {
-            //单规格商品的库存
-            store = good.getGoodsNum();
+            goodsStoreModel = goodService.reduceGoodsSpecNumOrRollBack(createOrderModel);
+            if (goodsStoreModel != null) {
+                store = goodsStoreModel.getStore();
+            }
         }
-        //如果下的订单商品数量大于库存不允许购买
-        if (createOrderModel.getGoodsCount() > store) {
-            return false;
+        if (store.intValue() >=0 & buyNum <= store & canBuyNum <= buyNum) {
+            return goodsStoreModel;
         }
-        //每个用户能够购买的数量
-        Integer buylimit = good.getBuylimit();
-        //用户已经购买的数量
-        if (userLimit != null) {
-            goodsCount = userLimit.getGoodsCount();
-        }
-        //当前用户还能购买的件数
-        Integer canBuyNum = buylimit - goodsCount;
-        if (buylimit < buyNum | canBuyNum < buyNum) {
-            return false;
-        }
-        return true;
+        return goodsStoreModel;
     }
+
 }

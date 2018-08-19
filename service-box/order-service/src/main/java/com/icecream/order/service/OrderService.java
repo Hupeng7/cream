@@ -7,6 +7,7 @@ import com.icecream.common.model.pojo.Order;
 import com.icecream.common.model.pojo.Wallet;
 import com.icecream.common.model.requstbody.AddressInfo;
 import com.icecream.common.model.requstbody.CreateOrderModel;
+import com.icecream.common.model.requstbody.GoodsStoreModel;
 import com.icecream.common.util.idbuilder.staticfactroy.SnowflakeGlobalIdFactory;
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
@@ -14,6 +15,7 @@ import com.icecream.common.util.res.ResultVO;
 import com.icecream.common.util.time.DateUtil;
 import com.icecream.order.feignclient.GoodsFeignClient;
 import com.icecream.order.mapper.OrderMapper;
+import com.icecream.order.utils.math.TradesNoCreater;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -81,26 +83,19 @@ public class OrderService {
     //创建订单
     @Transactional(rollbackFor = Exception.class)
     public ResultVO create(Integer uid, CreateOrderModel createOrderModel) {
-        boolean allow = goodsFeignClient.checkBuyCount(createOrderModel);
-        if (allow) {
-            String spec = "";
-            String orderNo = LocalDate.now().toString().replace("-", "") + String.valueOf(snowflakeGlobalIdFactory.create().nextId());
+        GoodsStoreModel goodsStoreModel = goodsFeignClient.checkBuyCount(createOrderModel);
+        if (null!=goodsStoreModel) {
+        BigDecimal goodsPrice = goodsStoreModel.getFinalPrice();
+        Wallet wallet = walletService.get(uid);
+        int symbol = wallet.getBalance().compareTo(goodsPrice.multiply(new BigDecimal(createOrderModel.getGoodsCount())));
+        if (-1 == symbol) {
+            return ResultUtil.error("星星不够啦!", ResultEnum.CREATE_ORDER_FAILED);
+        }
+            String orderNo = TradesNoCreater.create();
             AddressInfo addressInfo = getAddressInfo(createOrderModel.getAddress());
-            BigDecimal goodsPrice = BigDecimal.ZERO;
-            if (null != createOrderModel.getSpecId()) {
-                GoodsSpec goodsSpec = goodsFeignClient.getSpec(createOrderModel.getSpecId());
-                goodsPrice = new BigDecimal(goodsSpec.getPrice());
-                spec = goodsSpec.getSpecOpt();
-            } else {
-                Good good = goodsFeignClient.get(createOrderModel.getGoodsSn());
-                goodsPrice = good.getGoodsPrice();
-            }
-            Wallet wallet = walletService.get(uid);
-            int symbol = wallet.getBalance().compareTo(goodsPrice.multiply(new BigDecimal(createOrderModel.getGoodsCount())));
-            if (-1 == symbol) {
-                return ResultUtil.error("星星不够啦!", ResultEnum.CREATE_ORDER_FAILED);
-            }
+            String spec = goodsStoreModel.getSpec();
             Order order = buildOrder(createOrderModel, uid, orderNo, addressInfo, goodsPrice, spec);
+
             if (isSync) {
                 toAsynCreate(order);
                 return ResultUtil.success("订单创建成功");
@@ -114,17 +109,15 @@ public class OrderService {
     }
 
     //创建订单涉及到多张表
-    @TxTransaction(isStart = true)
     @Transactional
     private boolean transactionInsert(Order order) {
         Integer uid = order.getUid();
         String goodsId = order.getGoodsId();
         int orderRow = insert(order);
-        int expRow = expService.insertOrUpdateHandler(order.getUid(), order.getSid(), order.getGoodsPrice());
-        int limitRow = goodsFeignClient.updateGoodsCount(order);
+        expService.insertOrUpdateHandler(order.getUid(), order.getSid(), order.getGoodsPrice());
         int walletRow = walletService.updateForConsume(order.getGoodsPrice(), order.getUid());
         int pointRow = pointInoutService.insertPointInoutOrder(order.getGoodsPrice(), uid, order.getOrderNo());
-        return orderRow > 0 & limitRow > 0 & expRow > 0 & walletRow > 0 & pointRow > 0;
+        return orderRow > 0 & walletRow > 0 & pointRow > 0;
     }
 
 

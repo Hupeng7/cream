@@ -5,11 +5,15 @@ import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.common.util.time.DateUtil;
 import com.icecream.order.mapper.WalletMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * @author Mr_h
@@ -19,6 +23,7 @@ import java.util.Optional;
  */
 @Service
 @SuppressWarnings("all")
+@Slf4j
 public class WalletService {
 
     @Autowired
@@ -39,16 +44,16 @@ public class WalletService {
 
     //创建一个默认的钱包对象(新用户第一次充值)
     private Wallet createDefaultWallet(Integer uid) {
-        return build(new BigDecimal(0),uid);
+        return build(new BigDecimal(0), uid);
     }
 
     //根据充值星星数额插入对象
     public int insert(Integer uid, BigDecimal stars) {
-        return walletMapper.insertSelective(build(stars,uid));
+        return walletMapper.insertSelective(build(stars, uid));
     }
 
     //构建数据库对象
-    private Wallet build(BigDecimal stars,Integer uid) {
+    private Wallet build(BigDecimal stars, Integer uid) {
         Wallet wallet = new Wallet();
         wallet.setType(1);
         wallet.setStatus(1);
@@ -61,16 +66,22 @@ public class WalletService {
     }
 
     //根据查询出的钱包对象进行更新(减钱)
-    public int updateForConsume(BigDecimal stars,Integer uid){
+    public int updateForConsume(BigDecimal stars, Integer uid) {
+        final ReentrantReadWriteLock reentrantReadWriteLock = new ReentrantReadWriteLock();
+        reentrantReadWriteLock.writeLock().lock();
         Wallet wallet = get(uid);
         BigDecimal balance = wallet.getBalance();
+        log.info("我的余额:{}"+balance);
         BigDecimal finalStars = balance.subtract(stars);
         wallet.setBalance(finalStars);
         wallet.setMtime(DateUtil.getNowSecondIntTime());
-        return walletMapper.updateByPrimaryKeySelective(wallet);
+        int num = walletMapper.updateByPrimaryKeySelective(wallet);
+        reentrantReadWriteLock.writeLock().unlock();
+        return num;
     }
+
     //根据查询出的钱包对象进行更新(加钱)
-    public int update(BigDecimal stars, Wallet wallet){
+    public int update(BigDecimal stars, Wallet wallet) {
         BigDecimal finalStars = getFinalStars(stars, wallet);
         wallet.setBalance(finalStars);
         wallet.setMtime(DateUtil.getNowSecondIntTime());
@@ -90,8 +101,8 @@ public class WalletService {
 
 
     //判断对于钱包对象是插入还是更新
-    public int insertOrUpateHandler(Integer uid, BigDecimal stars){
+    public int insertOrUpateHandler(Integer uid, BigDecimal stars) {
         Wallet wallet = get(uid);
-        return wallet == null ? insert(uid, stars):update(stars, wallet);
+        return wallet == null ? insert(uid, stars) : update(stars, wallet);
     }
 }

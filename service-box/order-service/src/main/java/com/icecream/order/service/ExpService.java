@@ -38,11 +38,15 @@ public class ExpService {
         userExp.setExp(exp);
         return expMapper.updateByPrimaryKey(userExp);
     }
+
+
     //插入经验或者更新
-    public int insertOrUpdateHandler(Integer uid,Integer sid,BigDecimal price){
-        UserExp query =query(uid);
-        return null==query?insert(builUserExp(uid,sid,price)):update(query,price);
+    public void insertOrUpdateHandler(Integer uid,Integer sid,BigDecimal price){
+        expMapper.concurrentInsertExp(sid, uid, price.intValue(), DateUtil.getNowSecondIntTime());
     }
+
+
+
 
     private UserExp builUserExp(Integer uid,Integer sid,BigDecimal price){
         UserExp userExp = new UserExp();

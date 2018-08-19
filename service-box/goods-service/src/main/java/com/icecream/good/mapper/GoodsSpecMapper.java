@@ -21,4 +21,6 @@ public interface GoodsSpecMapper {
     int updateByPrimaryKey(GoodsSpec record);
 
     int batchInsert(@Param("list") List<GoodsSpec> goodsSpecList);
+
+    int reduceSpecStock(@Param("specId")String specId);
 }

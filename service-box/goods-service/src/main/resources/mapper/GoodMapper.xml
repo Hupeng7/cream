@@ -78,6 +78,13 @@
         <result column="min_price" jdbcType="DECIMAL" property="minPrice"/>
         <result column="max_price" jdbcType="DECIMAL" property="maxPrice"/>
     </resultMap>
+
+    <resultMap id="GoodsNumResultMap" type="com.icecream.common.model.pojo.Good">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="goods_num" jdbcType="INTEGER" property="goodsNum"/>
+        <result column="buylimit" jdbcType="INTEGER" property="buylimit"/>
+        <result column="goods_price" jdbcType="INTEGER" property="goodsPrice"/>
+    </resultMap>
     <sql id="Base_Column_List">
     id, sid, is_digital, type, category_id, spec_group, goods_sn, is_hot, is_best, is_new,
     is_promote, goods_name, goods_ico, small_url, carousel_url, video_url, page_url,
@@ -1158,5 +1165,10 @@
             </if>
         </where>
     </select>
-
+    <update id="reductionGoodsNum">
+       update goods set goods_num  = goods_num-#{count} where goods_sn = #{goods_sn} and sid =#{sid}
+    </update>
+    <select id="getGoodsNum" resultMap="GoodsNumResultMap">
+        select goods_num,buylimit,goods_price from goods where goods_sn = #{goods_sn} and sid= #{sid}
+    </select>
 </mapper>
