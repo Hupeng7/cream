@@ -57,14 +57,14 @@
       <if test="isInuse != null">
         is_inuse,
       </if>
-      <if test="createTime != null">
-        create_time,
+      <if test="ctime != null">
+        ctime,
       </if>
       <if test="specOpt != null">
         spec_opt,
       </if>
-      <if test="updateTime != null">
-        update_time,
+      <if test="mtime != null">
+        mtime,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -86,14 +86,14 @@
       <if test="isInuse != null">
         #{isInuse,jdbcType=SMALLINT},
       </if>
-      <if test="createTime != null">
-        #{createTime,jdbcType=TIMESTAMP},
+      <if test="ctime != null">
+        #{ctime,jdbcType=INTEGER},
       </if>
       <if test="specOpt != null">
         #{specOpt,jdbcType=VARCHAR},
       </if>
-      <if test="updateTime != null">
-        #{updateTime,jdbcType=TIMESTAMP},
+      <if test="mtime != null">
+        #{mtime,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>
@@ -107,7 +107,7 @@
         goods_sn = #{goodsSn,jdbcType=VARCHAR},
       </if>
       <if test="spec != null">
-        spec = #{spec,jdbcType=INTEGER},
+        spec = #{spec,jdbcType=VARCHAR},
       </if>
       <if test="specOpt != null">
         spec_opt = #{specOpt,jdbcType=INTEGER},
@@ -116,19 +116,22 @@
         spec_pic = #{specPic,jdbcType=SMALLINT},
       </if>
       <if test="price != null">
-        price = #{price,jdbcType=TIMESTAMP},
+        price = #{price,jdbcType=INTEGER},
       </if>
       <if test="stock != null">
-        stock = #{stock,jdbcType=VARCHAR},
+        stock = #{stock,jdbcType=INTEGER},
+      </if>
+      <if test="isInuse != null">
+        is_inuse = #{isInuse,jdbcType=SMALLINT},
       </if>
       <if test="ctime != null">
         ctime = #{ctime,jdbcType=TIMESTAMP},
       </if>
+      <if test="specOpt != null">
+        spec_opt = #{specOpt,jdbcType=VARCHAR},
+      </if>
       <if test="mtime != null">
         mtime = #{mtime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="isInuse != null">
-        is_inuse = #{isInuse,jdbcType=TIMESTAMP},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -140,11 +143,12 @@
       price = #{price,jdbcType=INTEGER},
       stock = #{stock,jdbcType=INTEGER},
       is_inuse = #{isInuse,jdbcType=SMALLINT},
-      create_time = #{createTime,jdbcType=TIMESTAMP},
+      ctime = #{ctime,jdbcType=TIMESTAMP},
       spec_opt = #{specOpt,jdbcType=VARCHAR},
-      update_time = #{updateTime,jdbcType=TIMESTAMP}
+      mtime = #{mtime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+
   <insert id="batchInsert" parameterType="java.util.List">
     insert into good_spec(id,goods_sn,spec,price,stock,spec_opt,ctime)
     values
@@ -152,6 +156,40 @@
       (#{item.id},#{item.goodsSn}, #{item.spec},#{item.price},#{item.stock},#{item.specOpt},#{item.ctime})
     </foreach>
   </insert>
+
+  <select id="select" parameterType="com.icecream.common.model.pojo.GoodsSpec" resultType="java.util.List" resultMap="BaseResultMap">
+    select * from goods_spec
+    <where>
+      <if test="id != null">
+        id =#{id}
+      </if>
+      <if test="goodsSn != null">
+        goods_sn=#{goodsSn}
+      </if>
+      <if test="spec != null">
+        spec=#{spec}
+      </if>
+      <if test="specOpt != null">
+        specOpt=#{specOpt}
+      </if>
+      <if test="price != null">
+        price=#{price}
+      </if>
+      <if test="stock != null">
+        stock=#{stock}
+      </if>
+      <if test="isInuse != null">
+        isInuse=#{isInuse}
+      </if>
+      <if test="ctime != null">
+        ctime=#{ctime}
+      </if>
+      <if test="mtime != null">
+        mtime=#{mtime}
+      </if>
+    </where>
+  </select>
+
   <update id="reduceSpecStock">
     update goods_spec set stock = stock-#{count} where id = #{specId}
   </update>

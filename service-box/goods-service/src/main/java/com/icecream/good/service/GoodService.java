@@ -1,11 +1,12 @@
 package com.icecream.good.service;
 
-import com.codingapi.tx.annotation.TxTransaction;
+import com.alibaba.fastjson.JSON;
 import com.icecream.common.model.pojo.DiscoverDisplay;
 import com.icecream.common.model.pojo.DiscoverGoods;
 import com.icecream.common.model.pojo.Good;
 import com.icecream.common.model.pojo.GoodsSpec;
 import com.icecream.common.model.requstbody.CreateOrderModel;
+import com.icecream.common.model.requstbody.GoodSpecResponseModel;
 import com.icecream.common.model.requstbody.GoodsStoreModel;
 import com.icecream.common.util.idbuilder.staticfactroy.SnowflakeGlobalIdFactory;
 import com.icecream.common.util.res.ResultEnum;
@@ -54,12 +55,17 @@ public class GoodService {
     @Autowired
     private SnowflakeGlobalIdFactory snowflakeGlobalIdFactory;
 
+    @Autowired
+    private GoodsSpecService goodsSpecService;
+
     public ResultVO getDiscoverGoods(Integer discoverId, Integer sid,
                                      String lastGoodsSn, Integer count) {
         Good arg = new Good();
-        arg.setGoodsSn(lastGoodsSn.valueOf(lastGoodsSn));
+        arg.setGoodsSn(lastGoodsSn);
         List<Good> select = goodMapper.select(arg);
-        if (select.isEmpty()) return ResultUtil.error("lastGoodsSn为空或者无此商品", ResultEnum.PARAMS_ERROR);
+        if (select.isEmpty()) {
+            return ResultUtil.error("lastGoodsSn为空或者无此商品", ResultEnum.PARAMS_ERROR);
+        }
         List<DiscoverGoods> discoverGoods = discoverGoodsMapper.selectGoodsIdByDiscoverId(discoverId, select.get(0).getScore());
         discoverGoods = discoverGoods.stream().limit(count).collect(Collectors.toList());
         List<Good> resultList = new ArrayList<>();
@@ -91,6 +97,10 @@ public class GoodService {
         int count = goodMapper.insertSelective(args);
         if (null != goodsSpec) {
             Good result = goodMapper.selectByPrimaryKey(good.getId());
+            goodsSpec.forEach(gs -> {
+                gs.setGoodsSn(result.getGoodsSn());
+                gs.setId(UUIDFactory.create());
+            });
             goodsSpec.forEach(gs -> supplementaryData(gs, result));
             int row = goodsSpecMapper.batchInsert(goodsSpec);
             if (row > 0) {
@@ -103,11 +113,65 @@ public class GoodService {
         return ResultUtil.error(null, ResultEnum.MYSQL_OPERATION_FAILED);
     }
 
-    public Good get(String goodsSn) {
+    public Good get(String goodsSn){
         Good good = new Good();
         good.setGoodsSn(goodsSn);
         List<Good> select = goodMapper.select(good);
         return select.get(0);
+    }
+
+    public ResultVO getGoodsByGoodsSn(String goodsSn) {
+        Good arg = new Good();
+        arg.setGoodsSn(goodsSn);
+        List<Good> select = goodMapper.select(arg);
+        if (select.isEmpty()){
+            return ResultUtil.error("goodsSn为空或者无此商品", ResultEnum.PARAMS_ERROR);
+        }
+
+        GoodsSpec argSpec = new GoodsSpec();
+        argSpec.setGoodsSn(goodsSn);
+        List<GoodsSpec> selectGoodsSpec = goodsSpecMapper.select(argSpec);
+        Good good = select.get(0);
+        good.setGoodsSpec(selectGoodsSpec);
+        if (good.getSpecGroup() != null && !("").equals(good.getSpecGroup()) && !("-1").equals(good.getSpecGroup())) {
+            handleReturnValue(good);
+        }
+        return ResultUtil.success(good);
+    }
+
+    private Good handleReturnValue(Good good) {
+        List<GoodSpecResponseModel> specList = new ArrayList<GoodSpecResponseModel>();
+        String[] specGroupArray = good.getSpecGroup().split("\\|");
+        if (0 < specGroupArray.length && specGroupArray.length <= 2) {
+            for (int i = 0; i < specGroupArray.length; i++) {
+                GoodSpecResponseModel goodSpecResponseModel = new GoodSpecResponseModel();
+                String[] splitString = specGroupArray[i].split(":");
+                goodSpecResponseModel.setSpecName(splitString[0]);
+                String[] goodSpecArray = splitString[1].split(",");
+                List<String> goodSpecSizeTwoList = new ArrayList<String>();
+                for (int j = 0; j < goodSpecArray.length; j++) {
+                    goodSpecSizeTwoList.add(goodSpecArray[j]);
+                }
+                goodSpecResponseModel.setSpecList(goodSpecSizeTwoList);
+                specList.add(goodSpecResponseModel);
+                goodSpecResponseModel = null;
+            }
+            good.setSpecGroup(JSON.toJSONString(specList));
+            return good;
+        } else if (specGroupArray.length > 2) {
+            GoodSpecResponseModel goodSpecResponseModel = new GoodSpecResponseModel();
+            goodSpecResponseModel.setSpecName("规格");
+            List<String> goodSpecList = new ArrayList<String>();
+            for (int j = 0; j < good.getGoodsSpec().size(); j++) {
+                goodSpecList.add(good.getGoodsSpec().get(j).getSpec());
+            }
+            goodSpecResponseModel.setSpecList(goodSpecList);
+            specList.add(goodSpecResponseModel);
+            good.setSpecGroup(JSON.toJSONString(specList));
+            return good;
+        } else {
+            return good;
+        }
     }
 
     private Good supplementaryData(Good good) {
