@@ -154,6 +154,15 @@ public class UserAuthService {
         return result;
     }
 
+    public UserAuth getByType(Integer type, String flag) {
+        UserAuth arg = new UserAuth();
+        arg.setIdentityType(type);
+        arg.setIdentifier(flag);
+        UserAuth result = userAuthMapper.selectOne(arg);
+        return result;
+    }
+
+
     public UserAuth getByIdentifer(Integer uid, String identifer) {
         UserAuth arg = new UserAuth();
         arg.setUid(uid);

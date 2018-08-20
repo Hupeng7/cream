@@ -48,7 +48,7 @@ public class UserRegisterService {
     private CodeHandler codeHandler;
 
     public UserAuth isHaveBeenRegistered(String key, Integer type) {
-        UserAuth haveBeenRegistered = userAuthService.get(type, key);
+        UserAuth haveBeenRegistered = userAuthService.getByType(type, key);
         return Optional.ofNullable(haveBeenRegistered).orElse(null);
     }
 

@@ -1,6 +1,7 @@
 package com.icecream.good.service;
 
 import com.icecream.common.model.pojo.GoodsSpec;
+import com.icecream.common.model.requstbody.CreateOrderModel;
 import com.icecream.good.mapper.GoodsSpecMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,5 +24,7 @@ public class GoodsSpecService {
     }
 
     public int update(GoodsSpec goodsSpec){return goodsSpecMapper.updateByPrimaryKeySelective(goodsSpec);}
+
+    public int inventoryReduction(String id){return goodsSpecMapper.reduceSpecStock(id);}
 
 }

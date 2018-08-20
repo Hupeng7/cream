@@ -3,6 +3,7 @@ package com.icecream.order.utils.math;
 import com.icecream.common.util.idbuilder.staticfactroy.SnowflakeGlobalIdFactory;
 
 import java.time.LocalDate;
+import java.util.Random;
 
 /**
  * @author Mr_h
@@ -16,7 +17,8 @@ public class TradesNoCreater {
         String header = LocalDate.now().toString().replace("-", "");
         Long snowNumber = new SnowflakeGlobalIdFactory().create().nextId();
         String body = snowNumber.toString();
-        return header+body;
+        String less = String.valueOf((int)((Math.random()*9+1)*100000));
+        return header+body+less;
     }
 
 }

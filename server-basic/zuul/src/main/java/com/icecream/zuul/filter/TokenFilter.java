@@ -128,7 +128,7 @@ public class TokenFilter extends ZuulFilter {
         requestList.add(id.toString());
         requestQueryParams.put("specialTokenId",requestList);
         String body = StreamUtils.copyToString(in, Charset.forName("UTF-8"));
-        System.out.println("body:" + body);
+        log.info("body:" + body);
         JSONObject json = JSONObject.parseObject(body);
         if(json==null||json.isEmpty()){
             json = new JSONObject();

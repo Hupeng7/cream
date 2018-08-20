@@ -139,7 +139,7 @@
     where id = #{id,jdbcType=BIGINT}
   </update>
 
-  <select id="selectByGoodsSn" parameterType="java.lang.String" resultMap="BaseResultMap">
+  <select id="selectByGoodsSn" parameterType="java.lang.String" resultType="com.icecream.common.model.pojo.GoodsLimit">
     select * from goods_limit where goods_sn =#{goodsSn}
   </select>
 </mapper>
