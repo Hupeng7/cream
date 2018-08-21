@@ -28,4 +28,6 @@ public interface GoodMapper {
     int reductionGoodsNum(@Param("count") Integer buyNum,@Param("goods_sn")String goodsSn,
                           @Param("sid")Integer sid);
     Good getGoodsNum(@Param("goods_sn")String goodsSn, @Param("sid")Integer sid);
+
+    List<Good> getAll();
 }

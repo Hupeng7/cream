@@ -6,6 +6,8 @@ import com.icecream.good.mapper.GoodsSpecMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * @author Mr_h
  * @version 1.0
@@ -23,8 +25,15 @@ public class GoodsSpecService {
         return goodsSpecMapper.selectByPrimaryKey(id);
     }
 
+    public List<GoodsSpec> getSpecList(String goodsSn){
+        GoodsSpec goodsSpec = new GoodsSpec();
+        goodsSpec.setGoodsSn(goodsSn);
+        return goodsSpecMapper.select(goodsSpec);
+    }
+
+
     public int update(GoodsSpec goodsSpec){return goodsSpecMapper.updateByPrimaryKeySelective(goodsSpec);}
 
-    public int inventoryReduction(String id){return goodsSpecMapper.reduceSpecStock(id);}
+    public int inventoryReduction(Integer count,String id){return goodsSpecMapper.reduceSpecStock(count,id);}
 
 }
