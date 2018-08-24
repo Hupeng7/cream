@@ -23,17 +23,4 @@ public class GoodsLimitController {
     @Autowired
     private GoodsLimitService goodsLimitService;
 
-    @RequestMapping("update")
-    public int update(@RequestBody Order order){
-       return goodsLimitService.update(order.getGoodsId(),
-                                       order.getGoodsCount(),
-                                       order.getSid(),
-                                       order.getUid(),
-                                       order.getSpecId());
-   }
-
-    @RequestMapping("check")
-    public GoodsStoreModel checkBuyCount(@RequestBody CreateOrderModel createOrderModel)throws Exception{
-        return goodsLimitService.checkCount(createOrderModel);
-    }
 }

@@ -1,16 +1,12 @@
 package com.icecream.good.controller;
 
 import com.icecream.common.model.pojo.Good;
+import com.icecream.common.model.requstbody.CreateOrderModel;
+import com.icecream.common.model.requstbody.GoodsUpdateMessage;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.good.service.GoodService;
-import lombok.extern.slf4j.Slf4j;
-import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
 
 /**
  * @author Mr_h
@@ -24,6 +20,7 @@ public class GoodController {
 
     @Autowired
     private GoodService goodService;
+
 
 
     /**
@@ -75,6 +72,27 @@ public class GoodController {
     @GetMapping("{goodsSn}")
     public ResultVO getGoodsByGoodsSn(@PathVariable("goodsSn") String goodsSn) {
         return goodService.getGoodsByGoodsSn(goodsSn);
+    }
+
+    /**
+     * 先行更新单规格商品库存或者多规格商品库存，再根据商品限购，用户限购判断是否能下单
+     * @param createOrderModel
+     * @return
+     */
+    @RequestMapping("check")
+    public void reduceStoreAndCheck(@RequestBody CreateOrderModel createOrderModel){
+         goodService.reduceStoreAndCheck(createOrderModel);
+    }
+
+    //获取redis中的商品的数据
+    @RequestMapping("getRedis/{goodsSn}")
+    public ResultVO getRedis(@PathVariable("goodsSn")String goodsSn){
+        return goodService.getRedis(goodsSn);
+    }
+
+    @RequestMapping("updateGoodsNum")
+    public int updateGoodsNum(@RequestBody GoodsUpdateMessage goodsUpdateMessage){
+        return goodService.updateGoodsNum(goodsUpdateMessage);
     }
 
 }

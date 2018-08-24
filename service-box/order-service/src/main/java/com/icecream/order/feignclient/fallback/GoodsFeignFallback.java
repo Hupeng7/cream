@@ -5,6 +5,7 @@ import com.icecream.common.model.pojo.GoodsSpec;
 import com.icecream.common.model.pojo.Order;
 import com.icecream.common.model.requstbody.CreateOrderModel;
 import com.icecream.common.model.requstbody.GoodsStoreModel;
+import com.icecream.common.model.requstbody.GoodsUpdateMessage;
 import com.icecream.order.feignclient.GoodsFeignClient;
 import org.springframework.stereotype.Component;
 
@@ -27,13 +28,15 @@ public class GoodsFeignFallback implements GoodsFeignClient {
     }
 
     @Override
-    public GoodsStoreModel checkBuyCount(CreateOrderModel createOrderModel) {
+    public void reduceStoreAndCheck(CreateOrderModel createOrderModel) {}
+    @Override
+    public GoodsSpec getSpec(String specId) {
         return null;
     }
 
     @Override
-    public GoodsSpec getSpec(String specId) {
-        return null;
+    public int updateGoodsNum(GoodsUpdateMessage goodsUpdateMessage) {
+        throw new RuntimeException("更新失败");
     }
 
 }

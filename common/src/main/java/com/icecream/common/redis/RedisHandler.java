@@ -4,7 +4,10 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.DataType;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
@@ -428,9 +431,6 @@ public class RedisHandler {
         set(String.valueOf(key), value);
     }
 
-    public static void set(){
-
-    }
 
     public static void set(String key, Object value) {
         redisHandler.redisTemplate.boundValueOps(key).set(value);
@@ -578,6 +578,20 @@ public class RedisHandler {
 
     public static Set<Object> getSetIntersect(String key, Set<Object> set) {
         return redisHandler.redisTemplate.boundSetOps(key).intersect(set);
+    }
+
+    public static Long decr(String key,long reduce) {
+        if(reduce<0){
+             throw  new RuntimeException("递减因子不能为0");
+        }
+        return redisHandler.redisTemplate.opsForValue().increment(key,-reduce);
+    }
+
+    public static Long incr(String key,long increment) {
+        if(increment<0){
+            throw  new RuntimeException("递增因子不能为0");
+        }
+        return redisHandler.redisTemplate.opsForValue().increment(key,increment);
     }
 }
 

@@ -1,13 +1,18 @@
 package com.icecream.order.rabbit;
 
 import com.alibaba.fastjson.JSON;
+import com.codingapi.tx.annotation.TxTransaction;
 import com.icecream.common.model.pojo.Order;
 import com.icecream.common.model.pojo.ScoreRule;
 import com.icecream.common.util.constant.SysConstants;
 import com.icecream.common.util.json.JsonUtil;
 import com.icecream.common.util.time.DateUtil;
+import com.icecream.order.mapper.ExpMapper;
+import com.icecream.order.mapper.WalletMapper;
+import com.icecream.order.service.ExpService;
 import com.icecream.order.service.OrderService;
 import com.icecream.order.service.ScoreRuleService;
+import com.icecream.order.service.WalletService;
 import com.icecream.order.utils.OrderBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.omg.CORBA.ORB;
@@ -15,6 +20,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -30,8 +36,8 @@ import static com.icecream.order.contants.Contants.CHARGE;
  */
 @Slf4j
 @Component
-@RabbitListener(queues = SysConstants.ORDER_ROUTING_KEY)
-public class RabbitConsumer {
+@RabbitListener(queues = {SysConstants.CHARGE_ROUTING_KEY})
+public class ChargeOrderConsumer {
 
     @Autowired
     private OrderService orderService;

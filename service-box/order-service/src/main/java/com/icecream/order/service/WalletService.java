@@ -1,6 +1,9 @@
 package com.icecream.order.service;
 
+import com.icecream.common.model.pojo.Good;
 import com.icecream.common.model.pojo.Wallet;
+import com.icecream.common.model.requstbody.CreateOrderModel;
+import com.icecream.common.model.requstbody.GoodsStoreModel;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.common.util.time.DateUtil;
@@ -9,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -65,20 +69,6 @@ public class WalletService {
         return wallet;
     }
 
-    //根据查询出的钱包对象进行更新(减钱)
-    public int updateForConsume(BigDecimal stars, Integer uid) {
-        final ReentrantReadWriteLock reentrantReadWriteLock = new ReentrantReadWriteLock();
-        reentrantReadWriteLock.writeLock().lock();
-        Wallet wallet = get(uid);
-        BigDecimal balance = wallet.getBalance();
-        log.info("我的余额:{}"+balance);
-        BigDecimal finalStars = balance.subtract(stars);
-        wallet.setBalance(finalStars);
-        wallet.setMtime(DateUtil.getNowSecondIntTime());
-        int num = walletMapper.updateByPrimaryKeySelective(wallet);
-        reentrantReadWriteLock.writeLock().unlock();
-        return num;
-    }
 
     //根据查询出的钱包对象进行更新(加钱)
     public int update(BigDecimal stars, Wallet wallet) {
@@ -104,5 +94,19 @@ public class WalletService {
     public int insertOrUpateHandler(Integer uid, BigDecimal stars) {
         Wallet wallet = get(uid);
         return wallet == null ? insert(uid, stars) : update(stars, wallet);
+    }
+
+
+    //先减钱
+    @Transactional(rollbackFor = Exception.class)
+    public Wallet reduceWalletBalanceOrRollBack(BigDecimal stars,Integer uid,Integer sid) {
+        try {
+            walletMapper.reduceWalletBalance(stars,uid,sid);
+            Wallet wallet = get(uid);
+            return Optional.ofNullable(wallet).filter(w -> wallet.getBalance().compareTo(BigDecimal.ZERO)>=0).orElseThrow(Exception::new);
+        } catch (Exception e) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return null;
+        }
     }
 }

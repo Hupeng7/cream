@@ -30,4 +30,7 @@ public interface GoodMapper {
     Good getGoodsNum(@Param("goods_sn")String goodsSn, @Param("sid")Integer sid);
 
     List<Good> getAll();
+
+    int updateByGoodsSnAndGoodsNum(@Param("sid")Integer sid,@Param("goodsSn")String goodsSn
+            ,@Param("goodsNum")Integer goodsNum);
 }

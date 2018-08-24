@@ -6,6 +6,7 @@ import com.icecream.common.model.pojo.GoodsSpec;
 import com.icecream.common.model.pojo.Order;
 import com.icecream.common.model.requstbody.CreateOrderModel;
 import com.icecream.common.model.requstbody.GoodsStoreModel;
+import com.icecream.common.model.requstbody.GoodsUpdateMessage;
 import com.icecream.order.feignclient.fallback.GoodsFeignFallback;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.stereotype.Component;
@@ -23,9 +24,12 @@ public interface GoodsFeignClient {
     @RequestMapping(value = "Goods/limit/update",method =RequestMethod.PUT )
     int updateGoodsCount(Order order);
 
-    @RequestMapping(value = "Goods/limit/check")
-    GoodsStoreModel checkBuyCount(CreateOrderModel createOrderModel);
+    @RequestMapping(value = "Goods/check")
+    void reduceStoreAndCheck(CreateOrderModel createOrderModel);
 
     @RequestMapping(value = "Goods/spec/get")
     GoodsSpec getSpec(@RequestParam("specId") String specId);
+
+    @RequestMapping(value = "Goods/updateGoodsNum")
+    int updateGoodsNum(GoodsUpdateMessage goodsUpdateMessage);
 }

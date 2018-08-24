@@ -30,9 +30,9 @@ public class RedisConfig {
     // Redis数据库索引（默认为0）
     private static final int database =1;
     //连接池最大阻塞等待时间（使用负值表示没有限制）
-    private static final int maxWait=1;
+    private static final int maxWait=-1;
     //连接池中的最大空闲连接
-    private static final int maxIdle=8;
+    private static final int maxIdle=1000;
     //连接池中的最小空闲连接
     private static final int minIdle=1;
     //连接超时时间（毫秒）
@@ -74,7 +74,7 @@ public class RedisConfig {
         StringRedisTemplate redisTemplate = new StringRedisTemplate(factory);
         redisTemplate.setConnectionFactory(redisConnectionFactory());
         //redis   开启事务
-        redisTemplate.setEnableTransactionSupport(true);
+       // redisTemplate.setEnableTransactionSupport(true);
         //hash  使用jdk  的序列化
         redisTemplate.setHashValueSerializer(fastJson2JsonRedisSerializer/*new JdkSerializationRedisSerializer()*/);
         //StringRedisSerializer  key  序列化

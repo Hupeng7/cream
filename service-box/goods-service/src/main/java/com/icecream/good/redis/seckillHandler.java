@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.icecream.common.util.constant.SysConstants.GOODS_PREFIX;
+
 /**
  * @author Mr_h
  * @version 1.0
@@ -27,7 +29,8 @@ import java.util.Map;
  */
 @Component
 @Slf4j
-public class seckillHandler implements InitializingBean {
+public class seckillHandler /*implements InitializingBean*/ {
+/*
 
     @Autowired
     private GoodService goodService;
@@ -45,24 +48,26 @@ public class seckillHandler implements InitializingBean {
         if (list == null) {
             return;
         }
+        log.info("正常获取到商品数据,数量为{}",list.size());
         for (Good g : list) {
             MitGoodsRedis goodsRedis = new MitGoodsRedis();
             if (null != g.getSpecGroup()) {
                 List<GoodsSpec> specList = goodsSpecService.getSpecList(g.getGoodsSn());
                 goodsRedis.setGood(g);
                 goodsRedis.setGoodsSpec(specList);
+                for (GoodsSpec gs:specList) {
+                    RedisHandler.set(GoodsRedisProfix.GOODS_SPEC_PREFIX + gs.getId(), gs.getStock());
+                }
             }
             goodsRedis.setGood(g);
-            RedisHandler.addMap(GoodsRedisProfix.GOODS_PREFIX,g.getGoodsSn(),JSON.toJSONString(goodsRedis));
-            Map<String, Object> map = RedisHandler.getMap(GoodsRedisProfix.GOODS_PREFIX);
-            String json = JSON.toJSONString(map);
-            JSONObject jsonObject = JSON.parseObject(json);
-            String string = jsonObject.getString(g.getGoodsSn());
-            log.info(json);
-            log.info("map"+map.toString());
+            RedisHandler.set(GoodsRedisProfix.GOODS_PREFIX+g.getGoodsSn(),g.getGoodsNum());
+            RedisHandler.addMap(GOODS_PREFIX,g.getGoodsSn(),JSON.toJSONString(goodsRedis));
         }
+        RedisHandler.set("wallet_2112542",100);
+        RedisHandler.set("exp_2112542",0);
+        RedisHandler.set("user_buy_limit_944173690352962944",0);
         }
-
+*/
 
 }
 

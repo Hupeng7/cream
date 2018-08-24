@@ -8,5 +8,7 @@ package com.icecream.good.redis;
  */
 public class GoodsRedisProfix {
 
-    public final static String GOODS_PREFIX = "goods";
+    public final static String GOODS_PREFIX = "goods_";
+
+    public final static String GOODS_SPEC_PREFIX ="goodsSpec_";
 }

@@ -1,13 +1,11 @@
 package com.icecream.order.service;
 
-import com.codingapi.tx.annotation.TxTransaction;
+import com.alibaba.fastjson.JSON;
 import com.icecream.common.model.pojo.Good;
 import com.icecream.common.model.pojo.GoodsSpec;
 import com.icecream.common.model.pojo.Order;
-import com.icecream.common.model.pojo.Wallet;
-import com.icecream.common.model.requstbody.AddressInfo;
-import com.icecream.common.model.requstbody.CreateOrderModel;
-import com.icecream.common.model.requstbody.GoodsStoreModel;
+import com.icecream.common.model.requstbody.*;
+import com.icecream.common.redis.RedisHandler;
 import com.icecream.common.util.idbuilder.staticfactroy.SnowflakeGlobalIdFactory;
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
@@ -15,6 +13,7 @@ import com.icecream.common.util.res.ResultVO;
 import com.icecream.common.util.time.DateUtil;
 import com.icecream.order.feignclient.GoodsFeignClient;
 import com.icecream.order.mapper.OrderMapper;
+import com.icecream.order.rabbit.RabbitSender;
 import com.icecream.order.utils.math.TradesNoCreater;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,17 +23,18 @@ import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static com.icecream.common.util.constant.SysConstants.*;
+
 
 @Slf4j
 @Service
 @SuppressWarnings("all")
-public class OrderService {
+public class OrderService{
 
     @Value("${thread.isSync}")
     private boolean isSync;
@@ -56,6 +56,9 @@ public class OrderService {
 
     @Autowired
     private SnowflakeGlobalIdFactory snowflakeGlobalIdFactory;
+
+    @Autowired
+    private RabbitSender rabbitSender;
 
     //获取订单详情
     public Order getOrderByOrderNo(Integer sid, String orderNo) {
@@ -81,31 +84,91 @@ public class OrderService {
     }
 
     //创建订单
-    @Transactional(rollbackFor = Exception.class)
     public ResultVO create(Integer uid, CreateOrderModel createOrderModel) {
-        GoodsStoreModel goodsStoreModel = goodsFeignClient.checkBuyCount(createOrderModel);
-        if (null!=goodsStoreModel) {
-        BigDecimal goodsPrice = goodsStoreModel.getFinalPrice();
-        Wallet wallet = walletService.get(uid);
-        int symbol = wallet.getBalance().compareTo(goodsPrice.multiply(new BigDecimal(createOrderModel.getGoodsCount())));
-        if (-1 == symbol) {
-            return ResultUtil.error("星星不够啦!", ResultEnum.CREATE_ORDER_FAILED);
-        }
-            String orderNo = TradesNoCreater.create();
-            AddressInfo addressInfo = getAddressInfo(createOrderModel.getAddress());
-            String spec = goodsStoreModel.getSpec();
-            Order order = buildOrder(createOrderModel, uid, orderNo, addressInfo, goodsPrice, spec);
+        MitGoodsRedis goodsRedis = JSON.parseObject(RedisHandler
+                .getMapField(GOODS_PREFIX, createOrderModel.getGoodsSn()), MitGoodsRedis.class);
+        log.info("获取到商品信息,{}", goodsRedis);
+        log.info("开始创建预下单对象...");
+        Order order = buildPreOrder(createOrderModel, uid, TradesNoCreater.create(),
+                getAddressInfo(createOrderModel.getAddress()),
+                goodsRedis.getGood().getGoodsPrice(),"");
+        log.info("已经创建预下单对象...{}",order);
+        RedisHandler.addMap("orders",order.getOrderNo(),JSON.toJSONString(order));
+        log.info("预下单对象已经加入缓存");
 
-            if (isSync) {
-                toAsynCreate(order);
-                return ResultUtil.success("订单创建成功");
-            } else {
-                return transactionInsert(order) ? ResultUtil.success("订单创建成功")
-                        : ResultUtil.error(null, ResultEnum.CREATE_ORDER_FAILED);
-            }
-        } else {
-            return ResultUtil.error("购买超出限制", ResultEnum.CREATE_ORDER_FAILED);
+        log.info("开始进行预减数据操作");
+        Long decrNum = RedisHandler.decr(GOODS_PREFIX + createOrderModel.getGoodsSn(), createOrderModel.getGoodsCount());
+        log.info("还剩余的库存{}", decrNum);
+        Integer hasBeenBoughtCount = RedisHandler.get(HAS_BEEN_BOUGHT_PREFIX + createOrderModel.getGoodsSn())
+                != null ? Integer.parseInt(RedisHandler.get(HAS_BEEN_BOUGHT_PREFIX + createOrderModel.getGoodsSn()).toString()) : -1;
+        log.info("用户已经购买的件数,{}", hasBeenBoughtCount);
+        Integer buyLimit = Optional.ofNullable(goodsRedis)
+                .map(MitGoodsRedis::getGood)
+                .map(Good::getBuylimit)
+                .get();
+        log.info("商品限制用户购买的数量,{}", buyLimit);
+        Integer canBuyNum = buyLimit - hasBeenBoughtCount;
+        log.info("用户能够购买的件数,{}", canBuyNum);
+
+        if (decrNum < 0) {
+            log.info("库存不够手动回滚");
+            RedisHandler.set(GOODS_PREFIX + createOrderModel.getGoodsSn(), 0);
+            RedisHandler.remove(order.getOrderNo());
+            return ResultUtil.error("商品抢完啦~ 请下次再来", ResultEnum.CREATE_ORDER_FAILED);
         }
+
+        BigDecimal balance = new BigDecimal(RedisHandler.get(USER_WALLET_PREFIX + uid).toString());
+        Integer hasBeenBought = Integer.parseInt(RedisHandler.get(HAS_BEEN_BOUGHT_PREFIX + createOrderModel.getGoodsSn()).toString());
+        Integer exp = Integer.parseInt(RedisHandler.get(USER_EXP + uid).toString());
+
+        if (balance.subtract(order.getChangePrice()).compareTo(BigDecimal.ZERO)<0) {
+            log.info("星星不够手动回滚");
+            RedisHandler.removeMapField("orders",order.getOrderNo());
+            RedisHandler.removeZSet("order_"+uid);
+            return ResultUtil.error("星星不够哦，请先充值", ResultEnum.CREATE_ORDER_FAILED);
+        }
+
+        if (canBuyNum < createOrderModel.getGoodsCount()) {
+            log.info("商品购买超过限购");
+            RedisHandler.removeMapField("orders",order.getOrderNo());
+            RedisHandler.removeZSet("order_"+uid);
+            return ResultUtil.error("商品购买超过限制", ResultEnum.CREATE_ORDER_FAILED);
+        }
+        balance = balance.subtract(order.getChangePrice());
+        exp =exp+order.getChangePrice().intValue();
+        hasBeenBought = hasBeenBoughtCount+order.getGoodsCount();
+
+        log.info("开始写回redis");
+        RedisHandler.set(USER_WALLET_PREFIX + uid,balance);
+        RedisHandler.set(HAS_BEEN_BOUGHT_PREFIX + createOrderModel.getGoodsSn(),hasBeenBought);
+        RedisHandler.set(USER_EXP + uid,exp);
+
+        log.info("您就是万中无一的幸运儿-->{}", uid);
+        log.info("开始更改订单状态");
+        Order finalOrder = updateOrderStatus(order);
+        SkillUpdateModel skillUpdateModel = new SkillUpdateModel();
+        GoodsUpdateMessage goodsUpdateMessage = new GoodsUpdateMessage();
+        goodsUpdateMessage.setSid(order.getSid());
+        goodsUpdateMessage.setUid(uid);
+        goodsUpdateMessage.setGoodsNum(decrNum.intValue());
+        goodsUpdateMessage.setBought(createOrderModel.getGoodsCount());
+        goodsUpdateMessage.setGoodsSn(createOrderModel.getGoodsSn());
+        skillUpdateModel.setGoodsUpdateMessage(goodsUpdateMessage);
+        skillUpdateModel.setOrder(finalOrder);
+        log.info("开始加入队列..");
+        log.info("开始向订单系统发送数据..");
+        rabbitSender.sendOrderData(JSON.toJSONString(skillUpdateModel));
+        log.info("向redis写回下单成功的订单");
+        RedisHandler.addMap("orders",order.getOrderNo(),JSON.toJSONString(finalOrder));
+        RedisHandler.addZSet("order_"+uid,order.getCtime(),order.getOrderNo());
+        return ResultUtil.success("创建订单成功");
+    }
+
+    private Order createOrder(Integer uid, CreateOrderModel createOrderModel, GoodsStoreModel goodsStoreModel, BigDecimal goodsPrice) {
+        String orderNo = TradesNoCreater.create();
+        AddressInfo addressInfo = getAddressInfo(createOrderModel.getAddress());
+        String spec = goodsStoreModel.getSpec();
+        return buildPreOrder(createOrderModel, uid, orderNo, addressInfo, goodsPrice, spec);
     }
 
     //创建订单涉及到多张表
@@ -115,9 +178,8 @@ public class OrderService {
         String goodsId = order.getGoodsId();
         int orderRow = insert(order);
         expService.insertOrUpdateHandler(order.getUid(), order.getSid(), order.getGoodsPrice());
-        int walletRow = walletService.updateForConsume(order.getGoodsPrice(), order.getUid());
         int pointRow = pointInoutService.insertPointInoutOrder(order.getGoodsPrice(), uid, order.getOrderNo());
-        return orderRow > 0 & walletRow > 0 & pointRow > 0;
+        return orderRow > 0 & pointRow > 0;
     }
 
 
@@ -158,13 +220,13 @@ public class OrderService {
                 ResultUtil.success(orderDetail);
     }
 
-    public ResultVO getOrderListSort(Integer count, Integer lastTime, Integer sort,Integer uid) {
+    public ResultVO getOrderListSort(Integer count, Integer lastTime, Integer sort, Integer uid) {
         Example example = new Example(Order.class);
-        example.setOrderByClause(sort==-1?"ctime desc limit "+count:" ctime asc limit "+count);
+        example.setOrderByClause(sort == -1 ? "ctime desc limit " + count : " ctime asc limit " + count);
         example.setCountProperty(count.toString());
         Example.Criteria criteria = example.createCriteria();
-        criteria.andEqualTo("uid",uid);
-        criteria.andGreaterThan("ctime",lastTime);
+        criteria.andEqualTo("uid", uid);
+        criteria.andGreaterThan("ctime", lastTime);
         List<Order> orders = orderMapper.selectByExample(example);
         return ResultUtil.success(Optional.ofNullable(orders).orElse(null));
     }
@@ -191,9 +253,11 @@ public class OrderService {
         return addressInfo;
     }
 
-    private Order buildOrder(CreateOrderModel createOrderModel,
+
+    //创建预下单对象
+    private Order buildPreOrder(CreateOrderModel createOrderModel,
                              Integer uid, String orderNo, AddressInfo addressInfo,
-                             BigDecimal goodsPrice, String spec) {
+                             BigDecimal goodsPrice,String spec) {
         Order order = new Order();
         order.setUid(uid);
         order.setGoodsId(createOrderModel.getGoodsSn());
@@ -201,9 +265,9 @@ public class OrderService {
         order.setCreater(-1);//创建者系统
         order.setPaymentType(4);//支付类型 4星星
         order.setStatus(1); //状态为正常
-        order.setOrderStatus(4);//订单状态为已付款
-        order.setIsDigital(1);//实物商品
-        order.setIsPay(1);//已支付
+        order.setOrderStatus(0);//订单状态为未付款
+        order.setIsDigital(createOrderModel.getIsDigital());
+        order.setIsPay(0);//未支付
         order.setSpecId(createOrderModel.getSpecId());
         order.setSpec(spec);
         order.setGoodsCount(createOrderModel.getGoodsCount());
@@ -217,15 +281,22 @@ public class OrderService {
         order.setAmount(new BigDecimal(1));
         order.setOrderNo(orderNo);
         order.setGoodsId(createOrderModel.getGoodsSn());
-        order.setGoodsPrice(goodsPrice.multiply(new BigDecimal(createOrderModel.getGoodsCount())));
+        order.setGoodsPrice(goodsPrice);
         order.setReportType(2);//商品账单
         order.setAccount("-1");
         order.setOrderType(1);//平台交易
-        order.setPayPrice(order.getGoodsPrice());//实际支付价格
-        order.setPayTime(DateUtil.getNowSecondIntTime());//支付时间
-        order.setChangePrice(new BigDecimal(0));
+        order.setChangePrice(goodsPrice.multiply(new BigDecimal(createOrderModel.getGoodsCount())));
+        order.setPayPrice(order.getChangePrice());//实际支付价格
+        order.setPayTime(0);//支付时间
         order.setChangeTime(0);
         order.setCtime(DateUtil.getNowSecondIntTime());
+        return order;
+    }
+
+    private Order updateOrderStatus(Order order){
+        order.setOrderStatus(4);
+        order.setIsPay(1);
+        order.setPayTime(DateUtil.getNowSecondIntTime());
         return order;
     }
 }

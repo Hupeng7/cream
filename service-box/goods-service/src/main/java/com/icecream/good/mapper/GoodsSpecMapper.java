@@ -2,7 +2,7 @@ package com.icecream.good.mapper;
 
 import com.icecream.common.model.pojo.GoodsSpec;
 import org.apache.ibatis.annotations.Mapper;
-import org.springframework.data.repository.query.Param;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -22,7 +22,7 @@ public interface GoodsSpecMapper {
 
     int batchInsert(@Param("list") List<GoodsSpec> goodsSpecList);
 
-    int reduceSpecStock(@Param("specId")String specId);
+    int reduceSpecStock(@Param("count")Integer count,@Param("specId")String specId);
 
     List select(GoodsSpec arg);
 }

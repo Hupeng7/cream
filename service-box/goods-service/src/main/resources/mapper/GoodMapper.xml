@@ -1172,6 +1172,10 @@
         select goods_num,buylimit,goods_price from goods where goods_sn = #{goods_sn} and sid= #{sid}
     </select>
 
+    <update id="updateByGoodsSnAndGoodsNum">
+        update goods set goods_num = #{goodsNum} where sid = #{sid} and goods_sn =#{goodsSn}
+    </update>
+
     <select id="getAll" resultType="java.util.List" resultMap="BaseResultMap">
         select * from goods
     </select>

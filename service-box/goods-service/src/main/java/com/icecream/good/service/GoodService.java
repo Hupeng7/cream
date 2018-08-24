@@ -1,19 +1,19 @@
 package com.icecream.good.service;
 
 import com.alibaba.fastjson.JSON;
-import com.icecream.common.model.pojo.DiscoverDisplay;
-import com.icecream.common.model.pojo.DiscoverGoods;
-import com.icecream.common.model.pojo.Good;
-import com.icecream.common.model.pojo.GoodsSpec;
-import com.icecream.common.model.requstbody.CreateOrderModel;
-import com.icecream.common.model.requstbody.GoodSpecResponseModel;
-import com.icecream.common.model.requstbody.GoodsStoreModel;
+import com.codingapi.tx.annotation.ITxTransaction;
+import com.codingapi.tx.annotation.TxTransaction;
+import com.icecream.common.model.pojo.*;
+import com.icecream.common.model.requstbody.*;
+import com.icecream.common.redis.RedisHandler;
 import com.icecream.common.util.idbuilder.staticfactroy.SnowflakeGlobalIdFactory;
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
+import com.icecream.common.util.time.DateUtil;
 import com.icecream.common.util.uuid.UUIDFactory;
 import com.icecream.good.mapper.*;
+import com.icecream.good.redis.GoodsRedisProfix;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,6 +26,8 @@ import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.icecream.good.redis.GoodsRedisProfix.GOODS_PREFIX;
+
 /**
  * @author Mr_h
  * @version 1.0
@@ -35,7 +37,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @SuppressWarnings("all")
-public class GoodService {
+public class GoodService implements ITxTransaction {
 
     @Autowired
     private GoodMapper goodMapper;
@@ -57,6 +59,10 @@ public class GoodService {
 
     @Autowired
     private GoodsSpecService goodsSpecService;
+
+    @Autowired
+    private GoodsLimitMapper goodsLimitMapper;
+
 
     public ResultVO getDiscoverGoods(Integer discoverId, Integer sid,
                                      String lastGoodsSn, Integer count) {
@@ -113,7 +119,7 @@ public class GoodService {
         return ResultUtil.error(null, ResultEnum.MYSQL_OPERATION_FAILED);
     }
 
-    public Good get(String goodsSn){
+    public Good get(String goodsSn) {
         Good good = new Good();
         good.setGoodsSn(goodsSn);
         List<Good> select = goodMapper.select(good);
@@ -124,7 +130,7 @@ public class GoodService {
         Good arg = new Good();
         arg.setGoodsSn(goodsSn);
         List<Good> select = goodMapper.select(arg);
-        if (select.isEmpty()){
+        if (select.isEmpty()) {
             return ResultUtil.error("goodsSn为空或者无此商品", ResultEnum.PARAMS_ERROR);
         }
 
@@ -197,13 +203,50 @@ public class GoodService {
         return goodMapper.reductionGoodsNum(buyNum, goodsSn, sid);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public void reduceStoreAndCheck(CreateOrderModel createOrderModel) {
+        GoodsStoreModel goodsStoreModel = null;
+        //商品库存
+        Integer store = 0;
+        //用户已经购买了多少件
+        Integer yetNum = 0;
+        //用户订单中的商品件数
+        Integer buyNum = createOrderModel.getGoodsCount();
+        //商品唯一标识
+        String goodsSn = createOrderModel.getGoodsSn();
+        //多规格标识
+        String specId = createOrderModel.getSpecId();
+        GoodsLimit userLimit = goodsLimitMapper.selectByGoodsSn(goodsSn);
+        if (null != userLimit) {
+            yetNum = userLimit.getGoodsCount();
+        }
+        Good result = get(goodsSn);
+        //用户还能买多少件该商品
+        Integer canBuyNum = result.getBuylimit() - yetNum;
+        if (null == specId) {
+            goodsStoreModel = reduceGoodsNumOrRollBack(createOrderModel);
+            if (goodsStoreModel != null) {
+                Integer buylimit = goodsStoreModel.getLimit();
+                store = goodsStoreModel.getStore();
+            }
+        } else {
+            goodsStoreModel = reduceGoodsSpecNumOrRollBack(createOrderModel);
+            if (goodsStoreModel != null) {
+                store = goodsStoreModel.getStore();
+            }
+        }
+        if (store.intValue() >= 0 & buyNum <= store & canBuyNum >= buyNum) {
+            RedisHandler.set("GoodsStore", JSON.toJSON(goodsStoreModel));
+        }
+
+    }
+
     //获取某个单规格商品的库存和限购
     public Good getGoodsNum(String goodsSn, Integer sid) {
         return goodMapper.getGoodsNum(goodsSn, sid);
     }
 
     //先行减去库存(单规格商品)
-    @Transactional(rollbackFor = Exception.class)
     public GoodsStoreModel reduceGoodsNumOrRollBack(CreateOrderModel createOrderModel) {
         try {
             String goodsSn = createOrderModel.getGoodsSn();
@@ -214,13 +257,17 @@ public class GoodService {
             goodsStoreModel.setFinalPrice(good.getGoodsPrice());
             goodsStoreModel.setLimit(good.getBuylimit());
             goodsStoreModel.setStore(good.getGoodsNum());
-            return Optional.ofNullable(goodsStoreModel).filter(g -> goodsStoreModel.getStore() >= 0).orElseThrow(Exception::new);
+            log.info("库存参数----->" + goodsStoreModel.getStore());
+            if (goodsStoreModel.getStore() < 0) {
+                throw new Exception();
+            }
+            return goodsStoreModel;
+            //return Optional.ofNullable(goodsStoreModel).filter(g -> goodsStoreModel.getStore() >= 0).orElseThrow(Exception::new);
         } catch (Exception e) {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return null;
         }
     }
-
 
     //先行减去库存(多规格商品)
     @Transactional(rollbackFor = Exception.class)
@@ -229,7 +276,7 @@ public class GoodService {
             String goodsSn = createOrderModel.getGoodsSn();
             Integer sid = createOrderModel.getSid();
             String specId = createOrderModel.getSpecId();
-            int specRows = goodsSpecService.inventoryReduction(specId);
+            int specRows = goodsSpecService.inventoryReduction(createOrderModel.getGoodsCount(), specId);
             int goodsRows = inventoryReduction(createOrderModel.getGoodsCount(), goodsSn, sid);
             Good good = getGoodsNum(goodsSn, sid);
             GoodsSpec goodsSpec = goodsSpecService.get(specId);
@@ -244,5 +291,26 @@ public class GoodService {
         }
     }
 
+    public List<Good> getAll() {
+        return goodMapper.getAll();
+    }
+
+    public ResultVO getRedis(String goodsSn) {
+        MitGoodsRedis goodsRedis = JSON.parseObject(RedisHandler
+                .getMapField(GOODS_PREFIX, goodsSn), MitGoodsRedis.class);
+        log.info(goodsRedis.toString());
+        return ResultUtil.success(goodsRedis);
+
+    }
+
+    @Transactional
+    public int updateGoodsNum(GoodsUpdateMessage goodsUpdateMessage) {
+        int row1 = goodsLimitMapper.updateGoodsCount(goodsUpdateMessage.getSid(),
+                goodsUpdateMessage.getUid(), goodsUpdateMessage.getGoodsSn()
+                , goodsUpdateMessage.getBought(), DateUtil.getNowSecondIntTime());
+        int row2 = goodMapper.updateByGoodsSnAndGoodsNum(goodsUpdateMessage.getSid(),
+                goodsUpdateMessage.getGoodsSn(), goodsUpdateMessage.getGoodsNum());
+        return row1|row2;
+    }
 
 }

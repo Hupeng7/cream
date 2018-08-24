@@ -1,7 +1,6 @@
-package com.icecream.user.rabbitmq;
+package com.icecream.order.rabbit;
 
 import com.icecream.common.util.constant.SysConstants;
-import com.icecream.user.config.rabbitmq.RabbitMqConfig;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,8 +18,11 @@ public class RabbitSender {
     @Autowired
     private AmqpTemplate rabbitTemplate;
 
-    public void send(String json) {
-        this.rabbitTemplate.convertAndSend(SysConstants.CHARGE_ROUTING_KEY, json);
+    public void sendGoodsData(String json) {
+        this.rabbitTemplate.convertAndSend(SysConstants.GOODS_ROUTING_KEY, json);
     }
 
+    public void sendOrderData(String json) {
+        this.rabbitTemplate.convertAndSend(SysConstants.ORDER_ROUTING_KEY, json);
+    }
 }

@@ -1,8 +1,7 @@
 package com.icecream.good.mapper;
 
 import com.icecream.common.model.pojo.GoodsLimit;
-import org.apache.ibatis.annotations.Mapper;
-import org.springframework.data.repository.query.Param;
+import org.apache.ibatis.annotations.*;
 
 @Mapper
 public interface GoodsLimitMapper {
@@ -19,4 +18,8 @@ public interface GoodsLimitMapper {
     int updateByPrimaryKey(GoodsLimit record);
 
     GoodsLimit selectByGoodsSn(@Param("goodsSn")String goodsSn);
+
+    int updateGoodsCount(@Param("sid")Integer sid, @Param("uid")Integer uid,
+                         @Param("goods_sn")String goodsSn, @Param("goods_count")Integer goodsCount,
+                         @Param("ctime")Integer ctime);
 }

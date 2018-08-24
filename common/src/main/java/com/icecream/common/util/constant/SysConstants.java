@@ -29,5 +29,17 @@ public interface SysConstants {
 
 
     String ORDER_ROUTING_KEY = "order-queue";
+    String GOODS_ROUTING_KEY = "goods_queue";
+    String CHARGE_ROUTING_KEY = "charge-queue";
+
+
+    /**
+     * goods系统redis前缀
+     */
+    String GOODS_PREFIX = "goods";
+    String GOODS_SPEC_PREFIX = "goods_spec";
+    String HAS_BEEN_BOUGHT_PREFIX = "user_buy_limit";
+    String USER_WALLET_PREFIX = "user_wallet";
+    String USER_EXP = "user_exp";
 
 }

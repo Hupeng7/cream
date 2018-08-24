@@ -76,7 +76,6 @@ public class TokenFilter extends ZuulFilter {
             log.error("token is null ...");
             setBadAuthResponse(ctx);
         } else {
-            log.info("token:" + token);
             parseJwt(ctx, token);
         }
         return null;
@@ -101,7 +100,6 @@ public class TokenFilter extends ZuulFilter {
 
     private void localHandler(ResultVO resultVO, RequestContext ctx) {
         if (resultVO.getResult() != null) {
-            log.info("result ={}", resultVO.getResult());
             String json = JSON.toJSONString(resultVO.getResult());
             TokenInfo tokenInfo = JSON.parseObject(json, TokenInfo.class);
             try {
@@ -128,7 +126,7 @@ public class TokenFilter extends ZuulFilter {
         requestList.add(id.toString());
         requestQueryParams.put("specialTokenId",requestList);
         String body = StreamUtils.copyToString(in, Charset.forName("UTF-8"));
-        log.info("body:" + body);
+        log.info(body);
         JSONObject json = JSONObject.parseObject(body);
         if(json==null||json.isEmpty()){
             json = new JSONObject();
