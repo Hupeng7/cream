@@ -144,14 +144,9 @@
             <version>1.2.4</version>
         </dependency>
         <dependency>
-            <groupId>alipay-sdk</groupId>
-            <artifactId>pay</artifactId>
-            <version>3.3.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.alipay</groupId>
-            <artifactId>conmons-logging</artifactId>
-            <version>1.1.1</version>
+            <groupId>com.alipay.sdk</groupId>
+            <artifactId>alipay-sdk-java</artifactId>
+            <version>3.3.49.ALL</version>
         </dependency>
     </dependencies>
 
