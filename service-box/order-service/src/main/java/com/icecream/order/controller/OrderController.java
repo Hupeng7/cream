@@ -92,5 +92,9 @@ public class OrderController {
         return orderService.getOrderListSort(count,lastTime,sort,Integer.parseInt(specialTokenId));
     }
 
+    @GetMapping("init/buyerInfo")
+    public void initRedisBuyerInfo(Integer uid){
+         orderService.initRedisBuyerInfo(uid);
+    }
 
 }

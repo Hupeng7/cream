@@ -1,9 +1,7 @@
 package com.icecream.order.service;
 
 import com.alibaba.fastjson.JSON;
-import com.icecream.common.model.pojo.Good;
-import com.icecream.common.model.pojo.GoodsSpec;
-import com.icecream.common.model.pojo.Order;
+import com.icecream.common.model.pojo.*;
 import com.icecream.common.model.requstbody.*;
 import com.icecream.common.redis.RedisHandler;
 import com.icecream.common.util.idbuilder.staticfactroy.SnowflakeGlobalIdFactory;
@@ -60,6 +58,30 @@ public class OrderService {
 
     @Autowired
     private RabbitSender rabbitSender;
+
+    public void initRedisBuyerInfo(Integer uid) {
+        initWallet(uid);
+        initExp(uid);
+    }
+
+    private void initWallet(Integer uid) {
+            Wallet wallet = walletService.get(uid);
+            if (wallet == null) {
+                RedisHandler.set(USER_WALLET_PREFIX + uid, 0);
+            } else {
+                RedisHandler.set(USER_WALLET_PREFIX + uid, wallet.getBalance());
+            }
+    }
+
+
+    private void initExp(Integer uid) {
+            UserExp query = expService.query(uid);
+            if (query == null) {
+                RedisHandler.set(USER_EXP + uid, 0);
+            } else {
+                RedisHandler.set(USER_EXP + uid, query.getExp());
+            }
+    }
 
     //获取订单详情
     public Order getOrderByOrderNo(Integer sid, String orderNo) {
@@ -132,19 +154,18 @@ public class OrderService {
         log.info("用户能够购买的件数,{}", canBuyNum);
         if (canBuyNum < createOrderModel.getGoodsCount()) {
             log.info("商品购买超过限购");
-            RedisHandler.removeMapField("orders", order.getOrderNo());
-            RedisHandler.removeZSet("order_" + uid);
+            RedisHandler.removeMapField(ORDER_HASH_PREFIX, order.getOrderNo());
+            RedisHandler.removeZSet(ORDER_ZSET_PREFIX + uid);
             return ResultUtil.error("商品购买超过限制", ResultEnum.CREATE_ORDER_FAILED);
         }
-
         BigDecimal balance = new BigDecimal(RedisHandler.get(USER_WALLET_PREFIX + uid).toString());
         Integer hasBeenBought = Integer.parseInt(RedisHandler.get(HAS_BEEN_BOUGHT_PREFIX + createOrderModel.getGoodsSn()).toString());
         Integer exp = Integer.parseInt(RedisHandler.get(USER_EXP + uid).toString());
 
         if (balance.subtract(order.getChangePrice()).compareTo(BigDecimal.ZERO) < 0) {
             log.info("星星不够手动回滚");
-            RedisHandler.removeMapField("orders", order.getOrderNo());
-            RedisHandler.removeZSet("order_" + uid);
+            RedisHandler.removeMapField(ORDER_HASH_PREFIX, order.getOrderNo());
+            RedisHandler.removeZSet(ORDER_ZSET_PREFIX + uid);
             return ResultUtil.error("星星不够哦，请先充值", ResultEnum.CREATE_ORDER_FAILED);
         }
 
@@ -173,8 +194,8 @@ public class OrderService {
         log.info("开始向订单系统发送数据..");
         rabbitSender.sendOrderData(JSON.toJSONString(skillUpdateModel));
         log.info("向redis写回下单成功的订单");
-        RedisHandler.addMap("orders", order.getOrderNo(), JSON.toJSONString(finalOrder));
-        RedisHandler.addZSet("order_" + uid, order.getCtime(), order.getOrderNo());
+        RedisHandler.addMap(ORDER_HASH_PREFIX, order.getOrderNo(), JSON.toJSONString(finalOrder));
+        RedisHandler.addZSet(ORDER_ZSET_PREFIX + uid, order.getCtime(), order.getOrderNo());
         return ResultUtil.success("创建订单成功");
     }
 

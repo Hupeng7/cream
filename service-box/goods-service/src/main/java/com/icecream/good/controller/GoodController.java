@@ -6,6 +6,7 @@ import com.icecream.common.model.requstbody.GoodsUpdateMessage;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.good.service.GoodService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -35,8 +36,9 @@ public class GoodController {
     public ResultVO getDiscoverGoods(@PathVariable("discoverId")Integer discoverId,
                                      @PathVariable("sid") Integer sid,
                                      @RequestParam(value = "lastGoodsSn",required = true)String lastGoodsSn,
-                                     @RequestParam(value = "count",required = true)Integer count){
-        return goodService.getDiscoverGoods(discoverId,sid,lastGoodsSn,count);
+                                     @RequestParam(value = "count",required = true)Integer count,
+                                     @Param("specialTokenId") String specialTokenId){
+        return goodService.getDiscoverGoods(discoverId,sid,lastGoodsSn,count,specialTokenId);
     }
 
     @GetMapping("getDiscoverLabelList")

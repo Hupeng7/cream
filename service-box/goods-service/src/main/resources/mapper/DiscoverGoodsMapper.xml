@@ -5,7 +5,7 @@
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="sid" jdbcType="INTEGER" property="sid" />
     <result column="discover_displayid" jdbcType="INTEGER" property="discoverDisplayid" />
-    <result column="goods_id" jdbcType="INTEGER" property="goodsid" />
+    <result column="goodsid" jdbcType="INTEGER" property="goodsid" />
     <result column="goods_sn" jdbcType="VARCHAR" property="goodsSn" />
     <result column="score" jdbcType="INTEGER" property="score" />
     <result column="ctime" jdbcType="INTEGER" property="ctime" />

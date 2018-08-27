@@ -2,7 +2,6 @@ package com.icecream.good.service;
 
 import com.alibaba.fastjson.JSON;
 import com.codingapi.tx.annotation.ITxTransaction;
-import com.codingapi.tx.annotation.TxTransaction;
 import com.icecream.common.model.pojo.*;
 import com.icecream.common.model.requstbody.*;
 import com.icecream.common.redis.RedisHandler;
@@ -12,8 +11,8 @@ import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.common.util.time.DateUtil;
 import com.icecream.common.util.uuid.UUIDFactory;
+import com.icecream.good.feign.OrderFeignClient;
 import com.icecream.good.mapper.*;
-import com.icecream.good.redis.GoodsRedisProfix;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,7 +25,7 @@ import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.icecream.good.redis.GoodsRedisProfix.GOODS_PREFIX;
+import static com.icecream.common.util.constant.SysConstants.*;
 
 /**
  * @author Mr_h
@@ -63,9 +62,13 @@ public class GoodService implements ITxTransaction {
     @Autowired
     private GoodsLimitMapper goodsLimitMapper;
 
+    @Autowired
+    private OrderFeignClient orderFeignClient;
+
 
     public ResultVO getDiscoverGoods(Integer discoverId, Integer sid,
-                                     String lastGoodsSn, Integer count) {
+                                     String lastGoodsSn, Integer count, String uid) {
+        MitGoodsRedis goodsRedis = new MitGoodsRedis();
         Good arg = new Good();
         arg.setGoodsSn(lastGoodsSn);
         List<Good> select = goodMapper.select(arg);
@@ -76,13 +79,32 @@ public class GoodService implements ITxTransaction {
         discoverGoods = discoverGoods.stream().limit(count).collect(Collectors.toList());
         List<Good> resultList = new ArrayList<>();
         for (DiscoverGoods dg : discoverGoods) {
-            Good good = goodMapper.selectByPrimaryKeySimpleInfo(dg.getGoodsid());
+            Good good = goodMapper.selectByPrimaryKey(dg.getGoodsid());
             int now = (int) (LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8")));
             if (good.getOnsaleTime() <= now & now <= good.getOffsaleTime() & good.getIsSale() == 1) {
                 resultList.add(good);
+                if (null != good.getSpecGroup()) {
+                    List<GoodsSpec> specList = goodsSpecService.getSpecList(good.getGoodsSn());
+                    goodsRedis.setGood(good);
+                    goodsRedis.setGoodsSpec(specList);
+                    for (GoodsSpec gs : specList) {
+                        RedisHandler.set(GOODS_SPEC_PREFIX + gs.getId(), gs.getStock());
+                    }
+                }
+                goodsRedis.setGood(good);
+                log.info("初始化商品信息,库存和已经购买数量");
+                GoodsLimit goodsLimit = goodsLimitMapper.selectByGoodsSn(good.getGoodsSn());
+                RedisHandler.set(HAS_BEEN_BOUGHT_PREFIX+good.getGoodsSn(),goodsLimit.getGoodsCount());
+                RedisHandler.set(GOODS_PREFIX + good.getGoodsSn(), good.getGoodsNum());
+                RedisHandler.addMap(GOODS_PREFIX, good.getGoodsSn(), JSON.toJSONString(goodsRedis));
             }
             log.info("" + good);
         }
+        log.info("向redis初始化用户钱包和经验数据");
+        if(RedisHandler.get(USER_WALLET_PREFIX+uid)==null&&RedisHandler.get(USER_EXP+uid)==null) {
+            orderFeignClient.initRedisBuyerInfo(Integer.parseInt(uid));
+        }
+
         return ResultUtil.success(resultList);
 
     }
@@ -305,7 +327,7 @@ public class GoodService implements ITxTransaction {
 
     @Transactional
     public int updateGoodsNum(GoodsUpdateMessage goodsUpdateMessage) {
-        if(goodsUpdateMessage.getSpecId()!=null){
+        if (goodsUpdateMessage.getSpecId() != null) {
             GoodsSpec goodsSpec = new GoodsSpec();
             goodsSpec.setId(goodsUpdateMessage.getSpecId());
             goodsSpec.setStock(goodsUpdateMessage.getGoodsNum());
@@ -314,19 +336,19 @@ public class GoodService implements ITxTransaction {
                     goodsUpdateMessage.getUid(), goodsUpdateMessage.getGoodsSn()
                     , goodsUpdateMessage.getBought(), DateUtil.getNowSecondIntTime());
             Good result = goodMapper.getGoodsNum(goodsUpdateMessage.getGoodsSn(), goodsUpdateMessage.getSid());
-            goodsUpdateMessage.setGoodsNum(result.getGoodsNum()-goodsUpdateMessage.getCount());
+            goodsUpdateMessage.setGoodsNum(result.getGoodsNum() - goodsUpdateMessage.getCount());
             int row2 = goodMapper.updateByGoodsSnAndGoodsNum(goodsUpdateMessage.getSid(),
                     goodsUpdateMessage.getGoodsSn(), goodsUpdateMessage.getGoodsNum());
-            if(row0<=0&row1<=0&row2<=0){
+            if (row0 <= 0 & row1 <= 0 & row2 <= 0) {
                 throw new RuntimeException("更新失败");
             }
-        }else {
+        } else {
             int row1 = goodsLimitMapper.updateGoodsCount(goodsUpdateMessage.getSid(),
                     goodsUpdateMessage.getUid(), goodsUpdateMessage.getGoodsSn()
                     , goodsUpdateMessage.getBought(), DateUtil.getNowSecondIntTime());
             int row2 = goodMapper.updateByGoodsSnAndGoodsNum(goodsUpdateMessage.getSid(),
                     goodsUpdateMessage.getGoodsSn(), goodsUpdateMessage.getGoodsNum());
-            if(row1<=0&row2<=0){
+            if (row1 <= 0 & row2 <= 0) {
                 throw new RuntimeException("更新失败");
             }
         }

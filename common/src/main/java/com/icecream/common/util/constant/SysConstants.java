@@ -46,5 +46,6 @@ public interface SysConstants {
     /**
      * order系统redis前缀
      */
-    String ORDER_PREFIX = "orders";
+    String ORDER_HASH_PREFIX = "orders";
+    String ORDER_ZSET_PREFIX = "order_";
 }
