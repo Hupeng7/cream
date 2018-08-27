@@ -11,6 +11,7 @@ import com.icecream.order.feignclient.GoodsFeignClient;
 import com.icecream.order.mapper.ExpMapper;
 import com.icecream.order.mapper.WalletMapper;
 import com.icecream.order.service.OrderService;
+import com.icecream.order.service.PointInoutService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Slf4j
 @Component
+@SuppressWarnings("all")
 @RabbitListener(queues = {SysConstants.ORDER_ROUTING_KEY})
 public class OrderConsumer {
 
@@ -41,6 +43,9 @@ public class OrderConsumer {
     @Autowired
     private GoodsFeignClient goodsFeignClient;
 
+    @Autowired
+    private PointInoutService pointInoutService;
+
     @RabbitHandler
     @TxTransaction(isStart = true)
     @Transactional
@@ -50,12 +55,12 @@ public class OrderConsumer {
         Order order = skillUpdateModel.getOrder();
         GoodsUpdateMessage goodsUpdateMessage = skillUpdateModel.getGoodsUpdateMessage();
         Integer row1 = goodsFeignClient.updateGoodsNum(goodsUpdateMessage);
-        Integer row2 = expMapper.concurrentInsertExp(order.getSid(), order.getUid()
-                , order.getChangePrice().intValue(), DateUtil.getNowSecondIntTime());
+        Integer row2 = expMapper.concurrentInsertExp(order.getSid(), order.getUid(), order.getChangePrice().intValue(), DateUtil.getNowSecondIntTime());
         Integer row3 = walletMapper.reduceWalletBalance(order.getChangePrice(), order.getUid(), order.getSid());
         Integer row4 = orderService.insert(order);
-        log.info("更新状态，{},{},{}",row1,row2,row3,row4);
-        if(row1<0|row2<0|row3<0|row4<0){
+        Integer row5 = pointInoutService.insertPointInoutOrder(order.getChangePrice(), order.getUid(), order.getOrderNo());
+        log.info("更新状态，{},{},{},{},{}",row1,row2,row3,row4,row5);
+        if(row1<0|row2<0|row3<0|row4<0&row5<0){
             throw new RuntimeException("事务更新失败，回滚");
         }
         //todo 插入错误数据表

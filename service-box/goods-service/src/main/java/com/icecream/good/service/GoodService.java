@@ -305,12 +305,30 @@ public class GoodService implements ITxTransaction {
 
     @Transactional
     public int updateGoodsNum(GoodsUpdateMessage goodsUpdateMessage) {
-        int row1 = goodsLimitMapper.updateGoodsCount(goodsUpdateMessage.getSid(),
-                goodsUpdateMessage.getUid(), goodsUpdateMessage.getGoodsSn()
-                , goodsUpdateMessage.getBought(), DateUtil.getNowSecondIntTime());
-        int row2 = goodMapper.updateByGoodsSnAndGoodsNum(goodsUpdateMessage.getSid(),
-                goodsUpdateMessage.getGoodsSn(), goodsUpdateMessage.getGoodsNum());
-        return row1|row2;
+        if(goodsUpdateMessage.getSpecId()!=null){
+            GoodsSpec goodsSpec = new GoodsSpec();
+            goodsSpec.setId(goodsUpdateMessage.getSpecId());
+            goodsSpec.setStock(goodsUpdateMessage.getGoodsNum());
+            int row0 = goodsSpecMapper.updateByPrimaryKeySelective(goodsSpec);
+            int row1 = goodsLimitMapper.updateGoodsCount(goodsUpdateMessage.getSid(),
+                    goodsUpdateMessage.getUid(), goodsUpdateMessage.getGoodsSn()
+                    , goodsUpdateMessage.getBought(), DateUtil.getNowSecondIntTime());
+            int row2 = goodMapper.updateByGoodsSnAndGoodsNum(goodsUpdateMessage.getSid(),
+                    goodsUpdateMessage.getGoodsSn(), goodsUpdateMessage.getGoodsNum());
+            if(row0<=0&row1<=0&row2<=0){
+                throw new RuntimeException("更新失败");
+            }
+        }else {
+            int row1 = goodsLimitMapper.updateGoodsCount(goodsUpdateMessage.getSid(),
+                    goodsUpdateMessage.getUid(), goodsUpdateMessage.getGoodsSn()
+                    , goodsUpdateMessage.getBought(), DateUtil.getNowSecondIntTime());
+            int row2 = goodMapper.updateByGoodsSnAndGoodsNum(goodsUpdateMessage.getSid(),
+                    goodsUpdateMessage.getGoodsSn(), goodsUpdateMessage.getGoodsNum());
+            if(row1<=0&row2<=0){
+                throw new RuntimeException("更新失败");
+            }
+        }
+        return 1;
     }
 
 }

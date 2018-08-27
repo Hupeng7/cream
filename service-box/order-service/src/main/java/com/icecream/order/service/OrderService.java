@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import static com.icecream.common.util.constant.SysConstants.*;
 
@@ -34,7 +35,7 @@ import static com.icecream.common.util.constant.SysConstants.*;
 @Slf4j
 @Service
 @SuppressWarnings("all")
-public class OrderService{
+public class OrderService {
 
     @Value("${thread.isSync}")
     private boolean isSync;
@@ -85,20 +86,40 @@ public class OrderService{
 
     //创建订单
     public ResultVO create(Integer uid, CreateOrderModel createOrderModel) {
+        GoodsUpdateMessage goodsUpdateMessage = new GoodsUpdateMessage();
         MitGoodsRedis goodsRedis = JSON.parseObject(RedisHandler
                 .getMapField(GOODS_PREFIX, createOrderModel.getGoodsSn()), MitGoodsRedis.class);
         log.info("获取到商品信息,{}", goodsRedis);
         log.info("开始创建预下单对象...");
         Order order = buildPreOrder(createOrderModel, uid, TradesNoCreater.create(),
                 getAddressInfo(createOrderModel.getAddress()),
-                goodsRedis.getGood().getGoodsPrice(),"");
-        log.info("已经创建预下单对象...{}",order);
-        RedisHandler.addMap("orders",order.getOrderNo(),JSON.toJSONString(order));
+                goodsRedis);
+        log.info("已经创建预下单对象...{}", order);
+        RedisHandler.addMap("orders", order.getOrderNo(), JSON.toJSONString(order));
         log.info("预下单对象已经加入缓存");
 
         log.info("开始进行预减数据操作");
-        Long decrNum = RedisHandler.decr(GOODS_PREFIX + createOrderModel.getGoodsSn(), createOrderModel.getGoodsCount());
-        log.info("还剩余的库存{}", decrNum);
+        if (null != createOrderModel.getSpecId()) {
+            Long decrSpecNum = RedisHandler.decr(GOODS_SPEC_PREFIX + createOrderModel.getSpecId(), createOrderModel.getGoodsCount());
+            log.info("还剩余的多规格商品库存{}", decrSpecNum);
+            if (decrSpecNum < 0) {
+                log.info("规格商品库存不够手动回滚");
+                RedisHandler.set(GOODS_SPEC_PREFIX + createOrderModel.getSpecId(), 0);
+                RedisHandler.remove(order.getOrderNo());
+                return ResultUtil.error("商品抢完啦~ 请下次再来", ResultEnum.CREATE_ORDER_FAILED);
+            }
+            goodsUpdateMessage.setGoodsNum(decrSpecNum.intValue());
+        } else {
+            Long decrNum = RedisHandler.decr(GOODS_PREFIX + createOrderModel.getGoodsSn(), createOrderModel.getGoodsCount());
+            log.info("还剩余的单规格商品库存{}", decrNum);
+            if (decrNum < 0) {
+                log.info("总库存不够手动回滚");
+                RedisHandler.set(GOODS_PREFIX + createOrderModel.getGoodsSn(), 0);
+                RedisHandler.remove(order.getOrderNo());
+                return ResultUtil.error("商品抢完啦~ 请下次再来", ResultEnum.CREATE_ORDER_FAILED);
+            }
+            goodsUpdateMessage.setGoodsNum(decrNum.intValue());
+        }
         Integer hasBeenBoughtCount = RedisHandler.get(HAS_BEEN_BOUGHT_PREFIX + createOrderModel.getGoodsSn())
                 != null ? Integer.parseInt(RedisHandler.get(HAS_BEEN_BOUGHT_PREFIX + createOrderModel.getGoodsSn()).toString()) : -1;
         log.info("用户已经购买的件数,{}", hasBeenBoughtCount);
@@ -109,67 +130,53 @@ public class OrderService{
         log.info("商品限制用户购买的数量,{}", buyLimit);
         Integer canBuyNum = buyLimit - hasBeenBoughtCount;
         log.info("用户能够购买的件数,{}", canBuyNum);
-
-        if (decrNum < 0) {
-            log.info("库存不够手动回滚");
-            RedisHandler.set(GOODS_PREFIX + createOrderModel.getGoodsSn(), 0);
-            RedisHandler.remove(order.getOrderNo());
-            return ResultUtil.error("商品抢完啦~ 请下次再来", ResultEnum.CREATE_ORDER_FAILED);
+        if (canBuyNum < createOrderModel.getGoodsCount()) {
+            log.info("商品购买超过限购");
+            RedisHandler.removeMapField("orders", order.getOrderNo());
+            RedisHandler.removeZSet("order_" + uid);
+            return ResultUtil.error("商品购买超过限制", ResultEnum.CREATE_ORDER_FAILED);
         }
 
         BigDecimal balance = new BigDecimal(RedisHandler.get(USER_WALLET_PREFIX + uid).toString());
         Integer hasBeenBought = Integer.parseInt(RedisHandler.get(HAS_BEEN_BOUGHT_PREFIX + createOrderModel.getGoodsSn()).toString());
         Integer exp = Integer.parseInt(RedisHandler.get(USER_EXP + uid).toString());
 
-        if (balance.subtract(order.getChangePrice()).compareTo(BigDecimal.ZERO)<0) {
+        if (balance.subtract(order.getChangePrice()).compareTo(BigDecimal.ZERO) < 0) {
             log.info("星星不够手动回滚");
-            RedisHandler.removeMapField("orders",order.getOrderNo());
-            RedisHandler.removeZSet("order_"+uid);
+            RedisHandler.removeMapField("orders", order.getOrderNo());
+            RedisHandler.removeZSet("order_" + uid);
             return ResultUtil.error("星星不够哦，请先充值", ResultEnum.CREATE_ORDER_FAILED);
         }
 
-        if (canBuyNum < createOrderModel.getGoodsCount()) {
-            log.info("商品购买超过限购");
-            RedisHandler.removeMapField("orders",order.getOrderNo());
-            RedisHandler.removeZSet("order_"+uid);
-            return ResultUtil.error("商品购买超过限制", ResultEnum.CREATE_ORDER_FAILED);
-        }
         balance = balance.subtract(order.getChangePrice());
-        exp =exp+order.getChangePrice().intValue();
-        hasBeenBought = hasBeenBoughtCount+order.getGoodsCount();
+        exp = exp + order.getChangePrice().intValue();
+        hasBeenBought = hasBeenBoughtCount + order.getGoodsCount();
 
         log.info("开始写回redis");
-        RedisHandler.set(USER_WALLET_PREFIX + uid,balance);
-        RedisHandler.set(HAS_BEEN_BOUGHT_PREFIX + createOrderModel.getGoodsSn(),hasBeenBought);
-        RedisHandler.set(USER_EXP + uid,exp);
+        RedisHandler.set(USER_WALLET_PREFIX + uid, balance);
+        RedisHandler.set(HAS_BEEN_BOUGHT_PREFIX + createOrderModel.getGoodsSn(), hasBeenBought);
+        RedisHandler.set(USER_EXP + uid, exp);
 
         log.info("您就是万中无一的幸运儿-->{}", uid);
         log.info("开始更改订单状态");
         Order finalOrder = updateOrderStatus(order);
         SkillUpdateModel skillUpdateModel = new SkillUpdateModel();
-        GoodsUpdateMessage goodsUpdateMessage = new GoodsUpdateMessage();
         goodsUpdateMessage.setSid(order.getSid());
         goodsUpdateMessage.setUid(uid);
-        goodsUpdateMessage.setGoodsNum(decrNum.intValue());
         goodsUpdateMessage.setBought(createOrderModel.getGoodsCount());
         goodsUpdateMessage.setGoodsSn(createOrderModel.getGoodsSn());
+        goodsUpdateMessage.setSpecId(createOrderModel.getSpecId());
         skillUpdateModel.setGoodsUpdateMessage(goodsUpdateMessage);
         skillUpdateModel.setOrder(finalOrder);
         log.info("开始加入队列..");
         log.info("开始向订单系统发送数据..");
         rabbitSender.sendOrderData(JSON.toJSONString(skillUpdateModel));
         log.info("向redis写回下单成功的订单");
-        RedisHandler.addMap("orders",order.getOrderNo(),JSON.toJSONString(finalOrder));
-        RedisHandler.addZSet("order_"+uid,order.getCtime(),order.getOrderNo());
+        RedisHandler.addMap("orders", order.getOrderNo(), JSON.toJSONString(finalOrder));
+        RedisHandler.addZSet("order_" + uid, order.getCtime(), order.getOrderNo());
         return ResultUtil.success("创建订单成功");
     }
 
-    private Order createOrder(Integer uid, CreateOrderModel createOrderModel, GoodsStoreModel goodsStoreModel, BigDecimal goodsPrice) {
-        String orderNo = TradesNoCreater.create();
-        AddressInfo addressInfo = getAddressInfo(createOrderModel.getAddress());
-        String spec = goodsStoreModel.getSpec();
-        return buildPreOrder(createOrderModel, uid, orderNo, addressInfo, goodsPrice, spec);
-    }
 
     //创建订单涉及到多张表
     @Transactional
@@ -256,8 +263,8 @@ public class OrderService{
 
     //创建预下单对象
     private Order buildPreOrder(CreateOrderModel createOrderModel,
-                             Integer uid, String orderNo, AddressInfo addressInfo,
-                             BigDecimal goodsPrice,String spec) {
+                                Integer uid, String orderNo, AddressInfo addressInfo,
+                                MitGoodsRedis goodsRedis) {
         Order order = new Order();
         order.setUid(uid);
         order.setGoodsId(createOrderModel.getGoodsSn());
@@ -268,8 +275,6 @@ public class OrderService{
         order.setOrderStatus(0);//订单状态为未付款
         order.setIsDigital(createOrderModel.getIsDigital());
         order.setIsPay(0);//未支付
-        order.setSpecId(createOrderModel.getSpecId());
-        order.setSpec(spec);
         order.setGoodsCount(createOrderModel.getGoodsCount());
         order.setIsDigital(createOrderModel.getIsDigital());
         order.setAddress(createOrderModel.getAddress());
@@ -281,19 +286,36 @@ public class OrderService{
         order.setAmount(new BigDecimal(1));
         order.setOrderNo(orderNo);
         order.setGoodsId(createOrderModel.getGoodsSn());
-        order.setGoodsPrice(goodsPrice);
-        order.setReportType(2);//商品账单
-        order.setAccount("-1");
-        order.setOrderType(1);//平台交易
-        order.setChangePrice(goodsPrice.multiply(new BigDecimal(createOrderModel.getGoodsCount())));
-        order.setPayPrice(order.getChangePrice());//实际支付价格
         order.setPayTime(0);//支付时间
         order.setChangeTime(0);
         order.setCtime(DateUtil.getNowSecondIntTime());
+        order.setReportType(2);//商品账单
+        order.setAccount("-1");
+        order.setOrderType(1);//平台交易
+
+        if (null != createOrderModel.getSpecId()) {
+            List<GoodsSpec> goodsSpecs = goodsRedis.getGoodsSpec();
+            if (goodsSpecs.size() > 0) {
+                List<GoodsSpec> list = goodsSpecs.stream().filter(g -> g.getId().equals(createOrderModel.getSpecId())).collect(Collectors.toList());
+                if (list.size() > 0) {
+                    GoodsSpec goodsSpec = list.get(0);
+                    order.setSpec(goodsSpec.getSpec());
+                    order.setSpecId(goodsSpec.getId());
+                    order.setGoodsPrice(new BigDecimal(goodsSpec.getPrice()));
+                    order.setChangePrice(new BigDecimal(goodsSpec.getPrice() * createOrderModel.getGoodsCount()));
+                    order.setPayPrice(order.getChangePrice());//实际支付价格
+                }
+            }
+        } else {
+            BigDecimal goodsPrice = goodsRedis.getGood().getGoodsPrice();
+            order.setGoodsPrice(goodsPrice);
+            order.setChangePrice(goodsPrice.multiply(new BigDecimal(createOrderModel.getGoodsCount())));
+            order.setPayPrice(order.getChangePrice());//实际支付价格
+        }
         return order;
     }
 
-    private Order updateOrderStatus(Order order){
+    private Order updateOrderStatus(Order order) {
         order.setOrderStatus(4);
         order.setIsPay(1);
         order.setPayTime(DateUtil.getNowSecondIntTime());

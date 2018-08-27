@@ -42,4 +42,9 @@ public interface SysConstants {
     String USER_WALLET_PREFIX = "user_wallet";
     String USER_EXP = "user_exp";
 
+
+    /**
+     * order系统redis前缀
+     */
+    String ORDER_PREFIX = "orders";
 }

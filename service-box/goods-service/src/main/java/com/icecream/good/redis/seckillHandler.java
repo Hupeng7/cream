@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.icecream.common.util.constant.SysConstants.GOODS_PREFIX;
+import static com.icecream.common.util.constant.SysConstants.GOODS_SPEC_PREFIX;
 
 /**
  * @author Mr_h
@@ -30,9 +31,8 @@ import static com.icecream.common.util.constant.SysConstants.GOODS_PREFIX;
 @Component
 @Slf4j
 public class seckillHandler /*implements InitializingBean*/ {
-/*
 
-    @Autowired
+   /* @Autowired
     private GoodService goodService;
 
     @Autowired
@@ -56,18 +56,14 @@ public class seckillHandler /*implements InitializingBean*/ {
                 goodsRedis.setGood(g);
                 goodsRedis.setGoodsSpec(specList);
                 for (GoodsSpec gs:specList) {
-                    RedisHandler.set(GoodsRedisProfix.GOODS_SPEC_PREFIX + gs.getId(), gs.getStock());
+                    RedisHandler.set(GOODS_SPEC_PREFIX + gs.getId(), gs.getStock());
                 }
             }
             goodsRedis.setGood(g);
-            RedisHandler.set(GoodsRedisProfix.GOODS_PREFIX+g.getGoodsSn(),g.getGoodsNum());
+            RedisHandler.set(GOODS_PREFIX+g.getGoodsSn(),g.getGoodsNum());
             RedisHandler.addMap(GOODS_PREFIX,g.getGoodsSn(),JSON.toJSONString(goodsRedis));
         }
-        RedisHandler.set("wallet_2112542",100);
-        RedisHandler.set("exp_2112542",0);
-        RedisHandler.set("user_buy_limit_944173690352962944",0);
         }
 */
-
 }
 

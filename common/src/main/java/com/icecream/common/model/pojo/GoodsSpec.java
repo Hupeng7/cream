@@ -3,9 +3,12 @@ package com.icecream.common.model.pojo;
 
 import lombok.Data;
 
+import javax.persistence.Id;
+
 @Data
 public class GoodsSpec {
 
+    @Id
     private String id;
 
     private String goodsSn;

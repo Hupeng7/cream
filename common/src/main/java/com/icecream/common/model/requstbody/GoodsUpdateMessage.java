@@ -11,6 +11,8 @@ import lombok.Data;
 @Data
 public class GoodsUpdateMessage {
 
+    private String specId;
+
     private String goodsSn;
 
     private Integer goodsNum;
