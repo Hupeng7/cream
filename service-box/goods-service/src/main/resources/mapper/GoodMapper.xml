@@ -1169,7 +1169,7 @@
        update goods set goods_num  = goods_num-#{count} where goods_sn = #{goods_sn} and sid =#{sid}
     </update>
     <select id="getGoodsNum" resultMap="GoodsNumResultMap">
-        select goods_num,buylimit,goods_price from goods where goods_sn = #{goods_sn} and sid= #{sid}
+        select goods_num,buylimit,goods_price from goods where goods_sn = #{goodsSn} and sid= #{sid}
     </select>
 
     <update id="updateByGoodsSnAndGoodsNum">

@@ -22,4 +22,6 @@ public class GoodsUpdateMessage {
     private Integer bought;
 
     private Integer sid;
+
+    private Integer count;
 }

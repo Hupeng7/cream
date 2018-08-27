@@ -166,6 +166,7 @@ public class OrderService {
         goodsUpdateMessage.setBought(createOrderModel.getGoodsCount());
         goodsUpdateMessage.setGoodsSn(createOrderModel.getGoodsSn());
         goodsUpdateMessage.setSpecId(createOrderModel.getSpecId());
+        goodsUpdateMessage.setCount(order.getGoodsCount());
         skillUpdateModel.setGoodsUpdateMessage(goodsUpdateMessage);
         skillUpdateModel.setOrder(finalOrder);
         log.info("开始加入队列..");

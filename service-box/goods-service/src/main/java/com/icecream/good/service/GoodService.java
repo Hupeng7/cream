@@ -313,6 +313,8 @@ public class GoodService implements ITxTransaction {
             int row1 = goodsLimitMapper.updateGoodsCount(goodsUpdateMessage.getSid(),
                     goodsUpdateMessage.getUid(), goodsUpdateMessage.getGoodsSn()
                     , goodsUpdateMessage.getBought(), DateUtil.getNowSecondIntTime());
+            Good result = goodMapper.getGoodsNum(goodsUpdateMessage.getGoodsSn(), goodsUpdateMessage.getSid());
+            goodsUpdateMessage.setGoodsNum(result.getGoodsNum()-goodsUpdateMessage.getCount());
             int row2 = goodMapper.updateByGoodsSnAndGoodsNum(goodsUpdateMessage.getSid(),
                     goodsUpdateMessage.getGoodsSn(), goodsUpdateMessage.getGoodsNum());
             if(row0<=0&row1<=0&row2<=0){
