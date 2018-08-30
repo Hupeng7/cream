@@ -174,7 +174,7 @@ public class OrderService {
 
             log.info("开始写回redis");
             RedisHandler.set(USER_WALLET_PREFIX + uid, balance);
-            RedisHandler.set(HAS_BEEN_BOUGHT_PREFIX + uid + createOrderModel.getGoodsSn(), hasBeenBought);
+            RedisHandler.set(HAS_BEEN_BOUGHT_PREFIX + SYMBOL_COLON + uid + SYMBOL_COLON + goodsSn, hasBeenBought);
             RedisHandler.set(USER_EXP + uid, exp);
 
             log.info("开始更改订单状态");
