@@ -37,6 +37,7 @@ public interface SysConstants {
      * goods系统redis前缀
      */
     String GOODS_PREFIX = "goods";
+    String GOODS_STOCK_PREFIX = "goods_stock";
     String GOODS_SPEC_PREFIX = "goods_spec";
     String HAS_BEEN_BOUGHT_PREFIX = "user_buy_limit";
     String USER_WALLET_PREFIX = "user_wallet";
@@ -53,7 +54,7 @@ public interface SysConstants {
      * 分割符号
      */
     String SYMBOL_UNDERLINE = "_";
-    String SYMBOL_WHIPPLETREE ="-";
+    String SYMBOL_WHIPPLETREE = "-";
     String SYMBOL_COLON = ":";
     String SYMBOL_SPRIT = "/";
 }

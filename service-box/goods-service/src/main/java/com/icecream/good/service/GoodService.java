@@ -93,8 +93,8 @@ public class GoodService implements ITxTransaction {
                 }
                 goodsRedis.setGood(good);
                 log.info("初始化商品信息,库存和已经购买数量");
-                GoodsLimit goodsLimit = goodsLimitMapper.selectByGoodsSnAndUid(good.getGoodsSn(),Integer.parseInt(uid));
-                if(goodsLimit!=null) {
+                GoodsLimit goodsLimit = goodsLimitMapper.selectByGoodsSnAndUid(good.getGoodsSn(), Integer.parseInt(uid));
+                if (goodsLimit != null) {
                     RedisHandler.set(HAS_BEEN_BOUGHT_PREFIX + good.getGoodsSn(), goodsLimit.getGoodsCount());
                 }
                 RedisHandler.set(GOODS_PREFIX + good.getGoodsSn(), good.getGoodsNum());
@@ -106,7 +106,7 @@ public class GoodService implements ITxTransaction {
             log.info("" + good);
         }
         log.info("向redis初始化用户钱包和经验数据");
-        if(RedisHandler.get(USER_WALLET_PREFIX+uid)==null&&RedisHandler.get(USER_EXP+uid)==null) {
+        if (RedisHandler.get(USER_WALLET_PREFIX + uid) == null && RedisHandler.get(USER_EXP + uid) == null) {
             orderFeignClient.initRedisBuyerInfo(Integer.parseInt(uid));
         }
 
@@ -153,19 +153,38 @@ public class GoodService implements ITxTransaction {
         return select.get(0);
     }
 
-    public ResultVO getGoodsByGoodsSn(String goodsSn) {
-        Good arg = new Good();
-        arg.setGoodsSn(goodsSn);
-        List<Good> select = goodMapper.select(arg);
-        if (select.isEmpty()) {
-            return ResultUtil.error("goodsSn为空或者无此商品", ResultEnum.PARAMS_ERROR);
-        }
+    /**
+     * 获取商品详情
+     * 1.取redis
+     * 2.没有则取mysql
+     * 3.没有则返回null 有则返回 并且写入redis
+     */
+    public ResultVO getGoodsByGoodsSn(String goodsSn, String uid) {
+        Good good = new Good();
+        good.setGoodsSn(goodsSn);
+        Object redisGood = RedisHandler.getMapField(GOODS_PREFIX, good.getGoodsSn());
+        if (redisGood == null) {
+            List<Good> select = goodMapper.select(good);
+            if (select.isEmpty()) {
+                return ResultUtil.error("goodsSn为空或者无此商品", ResultEnum.PARAMS_ERROR);
+            }
+            GoodsSpec argSpec = new GoodsSpec();
+            argSpec.setGoodsSn(goodsSn);
+            List<GoodsSpec> specList = goodsSpecService.getSpecList(goodsSn);
+            good = select.get(0);
+            good.setGoodsSpec(specList);
 
-        GoodsSpec argSpec = new GoodsSpec();
-        argSpec.setGoodsSn(goodsSn);
-        List<GoodsSpec> selectGoodsSpec = goodsSpecMapper.select(argSpec);
-        Good good = select.get(0);
-        good.setGoodsSpec(selectGoodsSpec);
+            log.info("初始化商品信息,库存和已经购买数量");
+            GoodsLimit goodsLimit = goodsLimitMapper.selectByGoodsSnAndUid(good.getGoodsSn(), Integer.parseInt(uid));
+            int userGoodsLimit = goodsLimit == null ? 0 : goodsLimit.getGoodsCount();
+            if (good.getBuylimit() != -1) {
+                RedisHandler.set(HAS_BEEN_BOUGHT_PREFIX + ":" + uid + ":" + good.getGoodsSn(), userGoodsLimit);
+            }
+            RedisHandler.set(GOODS_STOCK_PREFIX + ":" + good.getGoodsSn(), good.getGoodsNum());
+            RedisHandler.addMap(GOODS_PREFIX, good.getGoodsSn(), JSON.toJSONString(good));
+        } else {
+            good = JSON.parseObject(redisGood.toString(), Good.class);
+        }
         if (good.getSpecGroup() != null && !("").equals(good.getSpecGroup()) && !("-1").equals(good.getSpecGroup())) {
             handleReturnValue(good);
         }
@@ -243,7 +262,7 @@ public class GoodService implements ITxTransaction {
         String goodsSn = createOrderModel.getGoodsSn();
         //多规格标识
         String specId = createOrderModel.getSpecId();
-        GoodsLimit userLimit = goodsLimitMapper.selectByGoodsSnAndUid(goodsSn,0);
+        GoodsLimit userLimit = goodsLimitMapper.selectByGoodsSnAndUid(goodsSn, 0);
         if (null != userLimit) {
             yetNum = userLimit.getGoodsCount();
         }
