@@ -70,7 +70,8 @@ public class GoodController {
 
     /**
      * 根据goodsSn获取商品详情
-     *
+     * 该方法除了获取商品详情 ，处理specList
+     * 在redis做了如下初始化：限购商品用户购买数量/商品详情/商品库存
      * @param goodsSn
      * @return resultVo
      */

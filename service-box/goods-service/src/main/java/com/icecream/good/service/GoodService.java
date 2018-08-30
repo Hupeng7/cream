@@ -159,9 +159,9 @@ public class GoodService implements ITxTransaction {
             good.setGoodsSpec(specList);
 
             log.info("初始化商品信息,库存和已经购买数量");
-            GoodsLimit goodsLimit = goodsLimitMapper.selectByGoodsSnAndUid(good.getGoodsSn(), Integer.parseInt(uid));
-            int userGoodsLimit = goodsLimit == null ? 0 : goodsLimit.getGoodsCount();
             if (good.getBuylimit() != -1) {
+                GoodsLimit goodsLimit = goodsLimitMapper.selectByGoodsSnAndUid(good.getGoodsSn(), Integer.parseInt(uid));
+                int userGoodsLimit = goodsLimit == null ? 0 : goodsLimit.getGoodsCount();
                 RedisHandler.set(HAS_BEEN_BOUGHT_PREFIX + ":" + uid + ":" + good.getGoodsSn(), userGoodsLimit);
             }
             RedisHandler.set(GOODS_STOCK_PREFIX + ":" + good.getGoodsSn(), good.getGoodsNum());
