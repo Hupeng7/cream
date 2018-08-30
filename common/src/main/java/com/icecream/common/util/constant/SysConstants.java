@@ -48,4 +48,12 @@ public interface SysConstants {
      */
     String ORDER_HASH_PREFIX = "orders";
     String ORDER_ZSET_PREFIX = "order_";
+
+    /**
+     * 分割符号
+     */
+    String SYMBOL_UNDERLINE = "_";
+    String SYMBOL_WHIPPLETREE ="-";
+    String SYMBOL_COLON = ":";
+    String SYMBOL_SPRIT = "/";
 }
