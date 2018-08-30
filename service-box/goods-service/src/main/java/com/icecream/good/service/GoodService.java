@@ -87,29 +87,13 @@ public class GoodService implements ITxTransaction {
                     List<GoodsSpec> specList = goodsSpecService.getSpecList(good.getGoodsSn());
                     goodsRedis.setGood(good);
                     goodsRedis.setGoodsSpec(specList);
-                    for (GoodsSpec gs : specList) {
-                        RedisHandler.set(GOODS_SPEC_PREFIX + gs.getId(), gs.getStock());
-                    }
                 }
                 goodsRedis.setGood(good);
                 log.info("初始化商品信息,库存和已经购买数量");
-                GoodsLimit goodsLimit = goodsLimitMapper.selectByGoodsSnAndUid(good.getGoodsSn(), Integer.parseInt(uid));
-                if (goodsLimit != null) {
-                    RedisHandler.set(HAS_BEEN_BOUGHT_PREFIX + good.getGoodsSn(), goodsLimit.getGoodsCount());
-                }
-                RedisHandler.set(GOODS_PREFIX + good.getGoodsSn(), good.getGoodsNum());
                 RedisHandler.addMap(GOODS_PREFIX, good.getGoodsSn(), JSON.toJSONString(goodsRedis));
-                String json = RedisHandler.getMapField(GOODS_PREFIX, good.getGoodsSn()).toString();
-                MitGoodsRedis result = JSON.parseObject(json, MitGoodsRedis.class);
-                log.info(result.toString());
             }
             log.info("" + good);
         }
-        log.info("向redis初始化用户钱包和经验数据");
-        if (RedisHandler.get(USER_WALLET_PREFIX + uid) == null && RedisHandler.get(USER_EXP + uid) == null) {
-            orderFeignClient.initRedisBuyerInfo(Integer.parseInt(uid));
-        }
-
         return ResultUtil.success(resultList);
 
     }
