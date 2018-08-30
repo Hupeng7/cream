@@ -93,10 +93,15 @@ public class GoodService implements ITxTransaction {
                 }
                 goodsRedis.setGood(good);
                 log.info("初始化商品信息,库存和已经购买数量");
-                GoodsLimit goodsLimit = goodsLimitMapper.selectByGoodsSn(good.getGoodsSn());
-                RedisHandler.set(HAS_BEEN_BOUGHT_PREFIX+good.getGoodsSn(),goodsLimit.getGoodsCount());
+                GoodsLimit goodsLimit = goodsLimitMapper.selectByGoodsSnAndUid(good.getGoodsSn(),Integer.parseInt(uid));
+                if(goodsLimit!=null) {
+                    RedisHandler.set(HAS_BEEN_BOUGHT_PREFIX + good.getGoodsSn(), goodsLimit.getGoodsCount());
+                }
                 RedisHandler.set(GOODS_PREFIX + good.getGoodsSn(), good.getGoodsNum());
                 RedisHandler.addMap(GOODS_PREFIX, good.getGoodsSn(), JSON.toJSONString(goodsRedis));
+                String json = RedisHandler.getMapField(GOODS_PREFIX, good.getGoodsSn()).toString();
+                MitGoodsRedis result = JSON.parseObject(json, MitGoodsRedis.class);
+                log.info(result.toString());
             }
             log.info("" + good);
         }
@@ -238,7 +243,7 @@ public class GoodService implements ITxTransaction {
         String goodsSn = createOrderModel.getGoodsSn();
         //多规格标识
         String specId = createOrderModel.getSpecId();
-        GoodsLimit userLimit = goodsLimitMapper.selectByGoodsSn(goodsSn);
+        GoodsLimit userLimit = goodsLimitMapper.selectByGoodsSnAndUid(goodsSn,0);
         if (null != userLimit) {
             yetNum = userLimit.getGoodsCount();
         }

@@ -1,16 +1,15 @@
 package com.icecream.common.model.pojo;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import javax.persistence.Transient;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 
 
 @Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class Good {
+public class Good implements Serializable {
     private Integer id;
 
     private Integer sid;

@@ -143,7 +143,7 @@
    INSERT INTO goods_limit (sid,uid,goods_sn,goods_count,ctime )VALUES(#{sid}, #{uid}, #{goods_sn}, #{goods_count},#{ctime})ON DUPLICATE KEY UPDATE goods_count = goods_count +#{goods_count}
  </insert>
 
-  <select id="selectByGoodsSn" parameterType="java.lang.String" resultMap="BaseResultMap">
-    select * from goods_limit where goods_sn =#{goodsSn}
+  <select id="selectByGoodsSnAndUid" resultMap="BaseResultMap">
+    select * from goods_limit where goods_sn =#{goodsSn} and uid =#{uid}
   </select>
 </mapper>

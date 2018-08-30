@@ -17,7 +17,7 @@ public interface GoodsLimitMapper {
 
     int updateByPrimaryKey(GoodsLimit record);
 
-    GoodsLimit selectByGoodsSn(@Param("goodsSn")String goodsSn);
+    GoodsLimit selectByGoodsSnAndUid(@Param("goodsSn")String goodsSn,@Param("uid")Integer uid);
 
     int updateGoodsCount(@Param("sid")Integer sid, @Param("uid")Integer uid,
                          @Param("goods_sn")String goodsSn, @Param("goods_count")Integer goodsCount,
