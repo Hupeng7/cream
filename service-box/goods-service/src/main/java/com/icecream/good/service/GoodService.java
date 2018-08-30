@@ -155,15 +155,20 @@ public class GoodService implements ITxTransaction {
             for (GoodsSpec goodSpec : specList) {
                 RedisHandler.set(GOODS_STOCK_PREFIX + ":" + good.getGoodsSn() + ":" + goodSpec.getId(), goodSpec.getStock());
             }
-            RedisHandler.set(GOODS_STOCK_PREFIX + ":" + good.getGoodsSn(), good.getGoodsNum());
+            if (good.getSpecGroup() == null || "".equals(good.getSpecGroup())) {
+                RedisHandler.set(GOODS_STOCK_PREFIX + ":" + good.getGoodsSn(), good.getGoodsNum());
+            }
+
             RedisHandler.addMap(GOODS_PREFIX, good.getGoodsSn(), JSON.toJSONString(good));
         } else {
-            good.setGoodsNum((Integer) RedisHandler.get(GOODS_STOCK_PREFIX + ":" + good.getGoodsSn()));
+            if (good.getSpecGroup() == null || "".equals(good.getSpecGroup())) {
+                good.setGoodsNum((Integer) RedisHandler.get(GOODS_STOCK_PREFIX + ":" + good.getGoodsSn()));
+            }
 
+            good = JSON.parseObject(redisGood.toString(), Good.class);
             for (GoodsSpec goodSpec : good.getGoodsSpec()) {
                 goodSpec.setStock((Integer) RedisHandler.get(GOODS_STOCK_PREFIX + ":" + good.getGoodsSn() + ":" + goodSpec.getId()));
             }
-            good = JSON.parseObject(redisGood.toString(), Good.class);
         }
 
         if (good.getBuylimit() != -1) {
