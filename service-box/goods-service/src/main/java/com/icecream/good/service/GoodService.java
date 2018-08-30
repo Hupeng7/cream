@@ -152,11 +152,17 @@ public class GoodService implements ITxTransaction {
             good.setGoodsSpec(specList);
 
             log.info("初始化商品信息,库存和已经购买数量");
-
+            for (GoodsSpec goodSpec : specList) {
+                RedisHandler.set(GOODS_STOCK_PREFIX + ":" + good.getGoodsSn() + ":" + goodSpec.getId(), goodSpec.getStock());
+            }
             RedisHandler.set(GOODS_STOCK_PREFIX + ":" + good.getGoodsSn(), good.getGoodsNum());
             RedisHandler.addMap(GOODS_PREFIX, good.getGoodsSn(), JSON.toJSONString(good));
         } else {
             good.setGoodsNum((Integer) RedisHandler.get(GOODS_STOCK_PREFIX + ":" + good.getGoodsSn()));
+
+            for (GoodsSpec goodSpec : good.getGoodsSpec()) {
+                goodSpec.setStock((Integer) RedisHandler.get(GOODS_STOCK_PREFIX + ":" + good.getGoodsSn() + ":" + goodSpec.getId()));
+            }
             good = JSON.parseObject(redisGood.toString(), Good.class);
         }
 
