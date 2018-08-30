@@ -84,14 +84,6 @@ public class GoodService implements ITxTransaction {
             int now = (int) (LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8")));
             if (good.getOnsaleTime() <= now & now <= good.getOffsaleTime() & good.getIsSale() == 1) {
                 resultList.add(good);
-                if (null != good.getSpecGroup()) {
-                    List<GoodsSpec> specList = goodsSpecService.getSpecList(good.getGoodsSn());
-                    goodsRedis.setGood(good);
-                    goodsRedis.setGoodsSpec(specList);
-                }
-                goodsRedis.setGood(good);
-                log.info("初始化商品信息,库存和已经购买数量");
-                RedisHandler.addMap(GOODS_PREFIX, good.getGoodsSn(), JSON.toJSONString(goodsRedis));
             }
             log.info("" + good);
         }
@@ -160,16 +152,22 @@ public class GoodService implements ITxTransaction {
             good.setGoodsSpec(specList);
 
             log.info("初始化商品信息,库存和已经购买数量");
-            if (good.getBuylimit() != -1) {
-                GoodsLimit goodsLimit = goodsLimitMapper.selectByGoodsSnAndUid(good.getGoodsSn(), Integer.parseInt(uid));
-                int userGoodsLimit = goodsLimit == null ? 0 : goodsLimit.getGoodsCount();
-                RedisHandler.set(HAS_BEEN_BOUGHT_PREFIX + ":" + uid + ":" + good.getGoodsSn(), userGoodsLimit);
-            }
+
             RedisHandler.set(GOODS_STOCK_PREFIX + ":" + good.getGoodsSn(), good.getGoodsNum());
             RedisHandler.addMap(GOODS_PREFIX, good.getGoodsSn(), JSON.toJSONString(good));
         } else {
             good = JSON.parseObject(redisGood.toString(), Good.class);
         }
+
+        if (good.getBuylimit() != -1) {
+            GoodsLimit goodsLimit = goodsLimitMapper.selectByGoodsSnAndUid(good.getGoodsSn(), Integer.parseInt(uid));
+            int userGoodsLimit = goodsLimit == null ? 0 : goodsLimit.getGoodsCount();
+            log.info("good.getOffsaleTime() :" + good.getOffsaleTime());
+            Long offsaleTime = Long.parseLong((good.getOffsaleTime() - DateUtil.getNowTimeBySecond()) + "");
+            log.info("offsaleTime :" + offsaleTime);
+            RedisHandler.set(HAS_BEEN_BOUGHT_PREFIX + ":" + uid + ":" + good.getGoodsSn(), userGoodsLimit, offsaleTime);
+        }
+
         if (good.getSpecGroup() != null && !("").equals(good.getSpecGroup()) && !("-1").equals(good.getSpecGroup())) {
             handleReturnValue(good);
         }
