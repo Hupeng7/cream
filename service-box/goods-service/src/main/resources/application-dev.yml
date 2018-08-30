@@ -3,7 +3,7 @@ server:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://10.40.253.210:2000/eureka/
+      defaultZone: http://10.40.255.238:2000/eureka/
   instance:
     prefer-ip-address: true
 spring:
@@ -47,16 +47,16 @@ spring:
       validationQuery: SELECT 'x'
       time-between-eviction-runs-millis: 60000
   zipkin:
-    base-url: http://10.40.253.210:9411
+    base-url: http://10.40.255.238:9411
   sleuth:
     sampler:
-      percentage: 0.5
-
+      percentage: 1.0
 
 #开启feign客户端路由
 feign:
   hystrix:
     enabled: fasle
+
 #设置断路器默认超时时间
 hystrix:
   command:

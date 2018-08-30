@@ -1,5 +1,6 @@
 package com.icecream.common.model.requstbody;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.icecream.common.model.pojo.Good;
 import com.icecream.common.model.pojo.GoodsSpec;
 import lombok.Data;

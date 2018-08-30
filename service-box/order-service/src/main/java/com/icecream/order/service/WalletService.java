@@ -1,6 +1,7 @@
 package com.icecream.order.service;
 
 import com.icecream.common.model.pojo.Wallet;
+import com.icecream.common.redis.RedisHandler;
 import com.icecream.common.util.time.DateUtil;
 import com.icecream.order.mapper.WalletMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,8 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.math.BigDecimal;
 import java.util.Optional;
+
+import static com.icecream.common.util.constant.SysConstants.USER_WALLET_PREFIX;
 
 /**
  * @author Mr_h
@@ -29,6 +32,25 @@ public class WalletService {
     //获取我的钱包余额
     public Wallet getMyWalletBalance(Integer uid) {
         return Optional.ofNullable(get(uid)).orElse(createDefaultWallet(uid));
+    }
+
+    //获取用户的钱包余额
+    public BigDecimal getBalance(Integer uid){
+        try {
+            Object balance = RedisHandler.get(USER_WALLET_PREFIX+uid);
+            if (null == balance) {
+                Wallet wallet = new Wallet();
+                wallet.setUid(uid);
+                Wallet result = walletMapper.selectOne(wallet);
+                RedisHandler.set(USER_WALLET_PREFIX+uid,wallet.getBalance());
+                return result==null?BigDecimal.ZERO:result.getBalance();
+            }else {
+                return new BigDecimal(balance.toString());
+            }
+        }catch (Exception e){
+            log.error("获取用户余额时出现异常");
+            return BigDecimal.ZERO;
+        }
     }
 
     //根据uid获取钱包对象
@@ -88,7 +110,6 @@ public class WalletService {
         Wallet wallet = get(uid);
         return wallet == null ? insert(uid, stars) : update(stars, wallet);
     }
-
 
     //先减钱
     @Transactional(rollbackFor = Exception.class)

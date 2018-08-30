@@ -51,6 +51,11 @@ public interface SysConstants {
     String ORDER_ZSET_PREFIX = "order_";
 
     /**
+     * user系统的redis前缀
+     */
+    String USER_HASH_PREFIX = "users";
+
+    /**
      * 分割符号
      */
     String SYMBOL_UNDERLINE = "_";

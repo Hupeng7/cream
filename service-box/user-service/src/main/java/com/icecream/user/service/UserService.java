@@ -107,6 +107,10 @@ public class UserService {
         }
     }
 
+    public List<User> getList(){
+        return userMapper.selectAll();
+    }
+
     public ResultVO update(User user,String uid) {
         Integer id = Integer.parseInt(uid);
         Boolean vaild = Checker.checkUpateUser(user);

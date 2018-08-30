@@ -21,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -65,22 +67,22 @@ public class OrderService {
     }
 
     private void initWallet(Integer uid) {
-            Wallet wallet = walletService.get(uid);
-            if (wallet == null) {
-                RedisHandler.set(USER_WALLET_PREFIX + uid, 0);
-            } else {
-                RedisHandler.set(USER_WALLET_PREFIX + uid, wallet.getBalance());
-            }
+        Wallet wallet = walletService.get(uid);
+        if (wallet == null) {
+            RedisHandler.set(USER_WALLET_PREFIX + uid, 0);
+        } else {
+            RedisHandler.set(USER_WALLET_PREFIX + uid, wallet.getBalance());
+        }
     }
 
 
     private void initExp(Integer uid) {
-            UserExp query = expService.query(uid);
-            if (query == null) {
-                RedisHandler.set(USER_EXP + uid, 0);
-            } else {
-                RedisHandler.set(USER_EXP + uid, query.getExp());
-            }
+        UserExp query = expService.query(uid);
+        if (query == null) {
+            RedisHandler.set(USER_EXP + uid, 0);
+        } else {
+            RedisHandler.set(USER_EXP + uid, query.getExp());
+        }
     }
 
     //获取订单详情
@@ -108,79 +110,92 @@ public class OrderService {
 
     //创建订单
     public ResultVO create(Integer uid, CreateOrderModel createOrderModel) {
-        GoodsUpdateMessage goodsUpdateMessage = new GoodsUpdateMessage();
-        MitGoodsRedis goodsRedis = JSON.parseObject(RedisHandler
-                .getMapField(GOODS_PREFIX, createOrderModel.getGoodsSn()), MitGoodsRedis.class);
-        log.info("获取到商品信息,{}", goodsRedis);
-        log.info("开始创建预下单对象...");
-        Order order = buildPreOrder(createOrderModel, uid, TradesNoCreater.create(),
-                getAddressInfo(createOrderModel.getAddress()),
-                goodsRedis);
-        log.info("已经创建预下单对象...{}", order);
-        RedisHandler.addMap("orders", order.getOrderNo(), JSON.toJSONString(order));
-        log.info("预下单对象已经加入缓存");
-
-        log.info("开始进行预减数据操作");
-        if (null != createOrderModel.getSpecId()) {
-            Long decrSpecNum = RedisHandler.decr(GOODS_SPEC_PREFIX + createOrderModel.getSpecId(), createOrderModel.getGoodsCount());
-            log.info("还剩余的多规格商品库存{}", decrSpecNum);
-            if (decrSpecNum < 0) {
-                log.info("规格商品库存不够手动回滚");
-                RedisHandler.set(GOODS_SPEC_PREFIX + createOrderModel.getSpecId(), 0);
-                RedisHandler.remove(order.getOrderNo());
-                return ResultUtil.error("商品抢完啦~ 请下次再来", ResultEnum.CREATE_ORDER_FAILED);
-            }
-            goodsUpdateMessage.setGoodsNum(decrSpecNum.intValue());
+        log.info("开始准备数据");
+        String goodsSn = createOrderModel.getGoodsSn();
+        Good good = getGoodsCache(goodsSn);
+        Integer hasBeenBought = getHasBeenBoughtCache(uid, goodsSn);
+        BigDecimal balance = walletService.getBalance(uid);
+        BigDecimal exp = expService.getExp(uid);
+        Integer ifBuyNum = createOrderModel.getGoodsCount() + hasBeenBought;
+        BigDecimal ifEnough;
+        if (null == createOrderModel.getSpecId()) {
+            ifEnough = balance.subtract(new BigDecimal(ifBuyNum).multiply(good.getGoodsPrice()));
         } else {
-            Long decrNum = RedisHandler.decr(GOODS_PREFIX + createOrderModel.getGoodsSn(), createOrderModel.getGoodsCount());
-            log.info("还剩余的单规格商品库存{}", decrNum);
-            if (decrNum < 0) {
-                log.info("总库存不够手动回滚");
-                RedisHandler.set(GOODS_PREFIX + createOrderModel.getGoodsSn(), 0);
-                RedisHandler.remove(order.getOrderNo());
-                return ResultUtil.error("商品抢完啦~ 请下次再来", ResultEnum.CREATE_ORDER_FAILED);
+            List<GoodsSpec> goodsSpec = good.getGoodsSpec();
+            List<GoodsSpec> collect = goodsSpec.stream().filter(gs -> gs.getId().equals(createOrderModel.getSpecId())).collect(Collectors.toList());
+            if (collect.size() > 0) {
+                GoodsSpec result = collect.get(0);
+                ifEnough = balance.subtract(new BigDecimal(ifBuyNum).multiply(new BigDecimal(result.getPrice())));
+            } else {
+                return ResultUtil.error(null,ResultEnum.PARAMS_ERROR);
             }
-            goodsUpdateMessage.setGoodsNum(decrNum.intValue());
         }
-        Integer hasBeenBoughtCount = RedisHandler.get(HAS_BEEN_BOUGHT_PREFIX + createOrderModel.getGoodsSn())
-                != null ? Integer.parseInt(RedisHandler.get(HAS_BEEN_BOUGHT_PREFIX + createOrderModel.getGoodsSn()).toString()) : -1;
-        log.info("用户已经购买的件数,{}", hasBeenBoughtCount);
-        Integer buyLimit = Optional.ofNullable(goodsRedis)
-                .map(MitGoodsRedis::getGood)
-                .map(Good::getBuylimit)
-                .get();
-        log.info("商品限制用户购买的数量,{}", buyLimit);
-        Integer canBuyNum = buyLimit - hasBeenBoughtCount;
-        log.info("用户能够购买的件数,{}", canBuyNum);
-        if (canBuyNum < createOrderModel.getGoodsCount()) {
-            log.info("商品购买超过限购");
-            RedisHandler.removeMapField(ORDER_HASH_PREFIX, order.getOrderNo());
-            RedisHandler.removeZSet(ORDER_ZSET_PREFIX + uid);
-            return ResultUtil.error("商品购买超过限制", ResultEnum.CREATE_ORDER_FAILED);
+        log.info("数据准备完毕,开始数据验证");
+        boolean bingo = doorkeeper(uid, goodsSn, good, hasBeenBought, balance, exp, ifBuyNum,ifEnough);
+
+        if (bingo) {
+            GoodsUpdateMessage goodsUpdateMessage = new GoodsUpdateMessage();
+            Order order = buildPreOrder(createOrderModel, uid, TradesNoCreater.create(),
+                    getAddressInfo(createOrderModel.getAddress()),
+                    good);
+            log.info("开始进行预减数据操作");
+            if (null != createOrderModel.getSpecId()) {
+                String key = GOODS_STOCK_PREFIX + SYMBOL_COLON + createOrderModel.getGoodsSn() + SYMBOL_COLON + createOrderModel.getSpecId();
+                Long decrSpecNum = RedisHandler.decr(key, createOrderModel.getGoodsCount());
+                log.info("还剩余的多规格商品库存{}", decrSpecNum);
+                if (decrSpecNum < 0) {
+                    log.info("规格商品库存不够手动回滚");
+                    Long incrNum = RedisHandler.incr(key, createOrderModel.getGoodsCount());
+                    RedisHandler.set(key, incrNum);
+                    RedisHandler.remove(order.getOrderNo());
+                    return ResultUtil.error("商品抢完啦~ 请下次再来", ResultEnum.CREATE_ORDER_FAILED);
+                }
+                goodsUpdateMessage.setGoodsNum(decrSpecNum.intValue());
+            } else {
+                Long decrNum = RedisHandler.decr(GOODS_PREFIX + createOrderModel.getGoodsSn(), createOrderModel.getGoodsCount());
+                log.info("还剩余的单规格商品库存{}", decrNum);
+                if (decrNum < 0) {
+                    log.info("总库存不够手动回滚");
+                    Long incrNum = RedisHandler.incr(GOODS_PREFIX + createOrderModel.getGoodsSn(), createOrderModel.getGoodsCount());
+                    RedisHandler.set(GOODS_PREFIX + createOrderModel.getGoodsSn(), incrNum);
+                    RedisHandler.remove(order.getOrderNo());
+                    return ResultUtil.error("商品抢完啦~ 请下次再来", ResultEnum.CREATE_ORDER_FAILED);
+                }
+                goodsUpdateMessage.setGoodsNum(decrNum.intValue());
+            }
+            log.info("已经创建预下单对象...{}", order);
+            RedisHandler.addMap("orders", order.getOrderNo(), JSON.toJSONString(order));
+            log.info("预下单对象已经加入缓存");
+
+            log.info("开始构建预修改数据");
+            balance = balance.subtract(order.getChangePrice());
+            exp = exp.add(order.getChangePrice());
+            hasBeenBought = hasBeenBought + order.getGoodsCount();
+
+            log.info("开始写回redis");
+            RedisHandler.set(USER_WALLET_PREFIX + uid, balance);
+            RedisHandler.set(HAS_BEEN_BOUGHT_PREFIX + uid + createOrderModel.getGoodsSn(), hasBeenBought);
+            RedisHandler.set(USER_EXP + uid, exp);
+
+            log.info("开始更改订单状态");
+            Order finalOrder = updateOrderStatus(order);
+            SkillUpdateModel skillUpdateModel = getSkillUpdateModel(uid, createOrderModel, goodsUpdateMessage, order, finalOrder);
+
+            log.info("开始加入队列..");
+            rabbitSender.sendOrderData(JSON.toJSONString(skillUpdateModel));
+
+            log.info("向redis写回下单成功的订单");
+            RedisHandler.addMap(ORDER_HASH_PREFIX, order.getOrderNo(), JSON.toJSONString(finalOrder));
+            RedisHandler.addZSet(ORDER_ZSET_PREFIX, order.getCtime(), order.getOrderNo());
+
+            return ResultUtil.success("创建订单成功");
+        } else {
+            return ResultUtil.error("条件不足，无法创建订单", ResultEnum.CREATE_ORDER_FAILED);
         }
-        BigDecimal balance = new BigDecimal(RedisHandler.get(USER_WALLET_PREFIX + uid).toString());
-        Integer hasBeenBought = Integer.parseInt(RedisHandler.get(HAS_BEEN_BOUGHT_PREFIX + createOrderModel.getGoodsSn()).toString());
-        Integer exp = Integer.parseInt(RedisHandler.get(USER_EXP + uid).toString());
 
-        if (balance.subtract(order.getChangePrice()).compareTo(BigDecimal.ZERO) < 0) {
-            log.info("星星不够手动回滚");
-            RedisHandler.removeMapField(ORDER_HASH_PREFIX, order.getOrderNo());
-            RedisHandler.removeZSet(ORDER_ZSET_PREFIX + uid);
-            return ResultUtil.error("星星不够哦，请先充值", ResultEnum.CREATE_ORDER_FAILED);
-        }
+    }
 
-        balance = balance.subtract(order.getChangePrice());
-        exp = exp + order.getChangePrice().intValue();
-        hasBeenBought = hasBeenBoughtCount + order.getGoodsCount();
-
-        log.info("开始写回redis");
-        RedisHandler.set(USER_WALLET_PREFIX + uid, balance);
-        RedisHandler.set(HAS_BEEN_BOUGHT_PREFIX + createOrderModel.getGoodsSn(), hasBeenBought);
-        RedisHandler.set(USER_EXP + uid, exp);
-
-        log.info("您就是万中无一的幸运儿-->{}", uid);
-        log.info("开始更改订单状态");
-        Order finalOrder = updateOrderStatus(order);
+    private SkillUpdateModel getSkillUpdateModel(Integer uid, CreateOrderModel createOrderModel, GoodsUpdateMessage goodsUpdateMessage, Order order, Order finalOrder) {
         SkillUpdateModel skillUpdateModel = new SkillUpdateModel();
         goodsUpdateMessage.setSid(order.getSid());
         goodsUpdateMessage.setUid(uid);
@@ -190,15 +205,75 @@ public class OrderService {
         goodsUpdateMessage.setCount(order.getGoodsCount());
         skillUpdateModel.setGoodsUpdateMessage(goodsUpdateMessage);
         skillUpdateModel.setOrder(finalOrder);
-        log.info("开始加入队列..");
-        log.info("开始向订单系统发送数据..");
-        rabbitSender.sendOrderData(JSON.toJSONString(skillUpdateModel));
-        log.info("向redis写回下单成功的订单");
-        RedisHandler.addMap(ORDER_HASH_PREFIX, order.getOrderNo(), JSON.toJSONString(finalOrder));
-        RedisHandler.addZSet(ORDER_ZSET_PREFIX + uid, order.getCtime(), order.getOrderNo());
-        return ResultUtil.success("创建订单成功");
+        return skillUpdateModel;
     }
 
+    //获取商品hash表信息
+    private Good getGoodsCache(String goodsSn) {
+        Good good = null;
+        try {
+            Object mapField = RedisHandler.getMapField(GOODS_PREFIX, goodsSn);
+            good = JSON.parseObject(mapField.toString(), Good.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("从redis中获取商品信息失败");
+            return null;
+        }
+        return good;
+    }
+
+    //获取商品购买记录缓存信息
+    private Integer getHasBeenBoughtCache(Integer uid, String goodsSn) {
+        Integer count = 0;
+        try {
+            String key = HAS_BEEN_BOUGHT_PREFIX + SYMBOL_COLON + uid + SYMBOL_COLON + goodsSn;
+            Object record = RedisHandler.get(key);
+            if (record != null) {
+                count = Integer.parseInt(record.toString());
+                return count;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("从redis中获取商品信息失败");
+            return -1;
+        }
+        return -1;
+    }
+
+
+    //验证是否可以进行下单操作
+    private boolean doorkeeper(Integer uid, String goodsSn, Good good
+            , Integer hasBeenBought, BigDecimal balance, BigDecimal exp, Integer ifBuyNum,
+                               BigDecimal ifEnough) {
+        //验证星星是否足够
+        if(ifEnough.compareTo(BigDecimal.ZERO)==-1){
+            return false;
+        }
+        //验证已经购买数
+        if (hasBeenBought == -1) {
+            return false;
+        }
+        //验证余额
+        if (balance.intValue() == 0) {
+            return false;
+        }
+        //验证经验
+        if (exp.intValue() == -1) {
+            return false;
+        }
+        //验证商品
+        if (null != good) {
+            Integer onsaleTime = good.getOnsaleTime();
+            Integer offsaleTime = good.getOffsaleTime();
+            int now = (int) (LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8")));
+            if (good.getOnsaleTime() <= now & now <= good.getOffsaleTime() & good.getIsSale() == 1) {
+                if (ifBuyNum <= good.getBuylimit() | good.getBuylimit() == -1) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     //创建订单涉及到多张表
     @Transactional
@@ -286,7 +361,7 @@ public class OrderService {
     //创建预下单对象
     private Order buildPreOrder(CreateOrderModel createOrderModel,
                                 Integer uid, String orderNo, AddressInfo addressInfo,
-                                MitGoodsRedis goodsRedis) {
+                                Good good) {
         Order order = new Order();
         order.setUid(uid);
         order.setGoodsId(createOrderModel.getGoodsSn());
@@ -316,7 +391,7 @@ public class OrderService {
         order.setOrderType(1);//平台交易
 
         if (null != createOrderModel.getSpecId()) {
-            List<GoodsSpec> goodsSpecs = goodsRedis.getGoodsSpec();
+            List<GoodsSpec> goodsSpecs = good.getGoodsSpec();
             if (goodsSpecs.size() > 0) {
                 List<GoodsSpec> list = goodsSpecs.stream().filter(g -> g.getId().equals(createOrderModel.getSpecId())).collect(Collectors.toList());
                 if (list.size() > 0) {
@@ -329,7 +404,7 @@ public class OrderService {
                 }
             }
         } else {
-            BigDecimal goodsPrice = goodsRedis.getGood().getGoodsPrice();
+            BigDecimal goodsPrice = good.getGoodsPrice();
             order.setGoodsPrice(goodsPrice);
             order.setChangePrice(goodsPrice.multiply(new BigDecimal(createOrderModel.getGoodsCount())));
             order.setPayPrice(order.getChangePrice());//实际支付价格

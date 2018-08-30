@@ -37,4 +37,9 @@ public class TokenController {
     public ResultVO checkConsumer(@RequestParam("token")String token){
         return userTokenService.checkConsumer(token);
     }
+
+    @GetMapping("getToken/{uid}")
+    public String getToken(@PathVariable("uid") Integer uid){
+       return userTokenService.getToken(uid);
+    }
 }

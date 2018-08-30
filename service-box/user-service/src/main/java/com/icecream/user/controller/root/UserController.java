@@ -15,6 +15,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * @version 2.0
  */
@@ -222,6 +224,12 @@ UserController {
     public ResultVO changePhones(@Validated @RequestBody SmsLoginOrRegisterParams smsLoginOrRegisterParams,
                                  @NotBlank @Param("specialTokenId") String specialTokenId) {
         return userService.changePhones(smsLoginOrRegisterParams, specialTokenId);
+    }
+
+
+    @GetMapping("getUserList")
+    public List<User> getUserList(){
+        return userService.getList();
     }
 
 
