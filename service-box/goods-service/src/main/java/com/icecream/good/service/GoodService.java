@@ -156,15 +156,14 @@ public class GoodService implements ITxTransaction {
             RedisHandler.set(GOODS_STOCK_PREFIX + ":" + good.getGoodsSn(), good.getGoodsNum());
             RedisHandler.addMap(GOODS_PREFIX, good.getGoodsSn(), JSON.toJSONString(good));
         } else {
+            good.setGoodsNum((Integer) RedisHandler.get(GOODS_STOCK_PREFIX + ":" + good.getGoodsSn()));
             good = JSON.parseObject(redisGood.toString(), Good.class);
         }
 
         if (good.getBuylimit() != -1) {
             GoodsLimit goodsLimit = goodsLimitMapper.selectByGoodsSnAndUid(good.getGoodsSn(), Integer.parseInt(uid));
             int userGoodsLimit = goodsLimit == null ? 0 : goodsLimit.getGoodsCount();
-            log.info("good.getOffsaleTime() :" + good.getOffsaleTime());
             Long offsaleTime = Long.parseLong((good.getOffsaleTime() - DateUtil.getNowTimeBySecond()) + "");
-            log.info("offsaleTime :" + offsaleTime);
             RedisHandler.set(HAS_BEEN_BOUGHT_PREFIX + ":" + uid + ":" + good.getGoodsSn(), userGoodsLimit, offsaleTime);
         }
 
