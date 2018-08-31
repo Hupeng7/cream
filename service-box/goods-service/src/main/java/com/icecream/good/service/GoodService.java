@@ -357,7 +357,7 @@ public class GoodService implements ITxTransaction {
             goodsUpdateMessage.setGoodsNum(result.getGoodsNum() - goodsUpdateMessage.getCount());
             int row2 = goodMapper.updateByGoodsSnAndGoodsNum(goodsUpdateMessage.getSid(),
                     goodsUpdateMessage.getGoodsSn(), goodsUpdateMessage.getGoodsNum());
-            if (row0 <= 0 & row1 <= 0 & row2 <= 0) {
+            if (row0 <= 0 | row1 <= 0 | row2 <= 0) {
                 throw new RuntimeException("更新失败");
             }
         } else {
@@ -366,7 +366,7 @@ public class GoodService implements ITxTransaction {
                     , goodsUpdateMessage.getBought(), DateUtil.getNowSecondIntTime());
             int row2 = goodMapper.updateByGoodsSnAndGoodsNum(goodsUpdateMessage.getSid(),
                     goodsUpdateMessage.getGoodsSn(), goodsUpdateMessage.getGoodsNum());
-            if (row1 <= 0 & row2 <= 0) {
+            if (row1 <= 0 | row2 <= 0) {
                 throw new RuntimeException("更新失败");
             }
         }
