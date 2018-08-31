@@ -64,7 +64,7 @@ hystrix:
       execution:
         isolation:
           thread:
-            timeoutInMillisecondes: 5000
+            timeoutInMillisecondes: 10000
 
 #日志处理/链路日志处理
 logging:
