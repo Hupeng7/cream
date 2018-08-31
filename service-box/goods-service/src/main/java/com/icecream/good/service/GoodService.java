@@ -137,9 +137,12 @@ public class GoodService implements ITxTransaction {
      * 3.没有则返回null 有则返回 并且写入redis
      */
     public ResultVO getGoodsByGoodsSn(String goodsSn, String uid) {
+        log.info("goodsn==============>" + goodsSn);
+        log.info("uid==============>" + uid);
         Good good = new Good();
         good.setGoodsSn(goodsSn);
         Object redisGood = RedisHandler.getMapField(GOODS_PREFIX, good.getGoodsSn());
+        //log.info("redis goods--->" + redisGood.toString());
         if (redisGood == null) {
             List<Good> select = goodMapper.select(good);
             if (select.isEmpty()) {
@@ -161,13 +164,14 @@ public class GoodService implements ITxTransaction {
 
             RedisHandler.addMap(GOODS_PREFIX, good.getGoodsSn(), JSON.toJSONString(good));
         } else {
+            good = JSON.parseObject(redisGood.toString(), Good.class);
             if (good.getSpecGroup() == null || "".equals(good.getSpecGroup())) {
-                good.setGoodsNum((Integer) RedisHandler.get(GOODS_STOCK_PREFIX + SYMBOL_COLON + good.getGoodsSn()));
+                log.info("good------>" + redisGood.toString());
+                good.setGoodsNum((int) RedisHandler.get(GOODS_STOCK_PREFIX + SYMBOL_COLON + good.getGoodsSn()));
             }
 
-            good = JSON.parseObject(redisGood.toString(), Good.class);
             for (GoodsSpec goodSpec : good.getGoodsSpec()) {
-                goodSpec.setStock((Integer) RedisHandler.get(GOODS_STOCK_PREFIX + SYMBOL_COLON + good.getGoodsSn() + SYMBOL_COLON + goodSpec.getId()));
+                goodSpec.setStock((int) RedisHandler.get(GOODS_STOCK_PREFIX + SYMBOL_COLON + good.getGoodsSn() + SYMBOL_COLON + goodSpec.getId()));
             }
         }
 

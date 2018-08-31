@@ -147,7 +147,7 @@ public class OrderService {
                 if (decrSpecNum < 0) {
                     log.info("规格商品库存不够手动回滚");
                     Long incrNum = RedisHandler.incr(key, createOrderModel.getGoodsCount());
-                    RedisHandler.set(key, incrNum);
+                    RedisHandler.set(key, incrNum.intValue());
                     RedisHandler.remove(order.getOrderNo());
                     return ResultUtil.error("商品抢完啦~ 请下次再来", ResultEnum.CREATE_ORDER_FAILED);
                 }
@@ -158,7 +158,7 @@ public class OrderService {
                 if (decrNum < 0) {
                     log.info("总库存不够手动回滚");
                     Long incrNum = RedisHandler.incr(GOODS_PREFIX + createOrderModel.getGoodsSn(), createOrderModel.getGoodsCount());
-                    RedisHandler.set(GOODS_PREFIX + createOrderModel.getGoodsSn(), incrNum);
+                    RedisHandler.set(GOODS_PREFIX + createOrderModel.getGoodsSn(), incrNum.intValue());
                     RedisHandler.remove(order.getOrderNo());
                     return ResultUtil.error("商品抢完啦~ 请下次再来", ResultEnum.CREATE_ORDER_FAILED);
                 }
