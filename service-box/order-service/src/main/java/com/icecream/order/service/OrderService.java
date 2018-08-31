@@ -138,6 +138,7 @@ public class OrderService {
             Order order = buildPreOrder(createOrderModel, uid, TradesNoCreater.create(),
                     getAddressInfo(createOrderModel.getAddress()),
                     good);
+            log.info("已经创建预下单对象...{}", order);
             log.info("开始进行预减数据操作");
             if (null != createOrderModel.getSpecId()) {
                 String key = GOODS_STOCK_PREFIX + SYMBOL_COLON + createOrderModel.getGoodsSn() + SYMBOL_COLON + createOrderModel.getSpecId();
@@ -163,9 +164,6 @@ public class OrderService {
                 }
                 goodsUpdateMessage.setGoodsNum(decrNum.intValue());
             }
-            log.info("已经创建预下单对象...{}", order);
-            RedisHandler.addMap("orders", order.getOrderNo(), JSON.toJSONString(order));
-            log.info("预下单对象已经加入缓存");
 
             log.info("开始构建预修改数据");
             balance = balance.subtract(order.getChangePrice());

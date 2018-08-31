@@ -40,6 +40,6 @@ public class TokenController {
 
     @GetMapping("getToken/{uid}")
     public String getToken(@PathVariable("uid") Integer uid){
-       return null;
+       return userTokenService.getToken(uid);
     }
 }

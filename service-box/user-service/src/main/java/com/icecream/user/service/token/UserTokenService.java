@@ -10,6 +10,7 @@ import com.icecream.user.mapper.UserMapper;
 import com.icecream.user.mapper.UserStarMapper;
 import com.icecream.user.utils.jwt.JwtHelper;
 import com.icecream.user.utils.jwt.JwtProperties;
+import com.icecream.user.utils.jwt.TokenBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +32,9 @@ public class UserTokenService {
 
     @Autowired
     private JwtProperties jwtProperties;
+
+    @Autowired
+    private TokenBuilder tokenBuilder;
 
     public ResultVO checkStar(String token){
         if(token==null){return ResultUtil.error(null,ResultEnum.PARAMS_ERROR);}
@@ -58,5 +62,12 @@ public class UserTokenService {
             }
         }
         return ResultUtil.error(null,ResultEnum.PARAMS_ERROR);
+    }
+    public String getToken(Integer uid){
+        User user = new User();
+        user.setId(uid);
+        User result = userMapper.selectOne(user);
+        String token = tokenBuilder.createToken(result);
+        return token;
     }
 }
