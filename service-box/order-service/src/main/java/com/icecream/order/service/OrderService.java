@@ -79,9 +79,9 @@ public class OrderService {
     private void initExp(Integer uid) {
         UserExp query = expService.query(uid);
         if (query == null) {
-            RedisHandler.set(USER_EXP + uid, 0);
+            RedisHandler.set(USER_EXP + SYMBOL_COLON + uid, 0);
         } else {
-            RedisHandler.set(USER_EXP + uid, query.getExp());
+            RedisHandler.set(USER_EXP + SYMBOL_COLON + uid, query.getExp());
         }
     }
 
