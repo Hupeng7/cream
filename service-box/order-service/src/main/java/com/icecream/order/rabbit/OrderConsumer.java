@@ -60,7 +60,7 @@ public class OrderConsumer {
         Integer row4 = orderService.insert(order);
         Integer row5 = pointInoutService.insertPointInoutOrder(order.getChangePrice(), order.getUid(), order.getOrderNo());
         log.info("更新状态，{},{},{},{},{}",row1,row2,row3,row4,row5);
-        if(row1<0|row2<0|row3<0|row4<0&row5<0){
+        if(row1<=0|row2<=0|row3<=0|row4<=0&row5<=0){
             throw new RuntimeException("事务更新失败，回滚");
         }
         //todo 插入错误数据表
