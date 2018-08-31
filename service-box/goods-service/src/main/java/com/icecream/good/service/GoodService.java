@@ -344,6 +344,7 @@ public class GoodService implements ITxTransaction {
 
     @Transactional
     public int updateGoodsNum(GoodsUpdateMessage goodsUpdateMessage) {
+        log.info(goodsUpdateMessage.toString());
         if (goodsUpdateMessage.getSpecId() != null) {
             GoodsSpec goodsSpec = new GoodsSpec();
             goodsSpec.setId(goodsUpdateMessage.getSpecId());
