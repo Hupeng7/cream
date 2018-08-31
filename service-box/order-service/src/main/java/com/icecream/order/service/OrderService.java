@@ -69,9 +69,9 @@ public class OrderService {
     private void initWallet(Integer uid) {
         Wallet wallet = walletService.get(uid);
         if (wallet == null) {
-            RedisHandler.set(USER_WALLET_PREFIX + uid, 0);
+            RedisHandler.set(USER_WALLET_PREFIX + SYMBOL_COLON + uid, 0);
         } else {
-            RedisHandler.set(USER_WALLET_PREFIX + uid, wallet.getBalance());
+            RedisHandler.set(USER_WALLET_PREFIX + SYMBOL_COLON + uid, wallet.getBalance());
         }
     }
 
@@ -173,7 +173,7 @@ public class OrderService {
             log.info("开始写回redis");
             RedisHandler.set(USER_WALLET_PREFIX + SYMBOL_COLON + uid, balance);
             RedisHandler.set(HAS_BEEN_BOUGHT_PREFIX + SYMBOL_COLON + uid + SYMBOL_COLON + goodsSn, hasBeenBought);
-            RedisHandler.set(USER_EXP + SYMBOL_COLON +uid, exp);
+            RedisHandler.set(USER_EXP + SYMBOL_COLON + uid, exp);
 
             log.info("开始更改订单状态");
             Order finalOrder = updateOrderStatus(order);
