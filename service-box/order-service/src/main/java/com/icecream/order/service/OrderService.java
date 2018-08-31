@@ -127,11 +127,11 @@ public class OrderService {
                 GoodsSpec result = collect.get(0);
                 ifEnough = balance.subtract(new BigDecimal(ifBuyNum).multiply(new BigDecimal(result.getPrice())));
             } else {
-                return ResultUtil.error(null,ResultEnum.PARAMS_ERROR);
+                return ResultUtil.error(null, ResultEnum.PARAMS_ERROR);
             }
         }
         log.info("数据准备完毕,开始数据验证");
-        boolean bingo = doorkeeper(uid, goodsSn, good, hasBeenBought, balance, exp, ifBuyNum,ifEnough);
+        boolean bingo = doorkeeper(uid, goodsSn, good, hasBeenBought, balance, exp, ifBuyNum, ifEnough);
 
         if (bingo) {
             GoodsUpdateMessage goodsUpdateMessage = new GoodsUpdateMessage();
@@ -171,9 +171,9 @@ public class OrderService {
             hasBeenBought = hasBeenBought + order.getGoodsCount();
 
             log.info("开始写回redis");
-            RedisHandler.set(USER_WALLET_PREFIX + uid, balance);
+            RedisHandler.set(USER_WALLET_PREFIX + SYMBOL_COLON + uid, balance);
             RedisHandler.set(HAS_BEEN_BOUGHT_PREFIX + SYMBOL_COLON + uid + SYMBOL_COLON + goodsSn, hasBeenBought);
-            RedisHandler.set(USER_EXP + uid, exp);
+            RedisHandler.set(USER_EXP + SYMBOL_COLON +uid, exp);
 
             log.info("开始更改订单状态");
             Order finalOrder = updateOrderStatus(order);
@@ -244,7 +244,7 @@ public class OrderService {
             , Integer hasBeenBought, BigDecimal balance, BigDecimal exp, Integer ifBuyNum,
                                BigDecimal ifEnough) {
         //验证星星是否足够
-        if(ifEnough.compareTo(BigDecimal.ZERO)==-1){
+        if (ifEnough.compareTo(BigDecimal.ZERO) == -1) {
             return false;
         }
         //验证已经购买数

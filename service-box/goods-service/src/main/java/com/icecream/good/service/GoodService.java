@@ -153,21 +153,21 @@ public class GoodService implements ITxTransaction {
 
             log.info("初始化商品信息,库存和已经购买数量");
             for (GoodsSpec goodSpec : specList) {
-                RedisHandler.set(GOODS_STOCK_PREFIX + ":" + good.getGoodsSn() + ":" + goodSpec.getId(), goodSpec.getStock());
+                RedisHandler.set(GOODS_STOCK_PREFIX + SYMBOL_COLON + good.getGoodsSn() + SYMBOL_COLON + goodSpec.getId(), goodSpec.getStock());
             }
             if (good.getSpecGroup() == null || "".equals(good.getSpecGroup())) {
-                RedisHandler.set(GOODS_STOCK_PREFIX + ":" + good.getGoodsSn(), good.getGoodsNum());
+                RedisHandler.set(GOODS_STOCK_PREFIX + SYMBOL_COLON + good.getGoodsSn(), good.getGoodsNum());
             }
 
             RedisHandler.addMap(GOODS_PREFIX, good.getGoodsSn(), JSON.toJSONString(good));
         } else {
             if (good.getSpecGroup() == null || "".equals(good.getSpecGroup())) {
-                good.setGoodsNum((Integer) RedisHandler.get(GOODS_STOCK_PREFIX + ":" + good.getGoodsSn()));
+                good.setGoodsNum((Integer) RedisHandler.get(GOODS_STOCK_PREFIX + SYMBOL_COLON + good.getGoodsSn()));
             }
 
             good = JSON.parseObject(redisGood.toString(), Good.class);
             for (GoodsSpec goodSpec : good.getGoodsSpec()) {
-                goodSpec.setStock((Integer) RedisHandler.get(GOODS_STOCK_PREFIX + ":" + good.getGoodsSn() + ":" + goodSpec.getId()));
+                goodSpec.setStock((Integer) RedisHandler.get(GOODS_STOCK_PREFIX + SYMBOL_COLON + good.getGoodsSn() + SYMBOL_COLON + goodSpec.getId()));
             }
         }
 
@@ -175,7 +175,7 @@ public class GoodService implements ITxTransaction {
             GoodsLimit goodsLimit = goodsLimitMapper.selectByGoodsSnAndUid(good.getGoodsSn(), Integer.parseInt(uid));
             int userGoodsLimit = goodsLimit == null ? 0 : goodsLimit.getGoodsCount();
             Long offsaleTime = Long.parseLong((good.getOffsaleTime() - DateUtil.getNowTimeBySecond()) + "");
-            RedisHandler.set(HAS_BEEN_BOUGHT_PREFIX + ":" + uid + ":" + good.getGoodsSn(), userGoodsLimit, offsaleTime);
+            RedisHandler.set(HAS_BEEN_BOUGHT_PREFIX + SYMBOL_COLON + uid + SYMBOL_COLON + good.getGoodsSn(), userGoodsLimit, offsaleTime);
         }
 
         if (good.getSpecGroup() != null && !("").equals(good.getSpecGroup()) && !("-1").equals(good.getSpecGroup())) {
