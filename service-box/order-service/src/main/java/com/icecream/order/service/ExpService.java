@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
+import static com.icecream.common.util.constant.SysConstants.SYMBOL_COLON;
 import static com.icecream.common.util.constant.SysConstants.USER_EXP;
 
 /**
@@ -34,16 +35,16 @@ public class ExpService {
 
     public BigDecimal getExp(Integer uid) {
         try {
-            Object o = RedisHandler.get(USER_EXP + uid);
+            Object o = RedisHandler.get(USER_EXP + SYMBOL_COLON + uid);
             if (o == null) {
                 UserExp query = query(uid);
-                if(query!=null){
-                    RedisHandler.set(USER_EXP+uid,query.getExp());
+                if (query != null) {
+                    RedisHandler.set(USER_EXP + SYMBOL_COLON + uid, query.getExp());
                     return query.getExp();
-                }else {
+                } else {
                     return BigDecimal.ZERO;
                 }
-            }else {
+            } else {
                 return new BigDecimal(o.toString());
             }
         } catch (Exception e) {

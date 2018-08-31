@@ -13,6 +13,7 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import java.math.BigDecimal;
 import java.util.Optional;
 
+import static com.icecream.common.util.constant.SysConstants.SYMBOL_COLON;
 import static com.icecream.common.util.constant.SysConstants.USER_WALLET_PREFIX;
 
 /**
@@ -35,19 +36,19 @@ public class WalletService {
     }
 
     //获取用户的钱包余额
-    public BigDecimal getBalance(Integer uid){
+    public BigDecimal getBalance(Integer uid) {
         try {
-            Object balance = RedisHandler.get(USER_WALLET_PREFIX+uid);
+            Object balance = RedisHandler.get(USER_WALLET_PREFIX + SYMBOL_COLON + uid);
             if (null == balance) {
                 Wallet wallet = new Wallet();
                 wallet.setUid(uid);
                 Wallet result = walletMapper.selectOne(wallet);
-                RedisHandler.set(USER_WALLET_PREFIX+uid,wallet.getBalance());
-                return result==null?BigDecimal.ZERO:result.getBalance();
-            }else {
+                RedisHandler.set(USER_WALLET_PREFIX + SYMBOL_COLON + uid, wallet.getBalance());
+                return result == null ? BigDecimal.ZERO : result.getBalance();
+            } else {
                 return new BigDecimal(balance.toString());
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error("获取用户余额时出现异常");
             return BigDecimal.ZERO;
         }
@@ -113,11 +114,11 @@ public class WalletService {
 
     //先减钱
     @Transactional(rollbackFor = Exception.class)
-    public Wallet reduceWalletBalanceOrRollBack(BigDecimal stars,Integer uid,Integer sid) {
+    public Wallet reduceWalletBalanceOrRollBack(BigDecimal stars, Integer uid, Integer sid) {
         try {
-            walletMapper.reduceWalletBalance(stars,uid,sid);
+            walletMapper.reduceWalletBalance(stars, uid, sid);
             Wallet wallet = get(uid);
-            return Optional.ofNullable(wallet).filter(w -> wallet.getBalance().compareTo(BigDecimal.ZERO)>=0).orElseThrow(Exception::new);
+            return Optional.ofNullable(wallet).filter(w -> wallet.getBalance().compareTo(BigDecimal.ZERO) >= 0).orElseThrow(Exception::new);
         } catch (Exception e) {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return null;
