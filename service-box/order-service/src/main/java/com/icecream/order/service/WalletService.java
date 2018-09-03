@@ -43,7 +43,7 @@ public class WalletService {
                 Wallet wallet = new Wallet();
                 wallet.setUid(uid);
                 Wallet result = walletMapper.selectOne(wallet);
-                RedisHandler.set(USER_WALLET_PREFIX + SYMBOL_COLON + uid, wallet.getBalance());
+                RedisHandler.set(USER_WALLET_PREFIX + SYMBOL_COLON + uid, result.getBalance());
                 return result == null ? BigDecimal.ZERO : result.getBalance();
             } else {
                 return new BigDecimal(balance.toString());
