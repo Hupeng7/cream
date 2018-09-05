@@ -13,6 +13,7 @@ import com.icecream.user.mapper.SysPhotoFrameMapper;
 import com.icecream.user.mapper.UserPhotoFrameMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.icecream.common.util.constant.SysConstants.DEV_SYS_PHOTOFRAME_PREFIX;
+import static com.icecream.common.util.constant.SysConstants.PRODUCT_SYS_PHOTOFRAME_PREFIX;
 import static com.icecream.common.util.constant.SysConstants.SYS_PHOTOFRAME;
 
 /**
@@ -40,6 +42,14 @@ public class PhotoFrameService {
     @Autowired
     private UserPhotoFrameMapper userPhotoFrameMapper;
 
+    @Value("${spring.profiles.active}")
+    private String environment;
+
+    /**
+     * 获取系统头像框列表
+     *
+     * @return
+     */
     public List<SysPhotoFrame> listSysPhotoFrame() {
         List<SysPhotoFrame> sysPhotoFramesList = new ArrayList<>();
         List<Object> redisSysPhotoFrameList = RedisHandler.getList(SYS_PHOTOFRAME);
@@ -61,6 +71,12 @@ public class PhotoFrameService {
         return sysPhotoFramesList;
     }
 
+    /**
+     * 获取系统头像框列表，加用户头像框信息
+     *
+     * @param specialTokenId
+     * @return
+     */
     public ResultVO listSysPhotoFrameWithUserInfo(String specialTokenId) {
         List<SysPhotoFrame> SysPhotoFrameList = listSysPhotoFrame();
         if (SysPhotoFrameList == null) {
@@ -75,7 +91,7 @@ public class PhotoFrameService {
             sysPhotoFrameAndUserInfo.setId(SysPhotoFrameList.get(i).getId());
             sysPhotoFrameAndUserInfo.setName(SysPhotoFrameList.get(i).getName());
             sysPhotoFrameAndUserInfo.setGroupName(SysPhotoFrameList.get(i).getGroupName());
-            sysPhotoFrameAndUserInfo.setImg(DEV_SYS_PHOTOFRAME_PREFIX + SysPhotoFrameList.get(i).getImg());
+            sysPhotoFrameAndUserInfo.setImg(getSysPhotoFrameImgPrefix() + SysPhotoFrameList.get(i).getImg());
             sysPhotoFrameAndUserInfo.setPrice(SysPhotoFrameList.get(i).getPrice());
             sysPhotoFrameAndUserInfo.setLevel(SysPhotoFrameList.get(i).getLevel());
             int term = SysPhotoFrameList.get(i).getTerm() / 86400;
@@ -116,4 +132,39 @@ public class PhotoFrameService {
         }
         return ResultUtil.success(photoFrameResponseModels);
     }
+
+    public ResultVO listSysPhotoFrameWithStarInfo(String specialTokenId) {
+        List<SysPhotoFrame> SysPhotoFrameList = listSysPhotoFrame();
+        if (SysPhotoFrameList == null) {
+            return ResultUtil.error("系统头像框列表为空", ResultEnum.QUERY_RESULT_IS_NULL);
+        }
+        List<UserPhotoFrame> userPhotoFrameList = userPhotoFrameMapper.listUserPhotoFrame(specialTokenId);
+        log.info("userPhotoFrameList=======>" + userPhotoFrameList.toString());
+        List<SysPhotoFrameAndUserInfo> listSysPhotoFrameAndUserInfo = new ArrayList<SysPhotoFrameAndUserInfo>();
+
+        for (int i = 0; i < SysPhotoFrameList.size(); i++) {
+            SysPhotoFrameAndUserInfo sysPhotoFrameAndUserInfo = new SysPhotoFrameAndUserInfo();
+            sysPhotoFrameAndUserInfo.setId(SysPhotoFrameList.get(i).getId());
+            sysPhotoFrameAndUserInfo.setName(SysPhotoFrameList.get(i).getName());
+            sysPhotoFrameAndUserInfo.setImg(getSysPhotoFrameImgPrefix() + SysPhotoFrameList.get(i).getImg());
+            sysPhotoFrameAndUserInfo.setIsWear(0);
+
+            for (int j = 0; j < userPhotoFrameList.size(); j++) {
+                if (userPhotoFrameList.get(j).getFrameId().equals(SysPhotoFrameList.get(i).getId())) {
+                    sysPhotoFrameAndUserInfo.setIsWear(userPhotoFrameList.get(j).getIsWear());
+                }
+            }
+            listSysPhotoFrameAndUserInfo.add(sysPhotoFrameAndUserInfo);
+        }
+        return ResultUtil.success(listSysPhotoFrameAndUserInfo);
+    }
+
+    public String getSysPhotoFrameImgPrefix() {
+        if ("pro".equals(environment)) {
+            return PRODUCT_SYS_PHOTOFRAME_PREFIX;
+        } else {
+            return DEV_SYS_PHOTOFRAME_PREFIX;
+        }
+    }
+
 }

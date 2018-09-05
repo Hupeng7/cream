@@ -1,5 +1,6 @@
 package com.icecream.common.model.requstbody;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.icecream.common.model.pojo.SysPhotoFrame;
 import com.icecream.common.model.pojo.UserPhotoFrame;
 import lombok.Data;
@@ -14,6 +15,7 @@ import java.math.BigDecimal;
  * @date: 11:25 2018/9/5 0005
  */
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SysPhotoFrameAndUserInfo {
     @Id
     private String id;
