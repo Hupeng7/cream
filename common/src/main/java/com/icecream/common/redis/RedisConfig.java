@@ -36,7 +36,7 @@ public class RedisConfig {
     //连接池中的最小空闲连接
     private static final int minIdle=1;
     //连接超时时间（毫秒）
-    private static final int timeOut=600;
+    private static final int timeOut=3000;
 
     @Bean
     public RedisSerializer fastJson2JsonRedisSerializer() {
@@ -74,7 +74,7 @@ public class RedisConfig {
         StringRedisTemplate redisTemplate = new StringRedisTemplate(factory);
         redisTemplate.setConnectionFactory(redisConnectionFactory());
         //redis   开启事务
-       // redisTemplate.setEnableTransactionSupport(true);
+        redisTemplate.setEnableTransactionSupport(true);
         //hash  使用jdk  的序列化
         redisTemplate.setHashValueSerializer(fastJson2JsonRedisSerializer/*new JdkSerializationRedisSerializer()*/);
         //StringRedisSerializer  key  序列化

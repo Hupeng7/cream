@@ -62,4 +62,9 @@ public interface SysConstants {
     String SYMBOL_WHIPPLETREE = "-";
     String SYMBOL_COLON = ":";
     String SYMBOL_SPRIT = "/";
+
+    /**
+     * order 分布式锁 key
+     */
+    String DISTRIBUTED_LOCK_IDENTIFICATION="order_lock";
 }

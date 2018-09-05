@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import redis.clients.jedis.Jedis;
 import tk.mybatis.mapper.entity.Example;
 
 import java.math.BigDecimal;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.icecream.common.util.constant.SysConstants.*;
@@ -143,7 +145,6 @@ public class OrderService {
         }
         log.info("数据准备完毕,开始数据验证");
         boolean bingo = doorkeeper(uid, goodsSn, good, hasBeenBought, balance, exp, ifBuyNum, ifEnough);
-
         if (bingo) {
             GoodsUpdateMessage goodsUpdateMessage = new GoodsUpdateMessage();
             Order order = buildPreOrder(createOrderModel, uid, TradesNoCreater.create(),
@@ -151,33 +152,40 @@ public class OrderService {
                     good);
             log.info("已经创建预下单对象...{}", order);
             log.info("开始进行预减数据操作");
-            synchronized (this) {
-                if (null != createOrderModel.getSpecId()) {
-                    String key = GOODS_STOCK_PREFIX + SYMBOL_COLON + createOrderModel.getGoodsSn() + SYMBOL_COLON + createOrderModel.getSpecId();
-                    Long decrSpecNum = RedisHandler.decr(key, createOrderModel.getGoodsCount());
-                    log.info("还剩余的多规格商品库存{}", decrSpecNum);
-                    if (decrSpecNum < 0) {
-                        log.info("规格商品库存不够手动回滚");
-                        Long incrNum = RedisHandler.incr(key, createOrderModel.getGoodsCount());
-                        RedisHandler.set(key, incrNum.intValue());
-                        RedisHandler.remove(order.getOrderNo());
-                        return ResultUtil.error("商品库存不足", ResultEnum.CREATE_ORDER_FAILED);
-                    }
-                    goodsUpdateMessage.setGoodsNum(decrSpecNum.intValue());
-                } else {
-                    Long decrNum = RedisHandler.decr(GOODS_PREFIX + createOrderModel.getGoodsSn(), createOrderModel.getGoodsCount());
-                    log.info("还剩余的单规格商品库存{}", decrNum);
-                    if (decrNum < 0) {
-                        log.info("总库存不够手动回滚");
-                        Long incrNum = RedisHandler.incr(GOODS_PREFIX + createOrderModel.getGoodsSn(), createOrderModel.getGoodsCount());
-                        RedisHandler.set(GOODS_PREFIX + createOrderModel.getGoodsSn(), incrNum.intValue());
-                        RedisHandler.remove(order.getOrderNo());
-                        return ResultUtil.error("商品库存不足", ResultEnum.CREATE_ORDER_FAILED);
-                    }
-                    goodsUpdateMessage.setGoodsNum(decrNum.intValue());
-                }
+            String IDcard = RedisHandler.lockWithTimeout(DISTRIBUTED_LOCK_IDENTIFICATION, 2, 5000);
+            String limitKey = uid + SYMBOL_COLON + "have_done";
+            Object limit = RedisHandler.get(limitKey);
+            if (limit != null) {
+                return ResultUtil.error("to fast request", ResultEnum.CREATE_ORDER_FAILED);
+            } else {
+                RedisHandler.set(limitKey, true);
+                RedisHandler.setExpireTime(limitKey, 30, TimeUnit.SECONDS);
             }
-
+            if (null != createOrderModel.getSpecId()) {
+                String key = GOODS_STOCK_PREFIX + SYMBOL_COLON + createOrderModel.getGoodsSn() + SYMBOL_COLON + createOrderModel.getSpecId();
+                Long decrSpecNum = RedisHandler.decr(key, createOrderModel.getGoodsCount());
+                log.info("还剩余的多规格商品库存{}", decrSpecNum);
+                if (decrSpecNum < 0) {
+                    log.info("规格商品库存不够手动回滚");
+                    Long incrNum = RedisHandler.incr(key, createOrderModel.getGoodsCount());
+                    RedisHandler.set(key, incrNum.intValue());
+                    RedisHandler.remove(order.getOrderNo());
+                    return ResultUtil.error("商品库存不足", ResultEnum.CREATE_ORDER_FAILED);
+                }
+                goodsUpdateMessage.setGoodsNum(decrSpecNum.intValue());
+            } else {
+                Long decrNum = RedisHandler.decr(GOODS_PREFIX + createOrderModel.getGoodsSn(), createOrderModel.getGoodsCount());
+                log.info("还剩余的单规格商品库存{}", decrNum);
+                if (decrNum < 0) {
+                    log.info("总库存不够手动回滚");
+                    Long incrNum = RedisHandler.incr(GOODS_PREFIX + createOrderModel.getGoodsSn(), createOrderModel.getGoodsCount());
+                    RedisHandler.set(GOODS_PREFIX + createOrderModel.getGoodsSn(), incrNum.intValue());
+                    RedisHandler.remove(order.getOrderNo());
+                    return ResultUtil.error("商品库存不足", ResultEnum.CREATE_ORDER_FAILED);
+                }
+                goodsUpdateMessage.setGoodsNum(decrNum.intValue());
+            }
+            RedisHandler.releaseLock(DISTRIBUTED_LOCK_IDENTIFICATION,IDcard);
             log.info("开始构建预修改数据");
             balance = balance.subtract(order.getChangePrice());
             exp = exp.add(order.getChangePrice());
@@ -250,7 +258,6 @@ public class OrderService {
         }
         return -1;
     }
-
 
     //验证是否可以进行下单操作
     private boolean doorkeeper(Integer uid, String goodsSn, Good good
@@ -330,7 +337,6 @@ public class OrderService {
 
     public ResultVO getOrderDetail(Integer sid, String orderNo, Integer uid) {
         Order orderDetail = orderMapper.getOrderDetail(sid, orderNo, uid);
-
         return orderDetail == null ? ResultUtil.error(null, ResultEnum.PARAMS_ERROR) :
                 ResultUtil.success(orderDetail);
     }

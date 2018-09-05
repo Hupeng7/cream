@@ -13,6 +13,7 @@ import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.http.ServletInputStreamWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -23,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import static com.netflix.zuul.context.RequestContext.getCurrentContext;
@@ -149,7 +151,6 @@ public class TokenFilter extends ZuulFilter {
                 return reqBodyBytes.length;
             }
         });
-        //RedisHandler.set("uid",id);
         ctx.setSendZuulResponse(true);
         ctx.setResponseStatusCode(200);
         ctx.set("isSuccess", true);
@@ -161,5 +162,6 @@ public class TokenFilter extends ZuulFilter {
         context.setResponseStatusCode(401);
         context.setResponseBody(JsonUtil.toJSONString(ResultUtil.error(401, "Unauthorized access")));
     }
+
 
 }

@@ -65,6 +65,7 @@ management:
 feign:
   hystrix:
     enabled: false
+
 hystrix:
   command:
     default:
@@ -73,6 +74,7 @@ hystrix:
   threadpool:
     default:
       coreSize: 100
+
 
 #LCN相关配置
 init-db: true

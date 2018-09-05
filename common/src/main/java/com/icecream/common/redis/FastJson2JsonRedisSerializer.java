@@ -14,7 +14,9 @@ import java.nio.charset.Charset;
  * create by Mr_h on 2018/6/19 0019
  */
 public class FastJson2JsonRedisSerializer<T> implements RedisSerializer<T> {
+
     public static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
+
     private Class<T> clazz;
     public FastJson2JsonRedisSerializer(Class<T> clazz) {
         super();

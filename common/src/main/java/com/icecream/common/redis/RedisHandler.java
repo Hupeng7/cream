@@ -7,14 +7,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.DataType;
 import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.jedis.JedisConnection;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ReflectionUtils;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.Transaction;
+import redis.clients.jedis.exceptions.JedisException;
 
 import javax.annotation.PostConstruct;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -39,6 +45,13 @@ public class RedisHandler {
     public void init() {
         redisHandler = this;
         redisHandler.redisTemplate = this.redisTemplate;
+    }
+
+
+    public RedisConnection getConnection(){
+        RedisConnectionFactory connectionFactory =  redisHandler.redisTemplate.getConnectionFactory();
+        RedisConnection connection = connectionFactory.getConnection();
+        return connection;
     }
 
     /**
@@ -450,7 +463,7 @@ public class RedisHandler {
     }
 
 
-    public static boolean setExpireTime(String key, Long expireTime) {
+    public static boolean setExpireTime(String key, long expireTime,TimeUnit timeUnit) {
         return redisHandler.redisTemplate.expire(key, expireTime, TimeUnit.SECONDS);
     }
 
@@ -606,40 +619,68 @@ public class RedisHandler {
     }
 
     /**
-     * 尝试获取分布式锁
-     * @param jedis Redis客户端
-     * @param lockKey 锁
-     * @param requestId 请求标识
-     * @param expireTime 超期时间
-     * @return 是否获取成功
+     * 加锁
+     * @param lockName       锁的key
+     * @param acquireTimeout 获取超时时间(s)
+     * @param timeout        锁的超时时间(ms)
+     * @return 锁标识
      */
-    public static boolean tryGetDistributedLock(Jedis jedis, String lockKey, String requestId, int expireTime) {
 
-        String result = jedis.set(lockKey, requestId, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, expireTime);
-
-        if (LOCK_SUCCESS.equals(result)) {
-            return true;
+    public static String lockWithTimeout(String lockName, long acquireTimeout, long timeout) {
+        String retIdentifier = null;
+        try {
+            // 获取连接
+            // 随机生成一个value
+            String identifier = UUID.randomUUID().toString();
+            // 锁名，即key值
+            String lockKey = "lock:" + lockName;
+            // 超时时间，上锁后超过此时间则自动释放锁
+            int lockExpire = (int) (timeout/1000);
+            // 获取锁的超时时间，超过这个时间则放弃获取锁
+            while (0 < acquireTimeout) {
+                if (redisHandler.redisTemplate.opsForValue().setIfAbsent(lockKey,identifier)) {
+                    redisHandler.redisTemplate.expire(lockKey, lockExpire,TimeUnit.SECONDS);
+                    // 返回value值，用于释放锁时间确认
+                    retIdentifier = identifier;
+                    return retIdentifier;
+                }
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        } catch (JedisException e) {
+            e.printStackTrace();
         }
-        return false;
-
+        return retIdentifier;
     }
 
     /**
-     * 释放分布式锁
-     * @param jedis Redis客户端
-     * @param lockKey 锁
-     * @param requestId 请求标识
-     * @return 是否释放成功
+     * 释放锁
+     *
+     * @param lockName   锁的key
+     * @param identifier 释放锁的标识
+     * @return
      */
-    public static boolean releaseDistributedLock(Jedis jedis, String lockKey, String requestId) {
 
-        String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
-        Object result = jedis.eval(script, Collections.singletonList(lockKey), Collections.singletonList(requestId));
-        if (RELEASE_SUCCESS.equals(result)) {
-            return true;
+    public static void releaseLock(String lockName, String identifier) {
+        String lockKey = "lock:" + lockName;
+        String value = RedisHandler.get(lockKey).toString();
+        if(value.equals(identifier)){
+            RedisHandler.remove(lockKey);
         }
-        return false;
+    }
 
+    /**
+     * 获取jedis对象
+     * @return
+     */
+    public static Jedis getJedis(){
+        Field jedisField  = ReflectionUtils.findField(JedisConnection.class, "jedis");
+        ReflectionUtils.makeAccessible(jedisField );
+        Jedis jedis = (Jedis) ReflectionUtils.getField(jedisField, redisHandler.redisTemplate.getConnectionFactory().getConnection());
+        return jedis;
     }
 
 

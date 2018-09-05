@@ -40,4 +40,5 @@ public interface Contants {
     Integer POST_COMMENT =5 ;//发布留言
     Integer CHARGE = 6; //充值
     Integer THE_SECONDARY_REPLY = 7; //二级回复
+
 }

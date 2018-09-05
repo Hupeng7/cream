@@ -4,6 +4,11 @@ spring:
     name: zuul-server
   profiles:
     active: dev
+  redis:
+      port: 6379
+      host: 10.40.254.59
+      timeout: 2000
+
 
 hystrix:
   command:
@@ -38,6 +43,14 @@ zuul:
     good-api:
       path: /good-api/**
       serviceId: good-service
+#    ratelimit:
+#      enabled: true
+#      repository: redis
+#      behind-proxy: true
+#      policy-list:
+#        user-service:
+#          limit: 2
+#          refresh-interval: 1
 
 
 #设置断路器默认超时时间
