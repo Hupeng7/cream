@@ -139,10 +139,10 @@ public class GoodService implements ITxTransaction {
     public ResultVO getGoodsByGoodsSn(String goodsSn, String uid) {
         log.info("goodsn==============>" + goodsSn);
         log.info("uid==============>" + uid);
+        RedisHandler.incr("get_good_count", 1);
         Good good = new Good();
         good.setGoodsSn(goodsSn);
         Object redisGood = RedisHandler.getMapField(GOODS_PREFIX, good.getGoodsSn());
-        //log.info("redis goods--->" + redisGood.toString());
         if (redisGood == null) {
             List<Good> select = goodMapper.select(good);
             if (select.isEmpty()) {
@@ -151,6 +151,7 @@ public class GoodService implements ITxTransaction {
             GoodsSpec argSpec = new GoodsSpec();
             argSpec.setGoodsSn(goodsSn);
             List<GoodsSpec> specList = goodsSpecService.getSpecList(goodsSn);
+
             good = select.get(0);
             good.setGoodsSpec(specList);
 
