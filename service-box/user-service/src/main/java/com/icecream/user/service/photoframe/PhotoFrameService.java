@@ -14,7 +14,6 @@ import com.icecream.common.util.time.DateUtil;
 import com.icecream.common.util.uuid.UUIDFactory;
 import com.icecream.user.mapper.SysPhotoFrameMapper;
 import com.icecream.user.mapper.UserPhotoFrameMapper;
-import com.sun.tools.javac.main.Main;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,9 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.icecream.common.util.constant.SysConstants.DEV_SYS_PHOTOFRAME_IMG_PREFIX;
-import static com.icecream.common.util.constant.SysConstants.PRODUCT_SYS_PHOTOFRAME_IMG_PREFIX;
-import static com.icecream.common.util.constant.SysConstants.SYS_PHOTOFRAME;
+import static com.icecream.common.util.constant.SysConstants.*;
 
 /**
  * @author hp
@@ -180,11 +177,10 @@ public class PhotoFrameService {
     /**
      * 新增系统头像框,并清除redis缓存
      *
-     * @param uid
      * @param createSysPhotoFrameModel
      * @return
      */
-    public ResultVO saveSysPhotoFrame(int uid, CreateSysPhotoFrameModel createSysPhotoFrameModel) {
+    public ResultVO saveSysPhotoFrame(CreateSysPhotoFrameModel createSysPhotoFrameModel) {
         SysPhotoFrame sysPhotoFrame = new SysPhotoFrame();
         Integer maxSort = sysPhotoFrameMapper.getMaxSortByLevel(createSysPhotoFrameModel.getLevel());
         log.info("maxSort: " + maxSort);
@@ -209,7 +205,13 @@ public class PhotoFrameService {
         return ResultUtil.success();
     }
 
-    public ResultVO deleteSysPhotoFrame(String specialTokenId, String id) {
+    /**
+     * 删除系统头像框，并清除缓存
+     *
+     * @param id
+     * @return
+     */
+    public ResultVO deleteSysPhotoFrame(String id) {
         SysPhotoFrame sysPhotoFrame = new SysPhotoFrame();
         sysPhotoFrame.setId(id);
         Short updateIsInuse = 0;

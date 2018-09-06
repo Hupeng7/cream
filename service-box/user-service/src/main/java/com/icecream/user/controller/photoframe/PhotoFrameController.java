@@ -32,12 +32,12 @@ public class PhotoFrameController {
 
     @PostMapping("/saveSysPhotoFrame")
     public ResultVO saveSysPhotoFrame(@Param("specialTokenId") String specialTokenId, @Validated @RequestBody CreateSysPhotoFrameModel createSysPhotoFrameModel) {
-        return photoFrameService.saveSysPhotoFrame(Integer.parseInt(specialTokenId), createSysPhotoFrameModel);
+        return photoFrameService.saveSysPhotoFrame(createSysPhotoFrameModel);
     }
 
     @DeleteMapping("/deleteSysPhotoFrame/{id}")
     public ResultVO deleteSysPhotoFrame(@Param("specialTokenId") String specialTokenId, @PathVariable("id") String id) {
-        return photoFrameService.deleteSysPhotoFrame(specialTokenId, id);
+        return photoFrameService.deleteSysPhotoFrame(id);
     }
 
 
