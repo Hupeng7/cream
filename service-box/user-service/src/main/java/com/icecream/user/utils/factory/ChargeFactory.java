@@ -1,7 +1,7 @@
 package com.icecream.user.utils.factory;
 
 
-import com.icecream.common.model.requstbody.ChargeParamContainer;
+import com.icecream.common.model.model.ChargeParamContainer;
 import com.icecream.user.exception.UnsupportedPaymentTypeException;
 import com.icecream.user.service.charge.AilPayChargeServiceImpl;
 import com.icecream.user.service.charge.WxPayChargeServiceImpl;

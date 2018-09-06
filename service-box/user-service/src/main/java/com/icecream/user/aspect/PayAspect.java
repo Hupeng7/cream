@@ -2,7 +2,7 @@ package com.icecream.user.aspect;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.icecream.common.model.requstbody.ChargeParamContainer;
+import com.icecream.common.model.model.ChargeParamContainer;
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.user.utils.factory.ChargeFactory;

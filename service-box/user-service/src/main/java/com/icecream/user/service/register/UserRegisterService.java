@@ -2,12 +2,11 @@ package com.icecream.user.service.register;
 
 import com.icecream.common.model.pojo.User;
 import com.icecream.common.model.pojo.UserAuth;
-import com.icecream.common.model.requstbody.*;
+import com.icecream.common.model.model.*;
 import com.icecream.common.redis.RedisHandler;
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
-import com.icecream.user.mapper.MybatisUserAuthMapper;
 import com.icecream.user.mapper.UserMapper;
 import com.icecream.user.service.binding.UserAuthService;
 import com.icecream.user.service.code.CodeHandler;
@@ -20,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Optional;
 

@@ -4,7 +4,7 @@ package com.icecream.user.service.login.auth;
 import com.alibaba.fastjson.JSONObject;
 import com.icecream.common.model.pojo.User;
 import com.icecream.common.model.pojo.UserAuth;
-import com.icecream.common.model.requstbody.*;
+import com.icecream.common.model.model.*;
 import com.icecream.common.util.json.JsonUtil;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;

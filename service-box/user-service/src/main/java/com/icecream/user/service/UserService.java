@@ -1,11 +1,10 @@
 package com.icecream.user.service;
 
-import com.alibaba.fastjson.JSONObject;
 import com.codingapi.tx.annotation.TxTransaction;
 import com.icecream.common.model.pojo.User;
 import com.icecream.common.model.pojo.UserAuth;
 import com.icecream.common.model.pojo.UserPush;
-import com.icecream.common.model.requstbody.*;
+import com.icecream.common.model.model.*;
 import com.icecream.common.redis.RedisHandler;
 import com.icecream.user.config.login.AppIdConfig;
 import com.icecream.user.feignclients.OrderFeignClient;
@@ -16,7 +15,6 @@ import com.icecream.user.service.code.CodeHandler;
 import com.icecream.user.service.push.UserPushService;
 import com.icecream.user.utils.UserBuilder;
 import com.icecream.user.utils.jwt.TokenBuilder;
-import com.icecream.common.util.json.JsonUtil;
 import com.icecream.user.mapper.UserAuthMapper;
 import com.icecream.user.mapper.UserPushMapper;
 import com.icecream.common.util.res.ResultEnum;
@@ -24,7 +22,6 @@ import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.utils.vaild.Checker;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

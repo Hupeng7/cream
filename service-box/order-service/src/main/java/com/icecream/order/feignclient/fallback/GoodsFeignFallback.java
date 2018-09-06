@@ -1,11 +1,10 @@
 package com.icecream.order.feignclient.fallback;
 
-import com.icecream.common.model.pojo.Good;
+import com.icecream.common.model.pojo.Goods;
 import com.icecream.common.model.pojo.GoodsSpec;
 import com.icecream.common.model.pojo.Order;
-import com.icecream.common.model.requstbody.CreateOrderModel;
-import com.icecream.common.model.requstbody.GoodsStoreModel;
-import com.icecream.common.model.requstbody.GoodsUpdateMessage;
+import com.icecream.common.model.model.CreateOrderModel;
+import com.icecream.common.model.model.GoodsUpdateMessage;
 import com.icecream.order.feignclient.GoodsFeignClient;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class GoodsFeignFallback implements GoodsFeignClient {
     @Override
-    public Good get(String goodsSn) {
+    public Goods get(String goodsSn) {
         return null;
     }
 

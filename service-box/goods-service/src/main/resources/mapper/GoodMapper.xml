@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.icecream.good.mapper.GoodMapper">
-    <resultMap id="BaseResultMap" type="com.icecream.common.model.pojo.Good">
+<mapper namespace="com.icecream.goods.mapper.GoodMapper">
+    <resultMap id="BaseResultMap" type="com.icecream.common.model.pojo.Goods">
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="goods_introduct" jdbcType="LONGVARCHAR" property="goodsIntroduct"/>
         <result column="goods_detail" jdbcType="LONGVARCHAR" property="goodsDetail"/>
@@ -79,7 +79,7 @@
         <result column="max_price" jdbcType="DECIMAL" property="maxPrice"/>
     </resultMap>
 
-    <resultMap id="GoodsNumResultMap" type="com.icecream.common.model.pojo.Good">
+    <resultMap id="GoodsNumResultMap" type="com.icecream.common.model.pojo.Goods">
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="goods_num" jdbcType="INTEGER" property="goodsNum"/>
         <result column="buylimit" jdbcType="INTEGER" property="buylimit"/>
@@ -118,7 +118,7 @@
     delete from goods
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-    <insert id="insert" parameterType="com.icecream.common.model.pojo.Good">
+    <insert id="insert" parameterType="com.icecream.common.model.pojo.Goods">
      insert into goods (id, sid, is_digital,
       type, category_id, spec_group,
       goods_sn, is_hot, is_best, is_new,
@@ -170,7 +170,7 @@
       #{mtime,jdbcType=INTEGER}, #{minPrice,jdbcType=DECIMAL},#{maxPrice,jdbcType=DECIMAL}#{goodsIntroduct,jdbcType=LONGVARCHAR}, #{goodsDetail,jdbcType=LONGVARCHAR},
       #{channelHData,jdbcType=LONGVARCHAR})
   </insert>
-    <insert id="insertSelective" parameterType="com.icecream.common.model.pojo.Good"
+    <insert id="insertSelective" parameterType="com.icecream.common.model.pojo.Goods"
             useGeneratedKeys="true" keyProperty="id">
         insert into goods
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -628,7 +628,7 @@
             </if>
         </trim>
     </insert>
-    <update id="updateByPrimaryKeySelective" parameterType="com.icecream.common.model.pojo.Good">
+    <update id="updateByPrimaryKeySelective" parameterType="com.icecream.common.model.pojo.Goods">
         update goods
         <set>
             <if test="sid != null">
@@ -856,7 +856,7 @@
         </set>
         where id = #{id,jdbcType=INTEGER}
     </update>
-    <update id="updateByPrimaryKey" parameterType="com.icecream.common.model.pojo.Good">
+    <update id="updateByPrimaryKey" parameterType="com.icecream.common.model.pojo.Goods">
     update goods
     set sid = #{sid,jdbcType=INTEGER},
       is_digital = #{isDigital,jdbcType=BIT},
@@ -934,7 +934,7 @@
       channel_h_data = #{channelHData,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
-    <select id="select" parameterType="com.icecream.common.model.pojo.Good" resultType="java.util.List"
+    <select id="select" parameterType="com.icecream.common.model.pojo.Goods" resultType="java.util.List"
             resultMap="BaseResultMap">
         select * from goods
         <where>

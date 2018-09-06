@@ -1,7 +1,7 @@
 package com.icecream.user.utils.factory;
 
 import com.alibaba.fastjson.JSON;
-import com.icecream.common.model.requstbody.*;
+import com.icecream.common.model.model.*;
 import com.icecream.user.service.login.account.AccountLoginService;
 import com.icecream.user.service.login.auth.QQLoginService;
 import com.icecream.user.service.login.auth.WbLoginService;

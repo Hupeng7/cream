@@ -2,8 +2,8 @@ package com.icecream.user.service.login.sms;
 
 import com.icecream.common.model.pojo.User;
 import com.icecream.common.model.pojo.UserAuth;
-import com.icecream.common.model.requstbody.LoginReturn;
-import com.icecream.common.model.requstbody.SmsLoginOrRegisterParams;
+import com.icecream.common.model.model.LoginReturn;
+import com.icecream.common.model.model.SmsLoginOrRegisterParams;
 import com.icecream.common.redis.RedisHandler;
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;

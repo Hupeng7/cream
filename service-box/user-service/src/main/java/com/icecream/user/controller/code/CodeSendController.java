@@ -1,6 +1,6 @@
 package com.icecream.user.controller.code;
 
-import com.icecream.common.model.requstbody.SendCode;
+import com.icecream.common.model.model.SendCode;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.service.code.chuanglan.ChuanglanSender;

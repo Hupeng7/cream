@@ -2,9 +2,9 @@ package com.icecream.user.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.icecream.common.model.requstbody.LoginReturn;
-import com.icecream.common.model.requstbody.PersonStatusInfo;
-import com.icecream.common.model.requstbody.SimpleLogin;
+import com.icecream.common.model.model.LoginReturn;
+import com.icecream.common.model.model.PersonStatusInfo;
+import com.icecream.common.model.model.SimpleLogin;
 import com.icecream.common.model.pojo.UserStar;
 import com.icecream.common.redis.RedisHandler;
 import com.icecream.user.mapper.UserStarMapper;

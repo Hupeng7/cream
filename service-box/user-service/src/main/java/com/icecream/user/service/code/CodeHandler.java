@@ -1,6 +1,6 @@
 package com.icecream.user.service.code;
 
-import com.icecream.common.model.requstbody.SmsLoginOrRegisterParams;
+import com.icecream.common.model.model.SmsLoginOrRegisterParams;
 
 /**
  * @version 2.0

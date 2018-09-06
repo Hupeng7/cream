@@ -1,8 +1,8 @@
 package com.icecream.user.controller.root;
 
 import com.icecream.common.model.pojo.UserStar;
-import com.icecream.common.model.requstbody.PersonStatusInfo;
-import com.icecream.common.model.requstbody.SimpleLogin;
+import com.icecream.common.model.model.PersonStatusInfo;
+import com.icecream.common.model.model.SimpleLogin;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.service.UserService;
 import com.icecream.user.service.UserStarService;

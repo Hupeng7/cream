@@ -3,17 +3,14 @@ package com.icecream.good.rabbitmq;
 import com.alibaba.fastjson.JSON;
 import com.codingapi.tx.annotation.ITxTransaction;
 import com.codingapi.tx.annotation.TxTransaction;
-import com.icecream.common.model.pojo.Good;
-import com.icecream.common.model.pojo.GoodsLimit;
+import com.icecream.common.model.pojo.Goods;
 import com.icecream.common.model.pojo.GoodsSpec;
-import com.icecream.common.model.requstbody.GoodsUpdateMessage;
+import com.icecream.common.model.model.GoodsUpdateMessage;
 import com.icecream.common.util.constant.SysConstants;
 import com.icecream.common.util.time.DateUtil;
-import com.icecream.good.mapper.GoodMapper;
+import com.icecream.good.mapper.GoodsMapper;
 import com.icecream.good.mapper.GoodsLimitMapper;
 import com.icecream.good.mapper.GoodsSpecMapper;
-import com.icecream.good.service.GoodService;
-import com.icecream.good.service.GoodsSpecService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -34,7 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class GoodsReduceNumConsumer implements ITxTransaction {
 
     @Autowired
-    private GoodMapper goodMapper;
+    private GoodsMapper goodsMapper;
 
     @Autowired
     private GoodsLimitMapper goodsLimitMapper;
@@ -56,10 +53,10 @@ public class GoodsReduceNumConsumer implements ITxTransaction {
             goodsSpec.setId(goodsUpdateMessage.getSpecId());
             goodsSpec.setStock(goodsUpdateMessage.getGoodsNum());
             goodsSpecMapper.updateByPrimaryKeySelective(goodsSpec);
-            Good result = goodMapper.getGoodsNum(goodsSpec.getGoodsSn(), goodsUpdateMessage.getSid());
+            Goods result = goodsMapper.getGoodsNum(goodsSpec.getGoodsSn(), goodsUpdateMessage.getSid());
             goodsUpdateMessage.setGoodsNum(result.getGoodsNum()-goodsUpdateMessage.getCount());
         }
-        goodMapper.updateByGoodsSnAndGoodsNum(goodsUpdateMessage.getSid(),
+        goodsMapper.updateByGoodsSnAndGoodsNum(goodsUpdateMessage.getSid(),
                 goodsUpdateMessage.getGoodsSn(),goodsUpdateMessage.getGoodsNum());
 
     }

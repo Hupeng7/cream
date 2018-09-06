@@ -1,12 +1,9 @@
 package com.icecream.user.controller.auth;
 
 
-import com.icecream.common.model.requstbody.BindingModel;
-import com.icecream.common.model.requstbody.WxLoginParams;
+import com.icecream.common.model.model.BindingModel;
 import com.icecream.common.util.res.ResultVO;
-import com.icecream.user.service.UserService;
 import com.icecream.user.service.binding.UserAuthService;
-import com.icecream.user.service.login.auth.WxLoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.validation.annotation.Validated;

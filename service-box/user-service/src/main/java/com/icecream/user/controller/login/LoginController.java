@@ -1,8 +1,8 @@
 package com.icecream.user.controller.login;
 
 
-import com.icecream.common.model.requstbody.LoginParamContainer;
-import com.icecream.common.model.requstbody.LoginReturn;
+import com.icecream.common.model.model.LoginParamContainer;
+import com.icecream.common.model.model.LoginReturn;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.aspect.annotation.LoginHandler;
 import com.icecream.user.service.login.LoginService;

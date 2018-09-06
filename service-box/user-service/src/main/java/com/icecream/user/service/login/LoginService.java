@@ -1,8 +1,7 @@
 package com.icecream.user.service.login;
 
-import com.icecream.common.model.requstbody.LoginParamContainer;
+import com.icecream.common.model.model.LoginParamContainer;
 import com.icecream.common.util.res.ResultVO;
-import com.icecream.user.service.login.SuperLogin;
 import org.springframework.stereotype.Service;
 
 

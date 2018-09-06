@@ -2,7 +2,7 @@ package com.icecream.zuul.filter;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.icecream.common.model.requstbody.TokenInfo;
+import com.icecream.common.model.model.TokenInfo;
 import com.icecream.common.util.json.JsonUtil;
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;

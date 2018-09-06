@@ -1,8 +1,8 @@
 package com.icecream.user.service.code.chuanglan;
 
-import com.icecream.common.model.requstbody.SmsLoginOrRegisterParams;
-import com.icecream.common.model.requstbody.SmsOpenApiResponse;
-import com.icecream.common.model.requstbody.SmsSendEntity;
+import com.icecream.common.model.model.SmsLoginOrRegisterParams;
+import com.icecream.common.model.model.SmsOpenApiResponse;
+import com.icecream.common.model.model.SmsSendEntity;
 import com.icecream.common.redis.RedisHandler;
 import com.icecream.common.util.constant.SysConstants;
 import com.icecream.common.util.json.JsonUtil;

@@ -2,7 +2,7 @@ package com.icecream.order.service;
 
 import com.alibaba.fastjson.JSON;
 import com.icecream.common.model.pojo.*;
-import com.icecream.common.model.requstbody.*;
+import com.icecream.common.model.model.*;
 import com.icecream.common.redis.RedisHandler;
 import com.icecream.common.util.idbuilder.staticfactroy.SnowflakeGlobalIdFactory;
 import com.icecream.common.util.res.ResultEnum;
@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import redis.clients.jedis.Jedis;
 import tk.mybatis.mapper.entity.Example;
 
 import java.math.BigDecimal;
@@ -125,16 +124,16 @@ public class OrderService {
 
         log.info("开始准备数据");
         String goodsSn = createOrderModel.getGoodsSn();
-        Good good = getGoodsCache(goodsSn);
+        Goods goods = getGoodsCache(goodsSn);
         Integer hasBeenBought = getHasBeenBoughtCache(uid, goodsSn);
         BigDecimal balance = walletService.getBalance(uid);
         BigDecimal exp = expService.getExp(uid);
         Integer ifBuyNum = createOrderModel.getGoodsCount() + hasBeenBought;
         BigDecimal ifEnough;
         if (null == createOrderModel.getSpecId()) {
-            ifEnough = balance.subtract(new BigDecimal(ifBuyNum).multiply(good.getGoodsPrice()));
+            ifEnough = balance.subtract(new BigDecimal(ifBuyNum).multiply(goods.getGoodsPrice()));
         } else {
-            List<GoodsSpec> goodsSpec = good.getGoodsSpec();
+            List<GoodsSpec> goodsSpec = goods.getGoodsSpec();
             List<GoodsSpec> collect = goodsSpec.stream().filter(gs -> gs.getId().equals(createOrderModel.getSpecId())).collect(Collectors.toList());
             if (collect.size() > 0) {
                 GoodsSpec result = collect.get(0);
@@ -144,12 +143,12 @@ public class OrderService {
             }
         }
         log.info("数据准备完毕,开始数据验证");
-        boolean bingo = doorkeeper(uid, goodsSn, good, hasBeenBought, balance, exp, ifBuyNum, ifEnough);
+        boolean bingo = doorkeeper(uid, goodsSn, goods, hasBeenBought, balance, exp, ifBuyNum, ifEnough);
         if (bingo) {
             GoodsUpdateMessage goodsUpdateMessage = new GoodsUpdateMessage();
             Order order = buildPreOrder(createOrderModel, uid, TradesNoCreater.create(),
                     getAddressInfo(createOrderModel.getAddress()),
-                    good);
+                    goods);
             log.info("已经创建预下单对象...{}", order);
             log.info("开始进行预减数据操作");
             String IDcard = RedisHandler.lockWithTimeout(DISTRIBUTED_LOCK_IDENTIFICATION, 2, 5000);
@@ -228,17 +227,17 @@ public class OrderService {
     }
 
     //获取商品hash表信息
-    private Good getGoodsCache(String goodsSn) {
-        Good good = null;
+    private Goods getGoodsCache(String goodsSn) {
+        Goods goods = null;
         try {
             Object mapField = RedisHandler.getMapField(GOODS_PREFIX, goodsSn);
-            good = JSON.parseObject(mapField.toString(), Good.class);
+            goods = JSON.parseObject(mapField.toString(), Goods.class);
         } catch (Exception e) {
             e.printStackTrace();
             log.error("从redis中获取商品信息失败");
             return null;
         }
-        return good;
+        return goods;
     }
 
     //获取商品购买记录缓存信息
@@ -260,7 +259,7 @@ public class OrderService {
     }
 
     //验证是否可以进行下单操作
-    private boolean doorkeeper(Integer uid, String goodsSn, Good good
+    private boolean doorkeeper(Integer uid, String goodsSn, Goods goods
             , Integer hasBeenBought, BigDecimal balance, BigDecimal exp, Integer ifBuyNum,
                                BigDecimal ifEnough) {
         //验证星星是否足够
@@ -280,12 +279,12 @@ public class OrderService {
             return false;
         }
         //验证商品
-        if (null != good) {
-            Integer onsaleTime = good.getOnsaleTime();
-            Integer offsaleTime = good.getOffsaleTime();
+        if (null != goods) {
+            Integer onsaleTime = goods.getOnsaleTime();
+            Integer offsaleTime = goods.getOffsaleTime();
             int now = (int) (LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8")));
-            if (good.getOnsaleTime() <= now & now <= good.getOffsaleTime() & good.getIsSale() == 1) {
-                if (ifBuyNum <= good.getBuylimit() | good.getBuylimit() == -1) {
+            if (goods.getOnsaleTime() <= now & now <= goods.getOffsaleTime() & goods.getIsSale() == 1) {
+                if (ifBuyNum <= goods.getBuylimit() | goods.getBuylimit() == -1) {
                     return true;
                 }
             }
@@ -378,7 +377,7 @@ public class OrderService {
     //创建预下单对象
     private Order buildPreOrder(CreateOrderModel createOrderModel,
                                 Integer uid, String orderNo, AddressInfo addressInfo,
-                                Good good) {
+                                Goods goods) {
         Order order = new Order();
         order.setUid(uid);
         order.setGoodsId(createOrderModel.getGoodsSn());
@@ -408,7 +407,7 @@ public class OrderService {
         order.setOrderType(1);//平台交易
 
         if (null != createOrderModel.getSpecId()) {
-            List<GoodsSpec> goodsSpecs = good.getGoodsSpec();
+            List<GoodsSpec> goodsSpecs = goods.getGoodsSpec();
             if (goodsSpecs.size() > 0) {
                 List<GoodsSpec> list = goodsSpecs.stream().filter(g -> g.getId().equals(createOrderModel.getSpecId())).collect(Collectors.toList());
                 if (list.size() > 0) {
@@ -421,7 +420,7 @@ public class OrderService {
                 }
             }
         } else {
-            BigDecimal goodsPrice = good.getGoodsPrice();
+            BigDecimal goodsPrice = goods.getGoodsPrice();
             order.setGoodsPrice(goodsPrice);
             order.setChangePrice(goodsPrice.multiply(new BigDecimal(createOrderModel.getGoodsCount())));
             order.setPayPrice(order.getChangePrice());//实际支付价格

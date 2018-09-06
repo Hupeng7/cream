@@ -1,6 +1,6 @@
 package com.icecream.common.util.time;
 
-import com.icecream.common.model.requstbody.BaseTimeSection;
+import com.icecream.common.model.model.BaseTimeSection;
 
 import java.sql.Timestamp;
 import java.text.DateFormat;

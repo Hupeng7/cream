@@ -2,7 +2,7 @@ package com.icecream.user.service.token;
 
 import com.icecream.common.model.pojo.User;
 import com.icecream.common.model.pojo.UserStar;
-import com.icecream.common.model.requstbody.TokenInfo;
+import com.icecream.common.model.model.TokenInfo;
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;

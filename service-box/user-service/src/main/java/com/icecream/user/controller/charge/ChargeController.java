@@ -1,6 +1,6 @@
 package com.icecream.user.controller.charge;
 
-import com.icecream.common.model.requstbody.ChargeParamContainer;
+import com.icecream.common.model.model.ChargeParamContainer;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.aspect.annotation.Pay;
 import com.icecream.user.service.charge.ChargeMealService;

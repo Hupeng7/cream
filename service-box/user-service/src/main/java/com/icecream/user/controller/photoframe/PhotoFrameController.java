@@ -1,6 +1,6 @@
 package com.icecream.user.controller.photoframe;
 
-import com.icecream.common.model.requstbody.CreateSysPhotoFrameModel;
+import com.icecream.common.model.model.CreateSysPhotoFrameModel;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.service.photoframe.PhotoFrameService;
 import org.apache.ibatis.annotations.Param;

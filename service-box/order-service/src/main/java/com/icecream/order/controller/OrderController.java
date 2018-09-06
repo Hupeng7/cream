@@ -1,20 +1,17 @@
 package com.icecream.order.controller;
 
-import com.icecream.common.model.requstbody.CreateOrderModel;
+import com.icecream.common.model.model.CreateOrderModel;
 import com.icecream.common.util.req.RequestHandler;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.order.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.validator.constraints.Range;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.data.repository.query.Param;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Pattern;
 
 @Slf4j
 @RefreshScope

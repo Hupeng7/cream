@@ -1,7 +1,7 @@
 package com.icecream.user.controller.root;
 
 import com.icecream.common.model.pojo.User;
-import com.icecream.common.model.requstbody.*;
+import com.icecream.common.model.model.*;
 import com.icecream.user.config.login.AppIdConfig;
 import com.icecream.user.feignclients.CommentsClient;
 import com.icecream.common.util.res.ResultVO;

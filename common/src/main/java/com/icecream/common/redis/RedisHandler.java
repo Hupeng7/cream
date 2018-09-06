@@ -60,13 +60,6 @@ public class RedisHandler {
     private static Integer times = 5;
 
 
-    private static final String LOCK_SUCCESS = "OK";
-    private static final String SET_IF_NOT_EXIST = "NX";
-    private static final String SET_WITH_EXPIRE_TIME = "PX";
-    private static final Long RELEASE_SUCCESS = 1L;
-
-
-
     public static double getCreateTimeScore(long date) {
         return date / 100000.0;
     }

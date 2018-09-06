@@ -1,6 +1,6 @@
 package com.icecream.user.controller.register;
 
-import com.icecream.common.model.requstbody.*;
+import com.icecream.common.model.model.*;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.service.register.UserRegisterService;

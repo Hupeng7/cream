@@ -41,8 +41,8 @@ zuul:
       path: /comment-api/**
       serviceId: comment-service
     good-api:
-      path: /good-api/**
-      serviceId: good-service
+      path: /goods-api/**
+      serviceId: goods-service
 #    ratelimit:
 #      enabled: true
 #      repository: redis

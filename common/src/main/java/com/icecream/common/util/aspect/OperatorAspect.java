@@ -1,6 +1,5 @@
 package com.icecream.common.util.aspect;
 
-import com.icecream.common.model.eunm.MethodName;
 import com.icecream.common.model.eunm.OperatorRole;
 import com.icecream.common.util.aspect.annotation.Operator;
 import com.icecream.common.util.check.PermissionChecker;
@@ -17,9 +16,6 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
-
-import static com.icecream.common.util.constant.SysConstants.FANS;
-import static com.icecream.common.util.constant.SysConstants.STAR;
 
 /**
  * @author Mr_h

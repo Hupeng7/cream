@@ -1,11 +1,6 @@
 package com.icecream.common.model.pojo;
 
-import com.alibaba.fastjson.annotation.JSONField;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.icecream.common.util.time.DateUtil;
 import lombok.Data;
-
-import java.util.Date;
 
 
 @Data

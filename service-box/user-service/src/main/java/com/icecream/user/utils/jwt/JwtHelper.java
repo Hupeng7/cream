@@ -2,17 +2,13 @@ package com.icecream.user.utils.jwt;
 
 import com.icecream.common.model.pojo.User;
 import com.icecream.common.model.pojo.UserStar;
-import com.icecream.common.model.requstbody.TokenInfo;
+import com.icecream.common.model.model.TokenInfo;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.validation.annotation.Validated;
 
 import javax.crypto.spec.SecretKeySpec;
-import javax.naming.ldap.PagedResultsControl;
 import javax.xml.bind.DatatypeConverter;
 import java.security.Key;
 import java.util.Date;
