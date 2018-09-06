@@ -22,14 +22,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.icecream.common.util.constant.SysConstants.DEV_SYS_PHOTOFRAME_PREFIX;
-import static com.icecream.common.util.constant.SysConstants.PRODUCT_SYS_PHOTOFRAME_PREFIX;
+import static com.icecream.common.util.constant.SysConstants.DEV_SYS_PHOTOFRAME_IMG_PREFIX;
+import static com.icecream.common.util.constant.SysConstants.PRODUCT_SYS_PHOTOFRAME_IMG_PREFIX;
 import static com.icecream.common.util.constant.SysConstants.SYS_PHOTOFRAME;
 
 /**
  * @author hp
  * @version 1.0
- * @description: ${description}
+ * @description: 头像框功能
  * @date: 16:36 2018/9/4 0004
  */
 @Slf4j
@@ -72,7 +72,7 @@ public class PhotoFrameService {
     }
 
     /**
-     * 获取系统头像框列表，加用户头像框信息
+     * 粉丝获取系统头像框列表，加用户头像框信息
      *
      * @param specialTokenId
      * @return
@@ -133,6 +133,12 @@ public class PhotoFrameService {
         return ResultUtil.success(photoFrameResponseModels);
     }
 
+    /**
+     * 版主获取头像框列表和是否佩戴
+     *
+     * @param specialTokenId
+     * @return
+     */
     public ResultVO listSysPhotoFrameWithStarInfo(String specialTokenId) {
         List<SysPhotoFrame> SysPhotoFrameList = listSysPhotoFrame();
         if (SysPhotoFrameList == null) {
@@ -161,9 +167,9 @@ public class PhotoFrameService {
 
     public String getSysPhotoFrameImgPrefix() {
         if ("pro".equals(environment)) {
-            return PRODUCT_SYS_PHOTOFRAME_PREFIX;
+            return PRODUCT_SYS_PHOTOFRAME_IMG_PREFIX;
         } else {
-            return DEV_SYS_PHOTOFRAME_PREFIX;
+            return DEV_SYS_PHOTOFRAME_IMG_PREFIX;
         }
     }
 

@@ -66,7 +66,7 @@ public interface SysConstants {
     /**
      * order 分布式锁 key
      */
-    String DISTRIBUTED_LOCK_IDENTIFICATION="order_lock";
+    String DISTRIBUTED_LOCK_IDENTIFICATION = "order_lock";
 
     /**
      * 系统头像框的redis前缀
@@ -76,7 +76,7 @@ public interface SysConstants {
     /**
      * 头像框img前缀 分为开发和生产环境
      */
-    String DEV_SYS_PHOTOFRAME_PREFIX = "http://pa8qtq20a.bkt.clouddn.com/";
-    String PRODUCT_SYS_PHOTOFRAME_PREFIX = "http://pa7ckvkli.bkt.clouddn.com/";
+    String DEV_SYS_PHOTOFRAME_IMG_PREFIX = "http://pa8qtq20a.bkt.clouddn.com/";
+    String PRODUCT_SYS_PHOTOFRAME_IMG_PREFIX = "http://pa7ckvkli.bkt.clouddn.com/";
 
 }
