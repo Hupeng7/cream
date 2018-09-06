@@ -40,10 +40,10 @@ public class OperatorAspect {
         String specialTokenId = request.getParameter("specialTokenId");
         OperatorRole role = operator.role();
         String name = role.name();
-        if(name.equals("FANS")){
-            if(!PermissionChecker.belongToConsumer(Integer.parseInt(specialTokenId))){
-                return ResultUtil.error(null,ResultEnum.NOT_AUTH);
-            }else {
+        if (name.equals("CONSUMER")) {
+            if (!PermissionChecker.belongToConsumer(Integer.parseInt(specialTokenId))) {
+                return ResultUtil.error(null, ResultEnum.NOT_AUTH);
+            } else {
                 try {
                     return target.proceed();
                 } catch (Throwable throwable) {
@@ -51,10 +51,10 @@ public class OperatorAspect {
                     return ResultUtil.error(null, ResultEnum.NOT_AUTH);
                 }
             }
-        }else if(name.equals("CONSUMER")) {
-            if(!PermissionChecker.belongToStar(Integer.parseInt(specialTokenId))){
-                return ResultUtil.error(null,ResultEnum.NOT_AUTH);
-            }else {
+        } else if (name.equals("STAR")) {
+            if (!PermissionChecker.belongToStar(Integer.parseInt(specialTokenId))) {
+                return ResultUtil.error(null, ResultEnum.NOT_AUTH);
+            } else {
                 try {
                     return target.proceed();
                 } catch (Throwable throwable) {
@@ -62,7 +62,7 @@ public class OperatorAspect {
                     return ResultUtil.error(null, ResultEnum.NOT_AUTH);
                 }
             }
-        }else {
+        } else {
             throw new RuntimeException("未知异常");
         }
     }
