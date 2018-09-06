@@ -3,9 +3,6 @@ package com.icecream.user.controller.monitoring;
 
 import com.icecream.common.model.eunm.OperatorRole;
 import com.icecream.common.util.aspect.annotation.Operator;
-import com.icecream.common.util.check.PermissionChecker;
-import com.icecream.common.util.res.ResultEnum;
-import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.service.monitoring.MonitoringService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,8 +32,7 @@ public class MonitoringController {
      */
     @GetMapping("monitor/week")
     @Operator(role =OperatorRole.STAR)
-    public ResultVO getTheNumberOfUsersInWeek(@Param("specialTokenId") String specialTokenId,
-                                              @Param("year") Integer year, @Param("weekOfYear") Integer week) {
+    public ResultVO getTheNumberOfUsersInWeek(@Param("year") Integer year, @Param("weekOfYear") Integer week) {
         return monitoringService.getTheNumberOfUsersInWeek(year, week);
     }
 
@@ -48,7 +44,7 @@ public class MonitoringController {
      */
     @GetMapping("monitor/all")
     @Operator(role = OperatorRole.STAR)
-    public ResultVO getTheTotalNumberOfUsers(@Param("specialTokenId") String specialTokenId) {
+    public ResultVO getTheTotalNumberOfUsers() {
         return monitoringService.GetTheTotalNumberOfUsers();
     }
 }

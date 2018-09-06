@@ -55,7 +55,7 @@ public class OperatorAspect {
                     return ResultUtil.error(null, ResultEnum.NOT_AUTH);
                 }
             }
-        }else if(name.equals("STAR")) {
+        }else if(name.equals("CONSUMER")) {
             if(!PermissionChecker.belongToStar(Integer.parseInt(specialTokenId))){
                 return ResultUtil.error(null,ResultEnum.NOT_AUTH);
             }else {

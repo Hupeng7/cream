@@ -8,5 +8,5 @@ package com.icecream.common.model.eunm;
  */
 public enum  OperatorRole {
     STAR,
-    FANS;
+    CONSUMER;
 }
