@@ -81,7 +81,7 @@ public class JwtHelper {
 
         //添加构成JWT的参数
         JwtBuilder builder = Jwts.builder().setHeaderParam("typ", "jwt")
-                .claim("uid", star.getId())
+                .claim("uid", -star.getId())
                 .signWith(signatureAlgorithm, signingKey);
         //添加Token过期时间
         if (TTLMillis >= 0) {

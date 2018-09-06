@@ -1,7 +1,6 @@
-package com.icecream.user.aspect.annotation;
+package com.icecream.common.util.aspect.annotation;
 
-
-import com.icecream.common.model.eunm.MethodName;
+import com.icecream.common.model.eunm.OperatorRole;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -13,14 +12,13 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 /**
  * @author Mr_h
  * @version 1.0
- * description: 权限注解
- * create by Mr_h on 2018/7/23 0023
+ * description:
+ * create by Mr_h on 2018/9/6 0006
  */
 @Documented
 @Retention(RUNTIME)
 @Target(METHOD)
-public @interface Permission {
+public @interface Operator {
 
-    MethodName method();
-
+    OperatorRole role();
 }

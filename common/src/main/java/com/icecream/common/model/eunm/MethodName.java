@@ -1,4 +1,4 @@
-package com.icecream.common.model.pojo;
+package com.icecream.common.model.eunm;
 
 /**
  * @author Mr_h

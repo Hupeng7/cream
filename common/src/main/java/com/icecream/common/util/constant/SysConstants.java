@@ -12,6 +12,7 @@ package com.icecream.common.util.constant;
  * @version 1.0
  */
 public interface SysConstants {
+
     /**
      * code
      */
@@ -78,5 +79,12 @@ public interface SysConstants {
      */
     String DEV_SYS_PHOTOFRAME_IMG_PREFIX = "http://pa8qtq20a.bkt.clouddn.com/";
     String PRODUCT_SYS_PHOTOFRAME_IMG_PREFIX = "http://pa7ckvkli.bkt.clouddn.com/";
+
+    /**
+     * 接口权限设定
+     * 1明星 2粉丝
+     */
+    String STAR = "STAR";
+    String FANS = "FANS";
 
 }

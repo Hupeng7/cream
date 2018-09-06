@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.icecream.common.model.requstbody.TokenInfo;
 import com.icecream.common.util.json.JsonUtil;
+import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.zuul.feign.UserTokenFeignClient;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -159,7 +161,11 @@ public class TokenFilter extends ZuulFilter {
     private void setBadAuthResponse(RequestContext context) {
         context.setSendZuulResponse(false);
         context.setResponseStatusCode(401);
-        context.setResponseBody(JsonUtil.toJSONString(ResultUtil.error(401, "Unauthorized access")));
+        HttpServletResponse response = context.getResponse();
+        response.setContentType("application/json;charset=utf-8");
+        response.setCharacterEncoding("utf-8");
+        context.setResponse(response);
+        context.setResponseBody(JsonUtil.toJSONString(ResultUtil.error(null, ResultEnum.NOT_AUTH)));
     }
 
 

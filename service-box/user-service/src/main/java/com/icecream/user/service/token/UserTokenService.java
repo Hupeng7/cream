@@ -41,7 +41,7 @@ public class UserTokenService {
         TokenInfo tokenInfo = JwtHelper.parseJWT(token, jwtProperties.getStarSecret());
         if(tokenInfo!=null){
             UserStar userStar = new UserStar();
-            userStar.setId(tokenInfo.getUid());
+            userStar.setId(Math.abs(tokenInfo.getUid()));
             UserStar result = userStarMapper.selectOne(userStar);
             if(result!=null){
                 return ResultUtil.success(tokenInfo);
@@ -67,6 +67,14 @@ public class UserTokenService {
         User user = new User();
         user.setId(uid);
         User result = userMapper.selectOne(user);
+        String token = tokenBuilder.createToken(result);
+        return token;
+    }
+
+    public String getStarToken(Integer uid){
+        UserStar userStar = new UserStar();
+        userStar.setId(uid);
+        UserStar result = userStarMapper.selectOne(userStar);
         String token = tokenBuilder.createToken(result);
         return token;
     }

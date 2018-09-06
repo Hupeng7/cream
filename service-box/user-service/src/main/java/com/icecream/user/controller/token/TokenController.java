@@ -5,6 +5,8 @@ import com.icecream.user.service.token.UserTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * @author Mr_h
  * @version 2.0
@@ -34,12 +36,17 @@ public class TokenController {
      * @return ResultVo
      */
     @GetMapping("consumer")
-    public ResultVO checkConsumer(@RequestParam("token")String token){
+    public ResultVO checkConsumer(@RequestParam(value = "token")String token){
         return userTokenService.checkConsumer(token);
     }
 
     @GetMapping("getToken/{uid}")
     public String getToken(@PathVariable("uid") Integer uid){
        return userTokenService.getToken(uid);
+    }
+
+    @GetMapping("getStarToken/{uid}")
+    public String getStarToken(@PathVariable("uid") Integer uid){
+        return userTokenService.getStarToken(uid);
     }
 }

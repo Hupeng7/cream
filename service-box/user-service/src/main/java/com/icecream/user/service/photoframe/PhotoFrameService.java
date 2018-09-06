@@ -6,6 +6,7 @@ import com.icecream.common.model.requstbody.CreateSysPhotoFrameModel;
 import com.icecream.common.model.requstbody.PhotoFrameResponseModel;
 import com.icecream.common.model.requstbody.SysPhotoFrameAndUserInfo;
 import com.icecream.common.redis.RedisHandler;
+import com.icecream.common.util.check.PermissionChecker;
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
