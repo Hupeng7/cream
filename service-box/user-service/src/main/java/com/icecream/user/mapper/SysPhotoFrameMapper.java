@@ -27,5 +27,9 @@ public interface SysPhotoFrameMapper extends tk.mybatis.mapper.common.Mapper<Sys
     @ResultType(SysPhotoFrame.class)
     List<SysPhotoFrame> listSysPhotoFrameOrderByLevelAndSort();
 
+    @Select("SELECT MAX(sort) as maxSort FROM sys_photo_frame where level=#{level}")
+    @ResultType(Integer.class)
+    Integer getMaxSortByLevel(Integer level);
+
 
 }

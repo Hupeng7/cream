@@ -1,11 +1,12 @@
 package com.icecream.user.controller.photoframe;
 
+import com.icecream.common.model.requstbody.CreateSysPhotoFrameModel;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.service.photoframe.PhotoFrameService;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author hp
@@ -19,14 +20,24 @@ public class PhotoFrameController {
     @Autowired
     private PhotoFrameService photoFrameService;
 
-    @RequestMapping("list")
+    @GetMapping("list")
     public ResultVO listSysPhotoFrameWithUserInfo(@Param("specialTokenId") String specialTokenId) {
         return photoFrameService.listSysPhotoFrameWithUserInfo(specialTokenId);
     }
 
-    @RequestMapping("/star/list")
+    @GetMapping("/star/list")
     public ResultVO listSysPhotoFrameWithStarInfo(@Param("specialTokenId") String specialTokenId) {
         return photoFrameService.listSysPhotoFrameWithStarInfo(specialTokenId);
+    }
+
+    @PostMapping("/saveSysPhotoFrame")
+    public ResultVO saveSysPhotoFrame(@Param("specialTokenId") String specialTokenId, @Validated @RequestBody CreateSysPhotoFrameModel createSysPhotoFrameModel) {
+        return photoFrameService.saveSysPhotoFrame(Integer.parseInt(specialTokenId), createSysPhotoFrameModel);
+    }
+
+    @DeleteMapping("/deleteSysPhotoFrame/{id}")
+    public ResultVO deleteSysPhotoFrame(@Param("specialTokenId") String specialTokenId, @PathVariable("id") String id) {
+        return photoFrameService.deleteSysPhotoFrame(specialTokenId, id);
     }
 
 

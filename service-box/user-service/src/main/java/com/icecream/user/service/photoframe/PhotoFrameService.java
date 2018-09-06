@@ -2,6 +2,7 @@ package com.icecream.user.service.photoframe;
 
 import com.icecream.common.model.pojo.SysPhotoFrame;
 import com.icecream.common.model.pojo.UserPhotoFrame;
+import com.icecream.common.model.requstbody.CreateSysPhotoFrameModel;
 import com.icecream.common.model.requstbody.PhotoFrameResponseModel;
 import com.icecream.common.model.requstbody.SysPhotoFrameAndUserInfo;
 import com.icecream.common.redis.RedisHandler;
@@ -9,8 +10,10 @@ import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.common.util.time.DateUtil;
+import com.icecream.common.util.uuid.UUIDFactory;
 import com.icecream.user.mapper.SysPhotoFrameMapper;
 import com.icecream.user.mapper.UserPhotoFrameMapper;
+import com.sun.tools.javac.main.Main;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -173,4 +176,49 @@ public class PhotoFrameService {
         }
     }
 
+    /**
+     * 新增系统头像框,并清除redis缓存
+     *
+     * @param uid
+     * @param createSysPhotoFrameModel
+     * @return
+     */
+    public ResultVO saveSysPhotoFrame(int uid, CreateSysPhotoFrameModel createSysPhotoFrameModel) {
+        SysPhotoFrame sysPhotoFrame = new SysPhotoFrame();
+        Integer maxSort = sysPhotoFrameMapper.getMaxSortByLevel(createSysPhotoFrameModel.getLevel());
+        log.info("maxSort: " + maxSort);
+        if (maxSort != null) {
+            sysPhotoFrame.setSort(maxSort + 1);
+        } else {
+            sysPhotoFrame.setSort(1);
+        }
+        sysPhotoFrame.setId(UUIDFactory.create());
+        sysPhotoFrame.setName(createSysPhotoFrameModel.getName());
+        sysPhotoFrame.setGroupName(createSysPhotoFrameModel.getGroupName());
+        sysPhotoFrame.setImg(createSysPhotoFrameModel.getImg());
+        sysPhotoFrame.setPrice(createSysPhotoFrameModel.getPrice());
+        sysPhotoFrame.setLevel(createSysPhotoFrameModel.getLevel());
+        sysPhotoFrame.setCtime(DateUtil.getNowSecondIntTime());
+        int insert = sysPhotoFrameMapper.insertSelective(sysPhotoFrame);
+        log.info("插入结果: " + insert);
+        if (insert != 1) {
+            return ResultUtil.error("插入系统头像框失败", ResultEnum.MYSQL_OPERATION_FAILED);
+        }
+        RedisHandler.remove(SYS_PHOTOFRAME);
+        return ResultUtil.success();
+    }
+
+    public ResultVO deleteSysPhotoFrame(String specialTokenId, String id) {
+        SysPhotoFrame sysPhotoFrame = new SysPhotoFrame();
+        sysPhotoFrame.setId(id);
+        Short updateIsInuse = 0;
+        sysPhotoFrame.setIsInuse(updateIsInuse);
+        int update = sysPhotoFrameMapper.updateByPrimaryKeySelective(sysPhotoFrame);
+        log.info("删除结果: " + update);
+        if (update != 1) {
+            return ResultUtil.error("删除系统头像框失败", ResultEnum.MYSQL_OPERATION_FAILED);
+        }
+        RedisHandler.remove(SYS_PHOTOFRAME);
+        return ResultUtil.success();
+    }
 }
