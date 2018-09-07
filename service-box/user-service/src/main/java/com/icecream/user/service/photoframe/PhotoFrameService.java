@@ -238,7 +238,7 @@ public class PhotoFrameService {
         }
 
         String checkIsWearUserPhotoFrame = RedisHandler.get(USER_PHOTOFRAME + SYMBOL_COLON + uid).toString();
-        if (sysPhotoFrameResult.getImg().equals(checkIsWearUserPhotoFrame)) {
+        if (sysPhotoFrameResult.getImg() != null && checkIsWearUserPhotoFrame.equals(sysPhotoFrameResult.getImg())) {
             return ResultUtil.success("该头像框已佩戴");
         }
 
