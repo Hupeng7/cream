@@ -236,8 +236,8 @@ public class PhotoFrameService {
         if (sysPhotoFrameResult == null) {
             return ResultUtil.error("未能获取该系统头像框", ResultEnum.PARAMS_ERROR);
         }
-
-        String checkIsWearUserPhotoFrame = RedisHandler.get(USER_PHOTOFRAME + SYMBOL_COLON + uid).toString();
+        Object object = RedisHandler.get(USER_PHOTOFRAME + SYMBOL_COLON + uid);
+        String checkIsWearUserPhotoFrame = object!=null?object.toString():"";
         if (sysPhotoFrameResult.getImg() != null && checkIsWearUserPhotoFrame.equals(sysPhotoFrameResult.getImg())) {
             return ResultUtil.success("该头像框已佩戴");
         }

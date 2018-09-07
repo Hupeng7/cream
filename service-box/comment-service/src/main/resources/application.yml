@@ -1,6 +1,7 @@
 #端口号
 server:
   port: 2007
+
 spring:
   profiles:
     active: dev
@@ -19,6 +20,15 @@ spring:
   sleuth:
     sampler:
       percentage: 1.0
+  redis:
+    timeout: 3000
+    host: 10.40.254.59
+    pool:
+      max-active: 8
+      max-wait: -1
+      max-idle: 8
+      min-idle: 0
+    database: 3
 #eureka客户端相关配置
 eureka:
   client:
