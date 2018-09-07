@@ -12,14 +12,13 @@ import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.context.annotation.ComponentScan;
 
 /**
- * springCloudApplication
- * 包含断路器，服务注册，boot项目依赖
+ *评论服务
  */
-@EnableCaching
 @EnableFeignClients
 @SpringCloudApplication
+@ComponentScan(basePackages = {"com.icecream.common","com.icecream.comment"})//托管类扫描路径
 public class CommentApplication {
-    public static void main(String[] args){
+    public static void main(String[] args) {
         SpringApplication.run(CommentApplication.class);
     }
 }

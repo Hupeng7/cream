@@ -1,9 +1,9 @@
 package com.icecream.order.service;
 
 import com.icecream.common.model.pojo.Wallet;
-import com.icecream.common.redis.RedisHandler;
 import com.icecream.common.util.time.DateUtil;
 import com.icecream.order.mapper.WalletMapper;
+import com.icecream.order.redis.RedisHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +30,9 @@ public class WalletService {
     @Autowired
     private WalletMapper walletMapper;
 
+    @Autowired
+    private RedisHandler redisHandler;
+
     //获取我的钱包余额
     public Wallet getMyWalletBalance(Integer uid) {
         return Optional.ofNullable(get(uid)).orElse(createDefaultWallet(uid));
@@ -38,12 +41,12 @@ public class WalletService {
     //获取用户的钱包余额
     public BigDecimal getBalance(Integer uid) {
         try {
-            Object balance = RedisHandler.get(USER_WALLET_PREFIX + SYMBOL_COLON + uid);
+            Object balance = redisHandler.get(USER_WALLET_PREFIX + SYMBOL_COLON + uid);
             if (null == balance) {
                 Wallet wallet = new Wallet();
                 wallet.setUid(uid);
                 Wallet result = walletMapper.selectOne(wallet);
-                RedisHandler.set(USER_WALLET_PREFIX + SYMBOL_COLON + uid, result.getBalance());
+                redisHandler.set(USER_WALLET_PREFIX + SYMBOL_COLON + uid, result.getBalance());
                 return result == null ? BigDecimal.ZERO : result.getBalance();
             } else {
                 return new BigDecimal(balance.toString());

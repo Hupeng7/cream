@@ -5,11 +5,11 @@ import com.icecream.common.model.pojo.User;
 import com.icecream.common.model.pojo.UserAuth;
 import com.icecream.common.model.pojo.UserPush;
 import com.icecream.common.model.model.*;
-import com.icecream.common.redis.RedisHandler;
 import com.icecream.user.config.login.AppIdConfig;
 import com.icecream.user.feignclients.OrderFeignClient;
 import com.icecream.user.mapper.UserMapper;
 import com.icecream.user.mapper.UserStarMapper;
+import com.icecream.user.redis.RedisHandler;
 import com.icecream.user.service.binding.UserAuthService;
 import com.icecream.user.service.code.CodeHandler;
 import com.icecream.user.service.push.UserPushService;
@@ -40,6 +40,9 @@ import static com.icecream.user.constants.Constants.TYPE_SMS;
 @Service
 @SuppressWarnings("all")
 public class UserService {
+
+    @Autowired
+    private RedisHandler redisHandler;
 
     @Autowired
     private OrderFeignClient orderFeignClient;
@@ -124,7 +127,7 @@ public class UserService {
             int count = userMapper.updateByPrimaryKeySelective(user);
             if (count > 0) {
                 User u = getUserInfoByUid(id);
-                RedisHandler.set(u.getId(),u);
+                redisHandler.set(u.getId(),u);
                 return ResultUtil.success(u);
             }
         }
@@ -153,7 +156,7 @@ public class UserService {
     public ResultVO<Object> getUserInfo(String uid) {
         try {
             if(uid==null||uid.equals("")) return ResultUtil.error(null,ResultEnum.TOKEN_INFO_ERROR);
-            Object o = RedisHandler.get(uid);
+            Object o = redisHandler.get(uid);
             if (o != null)
                 return ResultUtil.success(o);
             throw new RuntimeException("redis中数据为空");
@@ -306,7 +309,7 @@ public class UserService {
                     loginReturn.setToken(tokenBuilder.createToken(user));
                     loginReturn.setAdmin(getUserInfoByUid(uid));
                     User userInfo = userMapper.getCache(user.getId());
-                    RedisHandler.set(uid, userInfo);
+                    redisHandler.set(uid, userInfo);
                     return ResultUtil.success(loginReturn);
                 }
             }

@@ -1,22 +1,19 @@
-package com.icecream.common.redis;
+package com.icecream.good.redis;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.DataType;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.jedis.JedisConnection;
-import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.Transaction;
 import redis.clients.jedis.exceptions.JedisException;
 
 import javax.annotation.PostConstruct;
@@ -24,6 +21,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
+
 
 /**
  * @author Mr_h
@@ -37,7 +35,7 @@ import java.util.regex.Pattern;
 public class RedisHandler {
 
     @Autowired
-    private  RedisTemplate redisTemplate;
+    private RedisTemplate redisTemplate;
 
     private static RedisHandler redisHandler;
 
@@ -48,8 +46,8 @@ public class RedisHandler {
     }
 
 
-    public RedisConnection getConnection(){
-        RedisConnectionFactory connectionFactory =  redisHandler.redisTemplate.getConnectionFactory();
+    public RedisConnection getConnection() {
+        RedisConnectionFactory connectionFactory = redisHandler.redisTemplate.getConnectionFactory();
         RedisConnection connection = connectionFactory.getConnection();
         return connection;
     }
@@ -456,7 +454,7 @@ public class RedisHandler {
     }
 
 
-    public static boolean setExpireTime(String key, long expireTime,TimeUnit timeUnit) {
+    public static boolean setExpireTime(String key, long expireTime, TimeUnit timeUnit) {
         return redisHandler.redisTemplate.expire(key, expireTime, TimeUnit.SECONDS);
     }
 
@@ -485,7 +483,7 @@ public class RedisHandler {
         return (T) redisHandler.redisTemplate.boundHashOps(key).get(field);
     }
 
-    public static <K,V> void set(K key,V value){
+    public static <K, V> void set(K key, V value) {
         JSONObject jsonObject = (JSONObject) JSON.toJSON(value);
         set(String.valueOf(key), value);
     }
@@ -596,23 +594,24 @@ public class RedisHandler {
 
 
     //递减
-    public static Long decr(String key,long reduce) {
-        if(reduce<0){
-             throw  new RuntimeException("递减因子不能为0");
+    public static Long decr(String key, long reduce) {
+        if (reduce < 0) {
+            throw new RuntimeException("递减因子不能为0");
         }
-        return redisHandler.redisTemplate.opsForValue().increment(key,-reduce);
+        return redisHandler.redisTemplate.opsForValue().increment(key, -reduce);
     }
 
-    public static Long incr(String key,long increment) {
-        if(increment<0){
-            throw  new RuntimeException("递增因子不能为0");
+    public static Long incr(String key, long increment) {
+        if (increment < 0) {
+            throw new RuntimeException("递增因子不能为0");
         }
 
-        return redisHandler.redisTemplate.opsForValue().increment(key,increment);
+        return redisHandler.redisTemplate.opsForValue().increment(key, increment);
     }
 
     /**
      * 加锁
+     *
      * @param lockName       锁的key
      * @param acquireTimeout 获取超时时间(s)
      * @param timeout        锁的超时时间(ms)
@@ -628,11 +627,11 @@ public class RedisHandler {
             // 锁名，即key值
             String lockKey = "lock:" + lockName;
             // 超时时间，上锁后超过此时间则自动释放锁
-            int lockExpire = (int) (timeout/1000);
+            int lockExpire = (int) (timeout / 1000);
             // 获取锁的超时时间，超过这个时间则放弃获取锁
             while (0 < acquireTimeout) {
-                if (redisHandler.redisTemplate.opsForValue().setIfAbsent(lockKey,identifier)) {
-                    redisHandler.redisTemplate.expire(lockKey, lockExpire,TimeUnit.SECONDS);
+                if (redisHandler.redisTemplate.opsForValue().setIfAbsent(lockKey, identifier)) {
+                    redisHandler.redisTemplate.expire(lockKey, lockExpire, TimeUnit.SECONDS);
                     // 返回value值，用于释放锁时间确认
                     retIdentifier = identifier;
                     return retIdentifier;
@@ -660,21 +659,23 @@ public class RedisHandler {
     public static void releaseLock(String lockName, String identifier) {
         String lockKey = "lock:" + lockName;
         String value = RedisHandler.get(lockKey).toString();
-        if(value.equals(identifier)){
+        if (value.equals(identifier)) {
             RedisHandler.remove(lockKey);
         }
     }
 
     /**
      * 获取jedis对象
+     *
      * @return
      */
-    public static Jedis getJedis(){
-        Field jedisField  = ReflectionUtils.findField(JedisConnection.class, "jedis");
-        ReflectionUtils.makeAccessible(jedisField );
+    public static Jedis getJedis() {
+        Field jedisField = ReflectionUtils.findField(JedisConnection.class, "jedis");
+        ReflectionUtils.makeAccessible(jedisField);
         Jedis jedis = (Jedis) ReflectionUtils.getField(jedisField, redisHandler.redisTemplate.getConnectionFactory().getConnection());
         return jedis;
     }
+
 
 
 }

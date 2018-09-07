@@ -6,6 +6,7 @@ import com.icecream.comment.model.User;
 import com.icecream.comment.redis.RedisHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.cache.RedisCachePrefix;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -49,7 +50,6 @@ public class CommentsController {
     }
 
     @RequestMapping("hi")
-    @Cacheable(value = "comment",key = "comment2")
     public String backComments() {
         log.info("进来了");
         return "ok";
@@ -57,7 +57,6 @@ public class CommentsController {
 
 
     @RequestMapping("cache/{headline}")
-    @Cacheable(value = "comment", key = "'comment'.concat(#headline.toString())")
     public User springBootCache(@PathVariable("headline") Integer headline) {
         log.info("findUserById query from db, id: {}", headline);
         User user = getUser();

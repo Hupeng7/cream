@@ -92,4 +92,17 @@ public interface SysConstants {
     String STAR = "STAR";
     String FANS = "FANS";
 
+
+    /**
+     * 评论系统声明队列
+     */
+    String COMMENT_QUEUE ="comment-queue";
+    String COMMENT_HEADLINE_QUEUE="comment-headline-queue";
+    String COMMENT_CHANNEL_QUEUE = "comment-channel-queue";
+
+    /**
+     * 评论系统声明交换机
+     */
+    String COMMENT_EXCHANGE = "comment-dir-exchange";
+
 }

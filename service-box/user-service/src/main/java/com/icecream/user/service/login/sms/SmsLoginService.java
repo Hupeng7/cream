@@ -4,11 +4,11 @@ import com.icecream.common.model.pojo.User;
 import com.icecream.common.model.pojo.UserAuth;
 import com.icecream.common.model.model.LoginReturn;
 import com.icecream.common.model.model.SmsLoginOrRegisterParams;
-import com.icecream.common.redis.RedisHandler;
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.mapper.UserAuthMapper;
+import com.icecream.user.redis.RedisHandler;
 import com.icecream.user.service.code.chuanglan.ChuanglanSender;
 import com.icecream.user.service.register.UserRegisterService;
 import com.icecream.user.service.UserService;
@@ -42,6 +42,9 @@ public class SmsLoginService implements SuperLogin<SmsLoginOrRegisterParams> {
     @Autowired
     private ChuanglanSender chuanglanSender;
 
+    @Autowired
+    private RedisHandler redisHandler;
+
 
     /**
      * 手机验证码登录（有密码或者无密码）
@@ -52,7 +55,7 @@ public class SmsLoginService implements SuperLogin<SmsLoginOrRegisterParams> {
     public ResultVO login(SmsLoginOrRegisterParams smsLoginOrRegisterParams) {
         LoginReturn loginReturn = new LoginReturn();
         String key = smsLoginOrRegisterParams.getItucode() + smsLoginOrRegisterParams.getPhone();
-        int mirror = Integer.parseInt(RedisHandler.get(key).toString());
+        int mirror = Integer.parseInt(redisHandler.get(key).toString());
         UserAuth record = userRegisterService.isHaveBeenRegistered(key, smsLoginOrRegisterParams.getType());
         //验证码不正确
         if (mirror != smsLoginOrRegisterParams.getCode()) {

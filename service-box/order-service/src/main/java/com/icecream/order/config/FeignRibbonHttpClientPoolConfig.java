@@ -1,4 +1,4 @@
-package com.icecream.order.config.druid;
+package com.icecream.order.config;
 
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;

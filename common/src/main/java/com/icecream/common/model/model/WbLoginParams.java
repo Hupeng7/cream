@@ -15,6 +15,7 @@ public class WbLoginParams extends LoginBaseParams{
     @JSONField(name="uid")
     private String openId;
 
+
     @NotBlank(message = "accessToken不能为空")
     private String accessToken;
 

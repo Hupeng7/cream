@@ -10,14 +10,14 @@ spring:
   profiles:
     active: dev
   redis:
-    port: 6397
-    host: 10.40.254.59
-    pool:
-      min-idle: 0
-      max-idle: 8
-      max-wait: -1
-      max-active: 8
-    timeout: 2000
+      timeout: 3000
+      host: 10.40.254.59
+      pool:
+        max-active: 8
+        max-wait: -1
+        max-idle: 8
+        min-idle: 0
+      database: 1
   rabbitmq:
     host: 10.40.254.59
     port: 5672

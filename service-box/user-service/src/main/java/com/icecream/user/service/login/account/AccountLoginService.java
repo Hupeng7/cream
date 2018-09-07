@@ -5,10 +5,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.icecream.common.model.pojo.UserStar;
 import com.icecream.common.model.model.AccountLoginParams;
 import com.icecream.common.model.model.LoginReturn;
-import com.icecream.common.redis.RedisHandler;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.mapper.UserStarMapper;
+import com.icecream.user.redis.RedisHandler;
 import com.icecream.user.service.login.SuperLogin;
 import com.icecream.user.utils.jwt.TokenBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +43,7 @@ public class AccountLoginService implements SuperLogin<AccountLoginParams> {
         UserStar result = userStarMapper.selectOne(userStar);
         if(result.getPassword().equals(accountLoginParams.getPassword())){
             UserStar cache = userStarMapper.getCache(result.getId());
-            RedisHandler.set(cache.getId(),cache);
+            redisHandler.set(cache.getId(),cache);
             LoginReturn loginReturn = new LoginReturn();
             loginReturn.setAdmin(result);
             loginReturn.setToken(tokenBuilder.createToken(result));

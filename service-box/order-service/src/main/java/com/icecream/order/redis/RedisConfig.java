@@ -1,4 +1,4 @@
-package com.icecream.comment.redis;
+package com.icecream.order.redis;
 
 import com.alibaba.fastjson.parser.ParserConfig;
 import org.springframework.cache.annotation.CachingConfigurerSupport;

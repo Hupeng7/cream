@@ -19,15 +19,14 @@ spring:
       validationQuery: SELECT 'x'
       time-between-eviction-runs-millis: 60000
   redis:
-    host: 10.40.254.59
-    port: 6379
-    password:
-    pool:
-      max-active: 10
-      max-idle: 5
-      max-wait: -1
-      min-idle: 0
-    timeout: 0
+      timeout: 3000
+      host: 10.40.254.59
+      pool:
+        max-active: 8
+        max-wait: -1
+        max-idle: 8
+        min-idle: 0
+      database: 1
   #消息总线相关配置
   rabbitmq:
     host: 10.40.254.59

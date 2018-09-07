@@ -8,5 +8,5 @@ package com.icecream.comment.constants;
  */
 public interface CommentSysConstans {
 
-    String COMMENT_PREFIX ="comment";
+
 }

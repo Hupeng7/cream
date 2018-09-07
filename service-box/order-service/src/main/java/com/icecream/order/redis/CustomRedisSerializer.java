@@ -1,4 +1,4 @@
-package com.icecream.common.redis;
+package com.icecream.order.redis;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -13,12 +13,12 @@ import java.nio.charset.Charset;
  * description:redis序列化工具类
  * create by Mr_h on 2018/6/19 0019
  */
-public class FastJson2JsonRedisSerializer<T> implements RedisSerializer<T> {
+public class CustomRedisSerializer<T> implements RedisSerializer<T> {
 
     public static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
 
     private Class<T> clazz;
-    public FastJson2JsonRedisSerializer(Class<T> clazz) {
+    public CustomRedisSerializer(Class<T> clazz) {
         super();
         this.clazz = clazz;
     }

@@ -3,7 +3,6 @@ package com.icecream.order.service;
 import com.alibaba.fastjson.JSON;
 import com.icecream.common.model.pojo.*;
 import com.icecream.common.model.model.*;
-import com.icecream.common.redis.RedisHandler;
 import com.icecream.common.util.idbuilder.staticfactroy.SnowflakeGlobalIdFactory;
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
@@ -12,6 +11,7 @@ import com.icecream.common.util.time.DateUtil;
 import com.icecream.order.feignclient.GoodsFeignClient;
 import com.icecream.order.mapper.OrderMapper;
 import com.icecream.order.rabbit.RabbitSender;
+import com.icecream.order.redis.RedisHandler;
 import com.icecream.order.utils.math.TradesNoCreater;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +61,9 @@ public class OrderService {
 
     @Autowired
     private RabbitSender rabbitSender;
+
+    @Autowired
+    private RedisHandler redisHandler;
 
     public void initRedisBuyerInfo(Integer uid) {
         initWallet(uid);

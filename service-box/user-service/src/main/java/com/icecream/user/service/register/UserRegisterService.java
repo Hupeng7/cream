@@ -3,11 +3,11 @@ package com.icecream.user.service.register;
 import com.icecream.common.model.pojo.User;
 import com.icecream.common.model.pojo.UserAuth;
 import com.icecream.common.model.model.*;
-import com.icecream.common.redis.RedisHandler;
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.mapper.UserMapper;
+import com.icecream.user.redis.RedisHandler;
 import com.icecream.user.service.binding.UserAuthService;
 import com.icecream.user.service.code.CodeHandler;
 import com.icecream.user.service.push.UserPushService;
@@ -29,6 +29,9 @@ import java.util.Optional;
 @Service
 @SuppressWarnings("all")
 public class UserRegisterService {
+
+    @Autowired
+    private RedisHandler redisHandler;
 
     @Autowired
     private UserMapper userMapper;
@@ -166,7 +169,7 @@ public class UserRegisterService {
     private User register(Integer type, User args) {
         int userCount = userMapper.insertSelective(args);
         User userInfo = userMapper.getCache(args.getId());
-        RedisHandler.set(userInfo.getId(), userInfo);
+        redisHandler.set(userInfo.getId(), userInfo);
         int userAuthCount = userAuthService.insertUserAuthByType(args, type);
         int userRegisterCount = userPushService.insertUserPushByUserId(args);
         if (userAuthCount > 0 && userRegisterCount > 0)

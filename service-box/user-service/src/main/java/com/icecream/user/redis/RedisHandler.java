@@ -1,4 +1,4 @@
-package com.icecream.comment.redis;
+package com.icecream.user.redis;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;

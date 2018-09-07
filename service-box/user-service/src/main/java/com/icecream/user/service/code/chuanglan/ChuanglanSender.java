@@ -3,9 +3,9 @@ package com.icecream.user.service.code.chuanglan;
 import com.icecream.common.model.model.SmsLoginOrRegisterParams;
 import com.icecream.common.model.model.SmsOpenApiResponse;
 import com.icecream.common.model.model.SmsSendEntity;
-import com.icecream.common.redis.RedisHandler;
 import com.icecream.common.util.constant.SysConstants;
 import com.icecream.common.util.json.JsonUtil;
+import com.icecream.user.redis.RedisHandler;
 import com.icecream.user.service.code.CodeHandler;
 import com.icecream.user.utils.random.RandomCreator;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +34,9 @@ public class ChuanglanSender implements CodeHandler {
     @Autowired
     private Environment environment;
 
+    @Autowired
+    private RedisHandler redisHandler;
+
     @Override
     public String send(String itucode, String phone) {
         String url = environment.getProperty(SysConstants.SMS_CHUANGLAN_URL);
@@ -53,7 +56,7 @@ public class ChuanglanSender implements CodeHandler {
         SmsOpenApiResponse response = restTemplate.postForObject(url, formEntity, SmsOpenApiResponse.class);
         if("0".equals(response.getCode())){
             //向redis中存验证码，过期时间为10分钟
-            RedisHandler.set(itucode+phone,authCode.toString(),
+            redisHandler.set(itucode+phone,authCode.toString(),
                     Long.valueOf(environment.getProperty(SysConstants.SMS_CHUANGLAN_CODE_TIMEOUT)));
             return response.getCode();
         }
@@ -62,7 +65,7 @@ public class ChuanglanSender implements CodeHandler {
 
     @Override
     public Boolean check(String key,Integer code) {
-        int mirror = Integer.parseInt(RedisHandler.get(key).toString());
+        int mirror = Integer.parseInt(redisHandler.get(key).toString());
         if(mirror==code)
             return true;
         return false;
