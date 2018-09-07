@@ -216,7 +216,7 @@ public class PhotoFrameService {
     public ResultVO deleteSysPhotoFrame(String id) {
         SysPhotoFrame sysPhotoFrame = new SysPhotoFrame();
         sysPhotoFrame.setId(id);
-        Short updateIsInuse = 0;
+        Integer updateIsInuse = 0;
         sysPhotoFrame.setIsInuse(updateIsInuse);
         int update = sysPhotoFrameMapper.updateByPrimaryKeySelective(sysPhotoFrame);
         log.info("删除结果: " + update);
@@ -227,54 +227,56 @@ public class PhotoFrameService {
         return ResultUtil.success();
     }
 
-    public ResultVO saveStarUserPhotoFrame(String uid, String frameId) {
+    public ResultVO saveStarUserPhotoFrame(String specialTokenId, String frameId) {
         SysPhotoFrame sysPhotoFrame = new SysPhotoFrame();
         sysPhotoFrame.setId(frameId);
-        sysPhotoFrame.setIsInuse(Short.parseShort("1"));
+        sysPhotoFrame.setIsInuse(Integer.parseInt("1"));
         SysPhotoFrame sysPhotoFrameResult = sysPhotoFrameMapper.selectOne(sysPhotoFrame);
         log.info("系统头像框: " + sysPhotoFrameResult.toString());
         if (sysPhotoFrameResult == null) {
             return ResultUtil.error("未能获取该系统头像框", ResultEnum.PARAMS_ERROR);
         }
-        Object object = RedisHandler.get(USER_PHOTOFRAME + SYMBOL_COLON + uid);
-        String checkIsWearUserPhotoFrame = object!=null?object.toString():"";
+        Object object = RedisHandler.get(USER_PHOTOFRAME + SYMBOL_COLON + specialTokenId);
+        String checkIsWearUserPhotoFrame = object != null ? object.toString() : "";
         if (sysPhotoFrameResult.getImg() != null && checkIsWearUserPhotoFrame.equals(sysPhotoFrameResult.getImg())) {
             return ResultUtil.success("该头像框已佩戴");
         }
 
         UserPhotoFrame userPhotoFrame = new UserPhotoFrame();
-        Integer id = Integer.parseInt(uid);
-        userPhotoFrame.setUid(id);
-        userPhotoFrame.setIsInuse(Short.parseShort("1"));
+        Integer uid = Integer.parseInt(specialTokenId);
+        userPhotoFrame.setUid(uid);
+        userPhotoFrame.setIsInuse(Integer.parseInt("1"));
 
-        userPhotoFrame.setFrameId(sysPhotoFrame.getId());
+        userPhotoFrame.setFrameId(sysPhotoFrameResult.getId());
         UserPhotoFrame userPhotoFrameResult = userPhotoFrameMapper.selectOne(userPhotoFrame);
+        Boolean flag = false;
         if (userPhotoFrameResult == null) {
             userPhotoFrame.setId(UUIDFactory.create());
-            userPhotoFrame.setFrameImg(sysPhotoFrame.getImg());
+            userPhotoFrame.setFrameImg(sysPhotoFrameResult.getImg());
+            userPhotoFrame.setCtime(DateUtil.getNowSecondIntTime());
             userPhotoFrame.setIsWear((int) WEAR);
             userPhotoFrame.setEndTime(-1);
             int insert = userPhotoFrameMapper.insert(userPhotoFrame);
-        } else {
-            Boolean flag = wearUserPhotoFrame(userPhotoFrame, id);
         }
-
-
-        RedisHandler.set(USER_PHOTOFRAME + SYMBOL_COLON + uid, sysPhotoFrameResult.getImg());
-
-        return ResultUtil.success();
+        flag = wearUserPhotoFrame(uid, frameId);
+        if (flag) {
+            RedisHandler.set(USER_PHOTOFRAME + SYMBOL_COLON + uid, sysPhotoFrameResult.getImg());
+        } else {
+            return ResultUtil.error("佩戴头像框失败", ResultEnum.MYSQL_OPERATION_FAILED);
+        }
+        return ResultUtil.success(userPhotoFrame);
     }
 
     @Transactional(rollbackFor = Exception.class)
-    private Boolean wearUserPhotoFrame(UserPhotoFrame userPhotoFrame, Integer uid) {
-        List<UserPhotoFrame> list = userPhotoFrameMapper.selectExcept(userPhotoFrame.getUid(), userPhotoFrame.getFrameId());
-        int updateAll;
+    private Boolean wearUserPhotoFrame(Integer uid, String frameId) {
+        List<UserPhotoFrame> list = userPhotoFrameMapper.selectExcept(uid, frameId);
+        int updateAll = 0;
         if (list != null) {
-            updateAll = userPhotoFrameMapper.updateAllIsWear(uid, userPhotoFrame.getFrameId(), NOTWEAR);
+            updateAll = userPhotoFrameMapper.updateAllIsWear(uid, frameId, NOTWEAR);
         } else {
             updateAll = 1;
         }
-        int update = userPhotoFrameMapper.updateIsWear(uid, userPhotoFrame.getFrameId(), WEAR);
+        int update = userPhotoFrameMapper.updateIsWear(uid, frameId, WEAR);
         if (update > 0 && updateAll > 0) {
             return true;
         }

@@ -32,8 +32,8 @@ public class Constants {
     /**
      * 头像框是否佩戴
      */
-    public static final short WEAR = 1;
-    public static final short NOTWEAR = 0;
+    public static final Integer WEAR = 1;
+    public static final Integer NOTWEAR = 0;
 
 
 }

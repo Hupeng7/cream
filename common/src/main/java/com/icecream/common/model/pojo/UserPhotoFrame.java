@@ -33,7 +33,7 @@ public class UserPhotoFrame {
 
     private Integer isWear;
 
-    private Short IsInuse;
+    private Integer IsInuse;
 
 
 }

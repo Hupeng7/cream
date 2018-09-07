@@ -20,17 +20,23 @@ public interface UserPhotoFrameMapper extends tk.mybatis.mapper.common.Mapper<Us
     @ResultType(UserPhotoFrame.class)
     List<UserPhotoFrame> listUserPhotoFrame(String specialTokenId);
 
-    @Update("UPDATE user_photo_frame SET is_wear=#{notwear} WHERE uid=#{uid} AND is_inuse=1 AND frame_id <>#{frameId}")
+    @Update("UPDATE user_photo_frame SET is_wear=#{is_wear} WHERE uid=#{uid} AND is_inuse=1 AND frame_id <>#{frameId}")
     @ResultType(Integer.class)
-    int updateAllIsWear(Integer uid, String frameId, short notwear);
+    int updateAllIsWear(@Param("uid") Integer uid,
+                        @Param("frameId") String frameId,
+                        @Param("is_wear") Integer notWear);
 
-    @Update("UPDATE user_photo_frame SET is_wear={wear} WHERE uid=#{uid} AND is_inuse=1 AND frame_id=#{frameId}")
+    @Update("UPDATE user_photo_frame SET is_wear=#{is_wear} WHERE uid=#{uid} AND is_inuse=1 AND frame_id=#{frameId}")
     @ResultType(Integer.class)
-    int updateIsWear(Integer uid, String frameId, short wear);
+    int updateIsWear(@Param("uid") Integer uid,
+                     @Param("frameId") String frameId,
+                     @Param("is_wear") Integer wear);
 
     @Select("SELECT id,uid,frame_id as frameId,frame_img as frameImg,ctime,end_time as endTime,is_wear as isWear," +
             "is_inuse as isInuse FROM user_photo_frame WHERE uid=#{uid} AND is_inuse=1 AND frame_id<>#{frameId}")
-    List<UserPhotoFrame> selectExcept(Integer uid, String frameId);
+    @ResultType(List.class)
+    List<UserPhotoFrame> selectExcept(@Param(value = "uid") Integer uid,
+                                      @Param(value = "frameId") String frameId);
 
 
 }

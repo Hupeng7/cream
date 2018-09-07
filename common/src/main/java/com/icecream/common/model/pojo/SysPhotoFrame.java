@@ -35,7 +35,7 @@ public class SysPhotoFrame {
 
     private Integer ctime;
 
-    private Short isInuse;
+    private Integer isInuse;
 
 
 }

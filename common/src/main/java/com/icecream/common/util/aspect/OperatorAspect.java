@@ -70,7 +70,7 @@ public class OperatorAspect {
                     return target.proceed();
                 } catch (Throwable throwable) {
                     throwable.printStackTrace();
-                    return ResultUtil.error(null, ResultEnum.NOT_AUTH);
+                    return ResultUtil.error(null, ResultEnum.ERROR_UNKNOWN);
                 }
             }
         } else if (name.equals("STAR")) {
@@ -82,7 +82,7 @@ public class OperatorAspect {
                 } catch (Throwable throwable) {
                     throwable.printStackTrace();
                     log.error("出错了。");
-                    return ResultUtil.error(null, ResultEnum.NOT_AUTH);
+                    return ResultUtil.error(null, ResultEnum.ERROR_UNKNOWN);
                 }
             }
         } else {
