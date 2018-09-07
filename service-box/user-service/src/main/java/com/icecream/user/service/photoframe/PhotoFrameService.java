@@ -1,10 +1,10 @@
 package com.icecream.user.service.photoframe;
 
-import com.icecream.common.model.pojo.SysPhotoFrame;
-import com.icecream.common.model.pojo.UserPhotoFrame;
 import com.icecream.common.model.model.CreateSysPhotoFrameModel;
 import com.icecream.common.model.model.PhotoFrameResponseModel;
 import com.icecream.common.model.model.SysPhotoFrameAndUserInfo;
+import com.icecream.common.model.pojo.SysPhotoFrame;
+import com.icecream.common.model.pojo.UserPhotoFrame;
 import com.icecream.common.redis.RedisHandler;
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -25,6 +26,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.icecream.common.util.constant.SysConstants.*;
+import static com.icecream.user.constants.Constants.NOTWEAR;
+import static com.icecream.user.constants.Constants.WEAR;
 
 /**
  * @author hp
@@ -223,4 +226,60 @@ public class PhotoFrameService {
         RedisHandler.remove(SYS_PHOTOFRAME);
         return ResultUtil.success();
     }
+
+    public ResultVO saveStarUserPhotoFrame(String uid, String frameId) {
+        SysPhotoFrame sysPhotoFrame = new SysPhotoFrame();
+        sysPhotoFrame.setId(frameId);
+        sysPhotoFrame.setIsInuse(Short.parseShort("1"));
+        SysPhotoFrame sysPhotoFrameResult = sysPhotoFrameMapper.selectOne(sysPhotoFrame);
+        log.info("系统头像框: " + sysPhotoFrameResult.toString());
+        if (sysPhotoFrameResult == null) {
+            return ResultUtil.error("未能获取该系统头像框", ResultEnum.PARAMS_ERROR);
+        }
+
+        String checkIsWearUserPhotoFrame = RedisHandler.get(USER_PHOTOFRAME + SYMBOL_COLON + uid).toString();
+        if (sysPhotoFrameResult.getImg().equals(checkIsWearUserPhotoFrame)) {
+            return ResultUtil.success("该头像框已佩戴");
+        }
+
+        UserPhotoFrame userPhotoFrame = new UserPhotoFrame();
+        Integer id = Integer.parseInt(uid);
+        userPhotoFrame.setUid(id);
+        userPhotoFrame.setIsInuse(Short.parseShort("1"));
+
+        userPhotoFrame.setFrameId(sysPhotoFrame.getId());
+        UserPhotoFrame userPhotoFrameResult = userPhotoFrameMapper.selectOne(userPhotoFrame);
+        if (userPhotoFrameResult == null) {
+            userPhotoFrame.setId(UUIDFactory.create());
+            userPhotoFrame.setFrameImg(sysPhotoFrame.getImg());
+            userPhotoFrame.setIsWear((int) WEAR);
+            userPhotoFrame.setEndTime(-1);
+            int insert = userPhotoFrameMapper.insert(userPhotoFrame);
+        } else {
+            Boolean flag = wearUserPhotoFrame(userPhotoFrame, id);
+        }
+
+
+        RedisHandler.set(USER_PHOTOFRAME + SYMBOL_COLON + uid, sysPhotoFrameResult.getImg());
+
+        return ResultUtil.success();
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    private Boolean wearUserPhotoFrame(UserPhotoFrame userPhotoFrame, Integer uid) {
+        List<UserPhotoFrame> list = userPhotoFrameMapper.selectExcept(userPhotoFrame.getUid(), userPhotoFrame.getFrameId());
+        int updateAll;
+        if (list != null) {
+            updateAll = userPhotoFrameMapper.updateAllIsWear(uid, userPhotoFrame.getFrameId(), NOTWEAR);
+        } else {
+            updateAll = 1;
+        }
+        int update = userPhotoFrameMapper.updateIsWear(uid, userPhotoFrame.getFrameId(), WEAR);
+        if (update > 0 && updateAll > 0) {
+            return true;
+        }
+        return false;
+    }
+
+
 }

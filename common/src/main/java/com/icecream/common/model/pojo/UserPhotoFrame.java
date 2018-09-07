@@ -1,5 +1,6 @@
 package com.icecream.common.model.pojo;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import javax.persistence.GeneratedValue;
@@ -15,6 +16,7 @@ import javax.persistence.Table;
  */
 @Data
 @Table(name = "user_photo_frame")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserPhotoFrame {
     @Id
     private String id;
@@ -31,7 +33,7 @@ public class UserPhotoFrame {
 
     private Integer isWear;
 
-    private Integer IsInuse;
+    private Short IsInuse;
 
 
 }

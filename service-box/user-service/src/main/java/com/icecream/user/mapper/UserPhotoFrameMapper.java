@@ -1,10 +1,7 @@
 package com.icecream.user.mapper;
 
 import com.icecream.common.model.pojo.UserPhotoFrame;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Result;
-import org.apache.ibatis.annotations.ResultType;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 import tk.mybatis.mapper.common.MySqlMapper;
 
 import java.util.List;
@@ -22,4 +19,18 @@ public interface UserPhotoFrameMapper extends tk.mybatis.mapper.common.Mapper<Us
             "is_inuse as isInuse FROM user_photo_frame WHERE uid=#{specialTokenId} AND is_inuse=1")
     @ResultType(UserPhotoFrame.class)
     List<UserPhotoFrame> listUserPhotoFrame(String specialTokenId);
+
+    @Update("UPDATE user_photo_frame SET is_wear=#{notwear} WHERE uid=#{uid} AND is_inuse=1 AND frame_id <>#{frameId}")
+    @ResultType(Integer.class)
+    int updateAllIsWear(Integer uid, String frameId, short notwear);
+
+    @Update("UPDATE user_photo_frame SET is_wear={wear} WHERE uid=#{uid} AND is_inuse=1 AND frame_id=#{frameId}")
+    @ResultType(Integer.class)
+    int updateIsWear(Integer uid, String frameId, short wear);
+
+    @Select("SELECT id,uid,frame_id as frameId,frame_img as frameImg,ctime,end_time as endTime,is_wear as isWear," +
+            "is_inuse as isInuse FROM user_photo_frame WHERE uid=#{uid} AND is_inuse=1 AND frame_id<>#{frameId}")
+    List<UserPhotoFrame> selectExcept(Integer uid, String frameId);
+
+
 }

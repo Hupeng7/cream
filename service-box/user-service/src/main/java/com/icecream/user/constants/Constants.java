@@ -29,7 +29,11 @@ public class Constants {
     public static final int LOGIN = 1;
     public static final int CHARGE = 2;
 
-
+    /**
+     * 头像框是否佩戴
+     */
+    public static final short WEAR = 1;
+    public static final short NOTWEAR = 0;
 
 
 }

@@ -36,9 +36,4 @@ public class SysPhotoFrameAndUserInfo {
 
     private String endTimeNote;
 
-
-//    private SysPhotoFrame sysPhotoFrame;
-//
-//    private UserPhotoFrame userPhotoFrame;
-
 }

@@ -75,6 +75,11 @@ public interface SysConstants {
     String SYS_PHOTOFRAME = "sysphotoframe";
 
     /**
+     * 用户当前佩戴头像框的redis前缀
+     */
+    String USER_PHOTOFRAME = "userphotoframe";
+
+    /**
      * 头像框img前缀 分为开发和生产环境
      */
     String DEV_SYS_PHOTOFRAME_IMG_PREFIX = "http://pa8qtq20a.bkt.clouddn.com/";
