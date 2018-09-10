@@ -51,4 +51,11 @@ public class PhotoFrameController {
     public ResultVO saveStarUserPhotoFrame(@Param("specialTokenId") String specialTokenId, @PathVariable("id") String frameId) {
         return photoFrameService.saveStarUserPhotoFrame(specialTokenId, frameId);
     }
+
+    @PostMapping("/saveUserPhotoFrame/{id}")
+    @Operator(role = OperatorRole.CONSUMER)
+    public ResultVO saveUserPhotoFrame(@Param("specialTokenId") String specialTokenId, @PathVariable("id") String frameId) {
+        return photoFrameService.saveUserPhotoFrame(specialTokenId, frameId);
+    }
+
 }

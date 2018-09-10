@@ -35,5 +35,10 @@ public class Constants {
     public static final Integer WEAR = 1;
     public static final Integer NOTWEAR = 0;
 
+    /**
+     * 30天的秒数
+     */
+    public static final Integer MONTH_TO_SECOND = 2592000;
+
 
 }

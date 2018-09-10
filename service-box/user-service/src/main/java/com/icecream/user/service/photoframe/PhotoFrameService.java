@@ -5,7 +5,6 @@ import com.icecream.common.model.model.PhotoFrameResponseModel;
 import com.icecream.common.model.model.SysPhotoFrameAndUserInfo;
 import com.icecream.common.model.pojo.SysPhotoFrame;
 import com.icecream.common.model.pojo.UserPhotoFrame;
-import com.icecream.common.redis.RedisHandler;
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
@@ -13,6 +12,7 @@ import com.icecream.common.util.time.DateUtil;
 import com.icecream.common.util.uuid.UUIDFactory;
 import com.icecream.user.mapper.SysPhotoFrameMapper;
 import com.icecream.user.mapper.UserPhotoFrameMapper;
+import com.icecream.user.redis.RedisHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,8 +26,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.icecream.common.util.constant.SysConstants.*;
-import static com.icecream.user.constants.Constants.NOTWEAR;
-import static com.icecream.user.constants.Constants.WEAR;
+import static com.icecream.user.constants.Constants.*;
 
 /**
  * @author hp
@@ -227,12 +226,18 @@ public class PhotoFrameService {
         return ResultUtil.success();
     }
 
+    /**
+     * 版主佩戴头像框
+     *
+     * @param specialTokenId
+     * @param frameId
+     * @return
+     */
     public ResultVO saveStarUserPhotoFrame(String specialTokenId, String frameId) {
         SysPhotoFrame sysPhotoFrame = new SysPhotoFrame();
         sysPhotoFrame.setId(frameId);
         sysPhotoFrame.setIsInuse(Integer.parseInt("1"));
         SysPhotoFrame sysPhotoFrameResult = sysPhotoFrameMapper.selectOne(sysPhotoFrame);
-        log.info("系统头像框: " + sysPhotoFrameResult.toString());
         if (sysPhotoFrameResult == null) {
             return ResultUtil.error("未能获取该系统头像框", ResultEnum.PARAMS_ERROR);
         }
@@ -260,18 +265,27 @@ public class PhotoFrameService {
         }
         flag = wearUserPhotoFrame(uid, frameId);
         if (flag) {
-            RedisHandler.set(USER_PHOTOFRAME + SYMBOL_COLON + uid, sysPhotoFrameResult.getImg());
+            userPhotoFrame.setFrameImg(sysPhotoFrameResult.getImg());
+            redisWearUserPhotoFrame(uid, userPhotoFrameResult);
         } else {
             return ResultUtil.error("佩戴头像框失败", ResultEnum.MYSQL_OPERATION_FAILED);
         }
+        userPhotoFrame.setFrameImg(getSysPhotoFrameImgPrefix() + sysPhotoFrameResult.getImg());
         return ResultUtil.success(userPhotoFrame);
     }
 
+    /**
+     * 版主/粉丝佩戴头像框mysql操作
+     *
+     * @param uid
+     * @param frameId
+     * @return
+     */
     @Transactional(rollbackFor = Exception.class)
     private Boolean wearUserPhotoFrame(Integer uid, String frameId) {
         List<UserPhotoFrame> list = userPhotoFrameMapper.selectExcept(uid, frameId);
         int updateAll = 0;
-        if (list != null) {
+        if (list.size() > 0) {
             updateAll = userPhotoFrameMapper.updateAllIsWear(uid, frameId, NOTWEAR);
         } else {
             updateAll = 1;
@@ -281,6 +295,97 @@ public class PhotoFrameService {
             return true;
         }
         return false;
+    }
+
+    /**
+     * 粉丝佩戴头像框
+     *
+     * @param specialTokenId
+     * @param frameId
+     * @return
+     */
+    public ResultVO saveUserPhotoFrame(String specialTokenId, String frameId) {
+        /**
+         * 过程：
+         * 1.判断头像框是否存在 不存在跳出3003 存在继续  判断等级够不够 不够则跳出 够则继续
+         * 2.判断用户是否佩戴 已佩戴跳出2000  否则继续
+         * 3.未佩戴  若是price==0
+         *   判断用户是否拥有该图像框，已有 则佩戴
+         *   没有则插入， 佩戴
+         * 4.若是price>0 则购买，佩戴
+         *   判断用户是否拥有该图像框，已有图像框且不过期  则佩戴
+         *   没有则插入 ,过期则更新， 佩戴
+         */
+        SysPhotoFrame sysPhotoFrame = new SysPhotoFrame();
+        sysPhotoFrame.setId(frameId);
+        sysPhotoFrame.setIsInuse(Integer.parseInt("1"));
+        SysPhotoFrame sysPhotoFrameResult = sysPhotoFrameMapper.selectOne(sysPhotoFrame);
+        if (sysPhotoFrameResult == null) {
+            return ResultUtil.error("未能获取该系统头像框", ResultEnum.PARAMS_ERROR);
+        }
+        //todo 判断用户等级sysPhotoFrameResult.getLevel<=user.getLevel 继续；否则跳出
+        Object object = RedisHandler.get(USER_PHOTOFRAME + SYMBOL_COLON + specialTokenId);
+        String checkIsWearUserPhotoFrame = object != null ? object.toString() : "";
+        if (sysPhotoFrameResult.getImg() != null && checkIsWearUserPhotoFrame.equals(sysPhotoFrameResult.getImg())) {
+            return ResultUtil.success("该头像框已佩戴");
+        }
+        UserPhotoFrame userPhotoFrame = new UserPhotoFrame();
+        Integer uid = Integer.parseInt(specialTokenId);
+        userPhotoFrame.setUid(uid);
+        userPhotoFrame.setIsInuse(Integer.parseInt("1"));
+        userPhotoFrame.setFrameId(sysPhotoFrameResult.getId());
+        UserPhotoFrame userPhotoFrameResult = userPhotoFrameMapper.selectOne(userPhotoFrame);
+        if (sysPhotoFrameResult.getPrice().intValue() <= 0) {
+            if (userPhotoFrameResult == null) {
+                userPhotoFrame.setId(UUIDFactory.create());
+                userPhotoFrame.setFrameImg(sysPhotoFrameResult.getImg());
+                userPhotoFrame.setCtime(DateUtil.getNowSecondIntTime());
+                userPhotoFrame.setIsWear((int) WEAR);
+                userPhotoFrame.setEndTime(-1);
+                int insert = userPhotoFrameMapper.insert(userPhotoFrame);
+            }
+        } else {
+            if (userPhotoFrameResult != null) {
+                if (userPhotoFrameResult.getEndTime() > 0 && userPhotoFrameResult.getEndTime() < DateUtil.getNowSecondIntTime()) {
+                    //todo buyPhotoFrame
+                    //if true
+                    userPhotoFrame.setEndTime(DateUtil.getNowSecondIntTime() + MONTH_TO_SECOND);
+                    int updateEndTime = userPhotoFrameMapper.updateByPrimaryKeySelective(userPhotoFrame);
+                }
+            } else {
+                String userPhotoFrameUUID = UUIDFactory.create();
+                //todo check user balance
+                //先添加后购买
+                userPhotoFrame.setId(userPhotoFrameUUID);
+                userPhotoFrame.setFrameImg(sysPhotoFrameResult.getImg());
+                userPhotoFrame.setCtime(DateUtil.getNowSecondIntTime());
+                userPhotoFrame.setIsWear((int) WEAR);
+                userPhotoFrame.setEndTime(DateUtil.getNowSecondIntTime() + MONTH_TO_SECOND);
+                int insert = userPhotoFrameMapper.insert(userPhotoFrame);
+
+                //todo buyPhotoFrame
+            }
+        }
+
+        Boolean flag = false;
+        flag = wearUserPhotoFrame(uid, frameId);
+        if (flag) {
+            userPhotoFrame.setFrameImg(sysPhotoFrameResult.getImg());
+            redisWearUserPhotoFrame(uid, userPhotoFrame);
+        } else {
+            return ResultUtil.error("佩戴头像框失败", ResultEnum.MYSQL_OPERATION_FAILED);
+        }
+        userPhotoFrame.setFrameImg(getSysPhotoFrameImgPrefix() + sysPhotoFrameResult.getImg());
+        return ResultUtil.success(userPhotoFrame);
+    }
+
+    private void redisWearUserPhotoFrame(Integer uid, UserPhotoFrame userPhotoFrame) {
+        if (userPhotoFrame.getEndTime() < 0) {
+            RedisHandler.set(USER_PHOTOFRAME + SYMBOL_COLON + uid, userPhotoFrame.getFrameId());
+        } else {
+            Long ttl = (Long) userPhotoFrame.getEndTime().longValue() - DateUtil.getNowSecondIntTime();
+            RedisHandler.set(USER_PHOTOFRAME + SYMBOL_COLON + uid, userPhotoFrame.getFrameImg(), ttl);
+        }
     }
 
 
