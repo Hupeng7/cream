@@ -81,18 +81,12 @@ public class GoodsController {
         return goodsService.getGoodsByGoodsSn(goodsSn, specialTokenId);
     }
 
+
     /**
-     * 先行更新单规格商品库存或者多规格商品库存，再根据商品限购，用户限购判断是否能下单
-     *
-     * @param createOrderModel
-     * @return
+     * 订单系统异步调用
+     * @param goodsUpdateMessage 更新的数据模型
+     * @return int 是否更新成功
      */
-    @RequestMapping("check")
-    public void reduceStoreAndCheck(@RequestBody CreateOrderModel createOrderModel) {
-        goodsService.reduceStoreAndCheck(createOrderModel);
-    }
-
-
     @RequestMapping("updateGoodsNum")
     public int updateGoodsNum(@RequestBody GoodsUpdateMessage goodsUpdateMessage) {
         return goodsService.updateGoodsNum(goodsUpdateMessage);

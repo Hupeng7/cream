@@ -8,6 +8,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.client.SpringCloudApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.hystrix.EnableHystrix;
@@ -22,9 +23,7 @@ import org.springframework.web.client.RestTemplate;
  * 商品服务
  */
 @EnableFeignClients
-@EnableHystrix
-@EnableDiscoveryClient
-@SpringBootApplication
+@SpringCloudApplication
 @EnableConfigurationProperties
 @ComponentScan(basePackages = {"com.icecream.common","com.icecream.good"})
 public class GoodServiceApplication {

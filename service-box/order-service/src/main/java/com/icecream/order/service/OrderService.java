@@ -1,8 +1,11 @@
 package com.icecream.order.service;
 
 import com.alibaba.fastjson.JSON;
+import com.icecream.common.model.model.AddressInfo;
+import com.icecream.common.model.model.CreateOrderModel;
+import com.icecream.common.model.model.GoodsUpdateMessage;
+import com.icecream.common.model.model.SkillUpdateModel;
 import com.icecream.common.model.pojo.*;
-import com.icecream.common.model.model.*;
 import com.icecream.common.util.idbuilder.staticfactroy.SnowflakeGlobalIdFactory;
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
@@ -17,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
 import java.math.BigDecimal;
@@ -25,8 +27,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -37,9 +37,6 @@ import static com.icecream.common.util.constant.SysConstants.*;
 @Service
 @SuppressWarnings("all")
 public class OrderService {
-
-    @Value("${thread.isSync}")
-    private boolean isSync;
 
     @Autowired
     private OrderMapper orderMapper;
@@ -295,30 +292,6 @@ public class OrderService {
         return false;
     }
 
-    //创建订单涉及到多张表
-    @Transactional
-    private boolean transactionInsert(Order order) {
-        Integer uid = order.getUid();
-        String goodsId = order.getGoodsId();
-        int orderRow = insert(order);
-        expService.insertOrUpdateHandler(order.getUid(), order.getSid(), order.getGoodsPrice());
-        int pointRow = pointInoutService.insertPointInoutOrder(order.getGoodsPrice(), uid, order.getOrderNo());
-        return orderRow > 0 & pointRow > 0;
-    }
-
-
-    //异步创建订单
-    private void toAsynCreate(Order order) {
-        ExecutorService executor = Executors.newCachedThreadPool();
-        Runnable task = new Runnable() {
-            @Override
-            public void run() {
-                transactionInsert(order);
-            }
-        };
-        executor.submit(task);
-    }
-
     //插入订单数据
     public int insert(Order order) {
         return orderMapper.insertSelective(order);
@@ -375,7 +348,6 @@ public class OrderService {
         }
         return addressInfo;
     }
-
 
     //创建预下单对象
     private Order buildPreOrder(CreateOrderModel createOrderModel,

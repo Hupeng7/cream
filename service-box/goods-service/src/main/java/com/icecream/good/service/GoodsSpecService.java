@@ -23,16 +23,11 @@ public class GoodsSpecService {
     public GoodsSpec get(String id){
         return goodsSpecMapper.selectByPrimaryKey(id);
     }
-
     public List<GoodsSpec> getSpecList(String goodsSn){
         GoodsSpec goodsSpec = new GoodsSpec();
         goodsSpec.setGoodsSn(goodsSn);
         return goodsSpecMapper.select(goodsSpec);
     }
-
-
     public int update(GoodsSpec goodsSpec){return goodsSpecMapper.updateByPrimaryKeySelective(goodsSpec);}
-
-    public int inventoryReduction(Integer count,String id){return goodsSpecMapper.reduceSpecStock(count,id);}
 
 }

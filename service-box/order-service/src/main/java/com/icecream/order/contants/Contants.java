@@ -8,11 +8,6 @@ package com.icecream.order.contants;
  */
 public interface Contants {
 
-    Integer DEFAULT_PAGE_CURRENT = 1;
-
-    Integer DEFAULT_PAGE_SIZE = 15;
-
-
     /**
      * 业务流水常量
      */

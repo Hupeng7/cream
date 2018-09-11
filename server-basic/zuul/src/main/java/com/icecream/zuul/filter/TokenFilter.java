@@ -75,7 +75,6 @@ public class TokenFilter extends ZuulFilter {
         RequestContext ctx = getCurrentContext();
         String token = ctx.getRequest().getParameter("access_token");
         if (token == null) {
-            //如果token没有,不允许访问api
             log.error("token is null ...");
             setBadAuthResponse(ctx);
         } else {

@@ -1,4 +1,4 @@
-package com.icecream.order.config;
+package com.icecream.order.config.ribbon;
 
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;

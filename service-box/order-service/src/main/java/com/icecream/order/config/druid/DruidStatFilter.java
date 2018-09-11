@@ -1,4 +1,4 @@
-package com.icecream.order.config;
+package com.icecream.order.config.druid;
 
 import com.alibaba.druid.support.http.WebStatFilter;
 

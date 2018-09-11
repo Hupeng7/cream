@@ -87,7 +87,6 @@ public class GoodsService implements ITxTransaction {
 
     }
 
-
     public ResultVO getDiscoverLabelList() {
         List<DiscoverDisplay> list = discoverDisplayMapper.getSortList();
         return ResultUtil.success(Optional.ofNullable(list).orElse(null));
@@ -241,102 +240,9 @@ public class GoodsService implements ITxTransaction {
         return goodsMapper.updateByPrimaryKey(goods);
     }
 
-    public int inventoryReduction(Integer buyNum, String goodsSn, Integer sid) {
-        return goodsMapper.reductionGoodsNum(buyNum, goodsSn, sid);
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    public void reduceStoreAndCheck(CreateOrderModel createOrderModel) {
-        GoodsStoreModel goodsStoreModel = null;
-        //商品库存
-        Integer store = 0;
-        //用户已经购买了多少件
-        Integer yetNum = 0;
-        //用户订单中的商品件数
-        Integer buyNum = createOrderModel.getGoodsCount();
-        //商品唯一标识
-        String goodsSn = createOrderModel.getGoodsSn();
-        //多规格标识
-        String specId = createOrderModel.getSpecId();
-        GoodsLimit userLimit = goodsLimitMapper.selectByGoodsSnAndUid(goodsSn, 0);
-        if (null != userLimit) {
-            yetNum = userLimit.getGoodsCount();
-        }
-        Goods result = get(goodsSn);
-        //用户还能买多少件该商品
-        Integer canBuyNum = result.getBuylimit() - yetNum;
-        if (null == specId) {
-            goodsStoreModel = reduceGoodsNumOrRollBack(createOrderModel);
-            if (goodsStoreModel != null) {
-                Integer buylimit = goodsStoreModel.getLimit();
-                store = goodsStoreModel.getStore();
-            }
-        } else {
-            goodsStoreModel = reduceGoodsSpecNumOrRollBack(createOrderModel);
-            if (goodsStoreModel != null) {
-                store = goodsStoreModel.getStore();
-            }
-        }
-        if (store.intValue() >= 0 & buyNum <= store & canBuyNum >= buyNum) {
-            RedisHandler.set("GoodsStore", JSON.toJSON(goodsStoreModel));
-        }
-
-    }
-
-    //获取某个单规格商品的库存和限购
-    public Goods getGoodsNum(String goodsSn, Integer sid) {
-        return goodsMapper.getGoodsNum(goodsSn, sid);
-    }
-
-    //先行减去库存(单规格商品)
-    public GoodsStoreModel reduceGoodsNumOrRollBack(CreateOrderModel createOrderModel) {
-        try {
-            String goodsSn = createOrderModel.getGoodsSn();
-            Integer sid = createOrderModel.getSid();
-            int row = inventoryReduction(createOrderModel.getGoodsCount(), goodsSn, sid);
-            Goods goods = getGoodsNum(goodsSn, sid);
-            GoodsStoreModel goodsStoreModel = new GoodsStoreModel();
-            goodsStoreModel.setFinalPrice(goods.getGoodsPrice());
-            goodsStoreModel.setLimit(goods.getBuylimit());
-            goodsStoreModel.setStore(goods.getGoodsNum());
-            log.info("库存参数----->" + goodsStoreModel.getStore());
-            if (goodsStoreModel.getStore() < 0) {
-                throw new Exception();
-            }
-            return goodsStoreModel;
-            //return Optional.ofNullable(goodsStoreModel).filter(g -> goodsStoreModel.getStore() >= 0).orElseThrow(Exception::new);
-        } catch (Exception e) {
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-            return null;
-        }
-    }
-
-    //先行减去库存(多规格商品)
-    @Transactional(rollbackFor = Exception.class)
-    public GoodsStoreModel reduceGoodsSpecNumOrRollBack(CreateOrderModel createOrderModel) {
-        try {
-            String goodsSn = createOrderModel.getGoodsSn();
-            Integer sid = createOrderModel.getSid();
-            String specId = createOrderModel.getSpecId();
-            int specRows = goodsSpecService.inventoryReduction(createOrderModel.getGoodsCount(), specId);
-            int goodsRows = inventoryReduction(createOrderModel.getGoodsCount(), goodsSn, sid);
-            Goods goods = getGoodsNum(goodsSn, sid);
-            GoodsSpec goodsSpec = goodsSpecService.get(specId);
-            Integer store = Arrays.asList(goods.getGoodsNum(), goodsSpec.getStock()).stream().min(Comparator.comparing(num -> num)).get();
-            GoodsStoreModel goodsStoreModel = new GoodsStoreModel();
-            goodsStoreModel.setFinalPrice(new BigDecimal(goodsSpec.getPrice()));
-            goodsStoreModel.setStore(store);
-            return Optional.ofNullable(goodsStoreModel).filter(g -> goodsStoreModel.getStore() > 0).orElseThrow(Exception::new);
-        } catch (Exception e) {
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-            return null;
-        }
-    }
-
     public List<Goods> getAll() {
         return goodsMapper.getAll();
     }
-
 
     @Transactional
     public int updateGoodsNum(GoodsUpdateMessage goodsUpdateMessage) {
