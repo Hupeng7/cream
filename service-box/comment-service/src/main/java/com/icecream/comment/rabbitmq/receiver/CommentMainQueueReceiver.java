@@ -10,7 +10,7 @@ import static com.icecream.common.util.constant.SysConstants.COMMENT_QUEUE;
 /**
  * @author Mr_h
  * @version 1.0
- * description:
+ * description: 评论主队列
  * create by Mr_h on 2018/9/11 0011
  */
 @Slf4j

@@ -10,7 +10,7 @@ import static com.icecream.common.util.constant.SysConstants.COMMENT_HEADLINE_QU
 /**
  * @author Mr_h
  * @version 1.0
- * description:
+ * description: 头条队列
  * create by Mr_h on 2018/9/11 0011
  */
 @Slf4j

@@ -10,7 +10,7 @@ import static com.icecream.common.util.constant.SysConstants.COMMENT_CHANNEL_QUE
 /**
  * @author Mr_h
  * @version 1.0
- * description:
+ * description: 频道队列
  * create by Mr_h on 2018/9/11 0011
  */
 @Slf4j
