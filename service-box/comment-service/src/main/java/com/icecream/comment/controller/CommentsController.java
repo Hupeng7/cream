@@ -3,6 +3,7 @@ package com.icecream.comment.controller;
 import com.alibaba.fastjson.JSON;
 import com.icecream.comment.model.Address;
 import com.icecream.comment.model.User;
+import com.icecream.comment.rabbitmq.sender.Sender;
 import com.icecream.comment.redis.RedisHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.icecream.common.util.constant.SysConstants.*;
+
 /**
  * @author mr_h
  * @version 1.0
@@ -28,6 +31,9 @@ public class CommentsController {
 
     @Autowired
     private RedisHandler redisHandler;
+
+    @Autowired
+    private Sender sender;
 
 
     @RequestMapping("go")
@@ -55,7 +61,6 @@ public class CommentsController {
         return "ok";
     }
 
-
     @RequestMapping("cache/{headline}")
     public User springBootCache(@PathVariable("headline") Integer headline) {
         log.info("findUserById query from db, id: {}", headline);
@@ -78,6 +83,17 @@ public class CommentsController {
         list.add(address1);
         user.setAddressList(list);
         return user;
+    }
+
+    @RequestMapping("queue")
+    public String toQueue(){
+        String msg1 = "hello,world,这里是评论系统，这条消息将发往评论主队列";
+        String msg2 = "hello,world,这里是评论系统，这条消息将发往评论频道队列";
+        String msg3 = "hello,world,这里是评论系统，这条消息将发往评论头条队列";
+        sender.send(COMMENT_EXCHANGE,COMMENT_QUEUE,msg1);
+        sender.send(COMMENT_EXCHANGE,COMMENT_CHANNEL_QUEUE,msg2);
+        sender.send(COMMENT_EXCHANGE,COMMENT_HEADLINE_QUEUE,msg3);
+        return "Send complete";
     }
 
 }
