@@ -1,6 +1,7 @@
 package com.icecream.order.service;
 
 import com.alibaba.fastjson.JSON;
+import com.codingapi.tx.annotation.TxTransaction;
 import com.icecream.common.model.model.AddressInfo;
 import com.icecream.common.model.model.CreateOrderModel;
 import com.icecream.common.model.model.GoodsUpdateMessage;
@@ -12,14 +13,16 @@ import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.common.util.time.DateUtil;
 import com.icecream.order.feignclient.GoodsFeignClient;
+import com.icecream.order.mapper.ExpMapper;
 import com.icecream.order.mapper.OrderMapper;
-import com.icecream.order.rabbit.RabbitSender;
+import com.icecream.order.mapper.WalletMapper;
+import com.icecream.order.rabbitmq.sender.Sender;
 import com.icecream.order.redis.RedisHandler;
 import com.icecream.order.utils.math.TradesNoCreater;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
 import java.math.BigDecimal;
@@ -57,10 +60,34 @@ public class OrderService {
     private SnowflakeGlobalIdFactory snowflakeGlobalIdFactory;
 
     @Autowired
-    private RabbitSender rabbitSender;
+    private Sender rabbitSender;
 
     @Autowired
     private RedisHandler redisHandler;
+
+    @Autowired
+    private ExpMapper expMapper;
+
+    @Autowired
+    private WalletMapper walletMapper;
+
+    @TxTransaction(isStart = true)
+    @Transactional
+    public void distributedTransactionInserting(String json){
+        SkillUpdateModel skillUpdateModel = JSON.parseObject(json, SkillUpdateModel.class);
+        Order order = skillUpdateModel.getOrder();
+        GoodsUpdateMessage goodsUpdateMessage = skillUpdateModel.getGoodsUpdateMessage();
+        Integer row1 = goodsFeignClient.updateGoodsStore(goodsUpdateMessage);
+        Integer row2 = expMapper.concurrentInsertExp(order.getSid(), order.getUid(), order.getChangePrice().intValue(), DateUtil.getNowSecondIntTime());
+        Integer row3 = walletMapper.reduceWalletBalance(order.getChangePrice(), order.getUid(), order.getSid());
+        Integer row4 = insert(order);
+        Integer row5 = pointInoutService.insertPointInoutOrder(order.getChangePrice(), order.getUid(), order.getOrderNo());
+        log.info("更新状态，{},{},{},{},{}",row1,row2,row3,row4,row5);
+        if(row1<=0|row2<=0|row3<=0|row4<=0&row5<=0){
+            throw new RuntimeException("事务更新失败，回滚");
+        }
+        //todo 插入错误数据表
+    }
 
     public void initRedisBuyerInfo(Integer uid) {
         initWallet(uid);
@@ -200,7 +227,7 @@ public class OrderService {
             SkillUpdateModel skillUpdateModel = getSkillUpdateModel(uid, createOrderModel, goodsUpdateMessage, order, finalOrder);
 
             log.info("开始加入队列..");
-            rabbitSender.sendOrderData(JSON.toJSONString(skillUpdateModel));
+            rabbitSender.send(ORDER_EXCHANGE,ORDER_QUEUE,JSON.toJSONString(skillUpdateModel));
 
             log.info("向redis写回下单成功的订单");
             RedisHandler.addMap(ORDER_HASH_PREFIX, order.getOrderNo(), JSON.toJSONString(finalOrder));

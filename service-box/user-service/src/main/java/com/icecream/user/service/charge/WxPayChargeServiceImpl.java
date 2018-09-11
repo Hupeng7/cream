@@ -9,9 +9,8 @@ import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.common.util.time.DateUtil;
 import com.icecream.user.config.charge.WxPayConfig;
-import com.icecream.user.feignclients.CommentsClient;
 import com.icecream.user.feignclients.OrderFeignClient;
-import com.icecream.user.rabbitmq.RabbitSender;
+import com.icecream.user.rabbitmq.sender.Sender;
 import com.icecream.user.utils.charge.PayCommonUtil;
 import com.icecream.user.utils.charge.RSAUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -27,10 +26,10 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
+import static com.icecream.common.util.constant.SysConstants.CHARGE_QUEUE;
+import static com.icecream.common.util.constant.SysConstants.ORDER_EXCHANGE;
 import static com.icecream.user.config.charge.WxPayConfig.*;
-import static com.icecream.user.constants.Constants.CHARGE;
 
 /**
  * @author Mr_h
@@ -47,7 +46,7 @@ public class WxPayChargeServiceImpl implements ChargeService {
     private SnowflakeGlobalIdFactory snowflakeGlobalIdFactory;
 
     @Autowired
-    private RabbitSender rabbitSender;
+    private Sender rabbitSender;
 
     @Autowired
     private OrderFeignClient orderFeignClient;
@@ -72,7 +71,7 @@ public class WxPayChargeServiceImpl implements ChargeService {
         }
         //第二次请求生成成功结果map
         SortedMap<String, Object> prePay = buildCallRemoteInterfaceParams(map);
-        rabbitSender.send(JSON.toJSONString(buildPreOrder(uid, trade_no, price)));
+        rabbitSender.send(ORDER_EXCHANGE,CHARGE_QUEUE,JSON.toJSONString(buildPreOrder(uid, trade_no, price)));
         try {
             //rsa加密
             String RsaDecode = getDecodeStr(prePay);

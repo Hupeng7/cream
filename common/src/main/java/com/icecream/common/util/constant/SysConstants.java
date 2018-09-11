@@ -28,12 +28,6 @@ public interface SysConstants {
     String USER_STAR = "star";
     String USER_CONSUMER = "consumer";
 
-
-    String ORDER_ROUTING_KEY = "order-queue";
-    String GOODS_ROUTING_KEY = "goods_queue";
-    String CHARGE_ROUTING_KEY = "charge-queue";
-
-
     /**
      * goods系统redis前缀
      */
@@ -105,4 +99,35 @@ public interface SysConstants {
      */
     String COMMENT_EXCHANGE = "comment-dir-exchange";
 
+    /**
+     * 用户系统队列
+     */
+    String USER_QUEUE = "user-queue";
+
+    /**
+     * 用户系统交换机
+     */
+    String USER_EXCHANGE = "user-dir-exchange";
+
+    /**
+     * 订单系统队列
+     */
+    String ORDER_QUEUE = "order-queue";
+    String CHARGE_QUEUE = "charge-queue";
+
+    /**
+     * 订单系统交换机
+     */
+    String ORDER_EXCHANGE = "order-dir-exchange";
+
+
+    /**
+     * 商品系统队列
+     */
+    String GOODS_QUEUE = "goods-queue";
+
+    /**
+     *商品系统交换机
+     */
+    String GOODS_EXCHANGE = "goods-dir-exchange";
 }

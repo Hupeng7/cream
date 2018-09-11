@@ -29,6 +29,6 @@ public interface GoodsFeignClient {
     @RequestMapping(value = "Goods/spec/get")
     GoodsSpec getSpec(@RequestParam("specId") String specId);
 
-    @RequestMapping(value = "Goods/updateGoodsNum")
-    int updateGoodsNum(GoodsUpdateMessage goodsUpdateMessage);
+    @RequestMapping(value = "Goods/updateGoodsStore")
+    int updateGoodsStore(GoodsUpdateMessage goodsUpdateMessage);
 }

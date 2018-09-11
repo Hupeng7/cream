@@ -34,8 +34,7 @@ public class GoodsFeignFallback implements GoodsFeignClient {
     }
 
     @Override
-    public int updateGoodsNum(GoodsUpdateMessage goodsUpdateMessage) {
+    public int updateGoodsStore(GoodsUpdateMessage goodsUpdateMessage) {
         throw new RuntimeException("更新失败");
     }
-
 }

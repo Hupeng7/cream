@@ -15,15 +15,17 @@ import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.feignclients.OrderFeignClient;
-import com.icecream.user.rabbitmq.RabbitSender;
+import com.icecream.user.rabbitmq.sender.Sender;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.net.URLEncoder;
 import java.time.LocalDate;
+
+import static com.icecream.common.util.constant.SysConstants.CHARGE_QUEUE;
+import static com.icecream.common.util.constant.SysConstants.ORDER_EXCHANGE;
 
 /**
  * @author Mr_h
@@ -40,20 +42,23 @@ public class AilPayChargeServiceImpl implements ChargeService {
     private SnowflakeGlobalIdFactory snowflakeGlobalIdFactory;
 
     @Autowired
-    private RabbitSender rabbitSender;
+    private Sender rabbitSender;
 
     @Autowired
     private OrderFeignClient orderFeignClient;
+
+    @Autowired
+    private Sender sender;
 
     @Override
     public ResultVO charge(@Param("specialTokenId")String uid, BigDecimal price) {
         String trade_no = LocalDate.now().toString().replace("-", "") + String.valueOf(snowflakeGlobalIdFactory.create().nextId());
         log.info("收到金额数据------>{},准备请求支付宝接口", price);
-      /*  String result = callAliPayOpenApi(uid,price);
+        String result = callAliPayOpenApi(uid,price);
         if(StringUtils.areNotEmpty(result)){
             return ResultUtil.success(result);
-        }*/
-        rabbitSender.send(JSON.toJSONString(buildPreOrder(uid, trade_no, price)));
+        }
+        sender.send(ORDER_EXCHANGE,CHARGE_QUEUE,JSON.toJSONString(buildPreOrder(uid, trade_no, price)));
         return ResultUtil.error("支付宝预下单请求失败",ResultEnum.PARAMS_ERROR);
     }
 
