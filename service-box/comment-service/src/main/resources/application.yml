@@ -7,6 +7,22 @@ spring:
     active: dev
   application:
     name: comment-service
+  datasource:
+      url: 'jdbc:mysql://10.40.254.59:4000/xgqoms?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&tinyInt1isBit=false&allowMultiQueries=true'
+      username: root
+      password: 2018
+      driver-class-name: 'com.mysql.jdbc.Driver'
+      type: com.alibaba.druid.pool.DruidDataSource
+      druid:
+        #最大连接数
+        max-active: 100
+        #最小连接数#
+        minIdle: 5
+        #获取连接最小等待时间（毫秒）
+        maxWait: 10000
+        #解决Mysql 8小时断开空闲连接的问题
+        validationQuery: SELECT 'x'
+        time-between-eviction-runs-millis: 60000
   #消息总线相关
   rabbitmq:
       host: 10.40.254.59
@@ -39,4 +55,12 @@ eureka:
     prefer-ip-address: true
     hostname: 10.40.255.238
     instance-id: ${spring.cloud.client.ipAddress}:${server.port}:${spring.application.name}
+
+#LCN相关配置
+init-db: true
+ribbon:
+  NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
+  MaxAutoRetriesNextServer: 0
+tm:
+  manager.url: http://10.40.255.238:8899/tx/manager/
 

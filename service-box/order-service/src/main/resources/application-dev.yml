@@ -81,7 +81,6 @@ ribbon:
   NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
   MaxAutoRetriesNextServer: 0
 
-
 tm:
   manager.url: http://10.40.255.238:8899/tx/manager/
 server:
