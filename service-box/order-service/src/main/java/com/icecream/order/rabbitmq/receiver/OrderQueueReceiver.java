@@ -31,7 +31,7 @@ import static com.icecream.common.util.constant.SysConstants.ORDER_QUEUE;
 @Component
 @SuppressWarnings("all")
 @RabbitListener(queues = ORDER_QUEUE)
-public class OrderConsumer {
+public class OrderQueueReceiver {
 
     @Autowired
     private OrderService orderService;
@@ -39,6 +39,11 @@ public class OrderConsumer {
     @RabbitHandler
     public void process(String msg) {
         log.info("Receiver  : " + msg);
-        orderService.distributedTransactionInserting(msg);
+        SkillUpdateModel skillUpdateModel = JSON.parseObject(msg, SkillUpdateModel.class);
+        GoodsUpdateMessage goodsUpdateMessage = skillUpdateModel.getGoodsUpdateMessage();
+        Order order = skillUpdateModel.getOrder();
+        orderService.preInserOrder(order);
+        orderService.distributedTransactionInserting(goodsUpdateMessage,order);
     }
+
 }

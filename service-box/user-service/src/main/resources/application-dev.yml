@@ -10,16 +10,21 @@ spring:
   profiles:
     active: dev
   rabbitmq:
-    host: 10.40.254.59
-    port: 5672
-    username: admin
-    password: 123456
-    listener:
-      simple:
-        retry:
-          enabled: true
-          max-attempts: 5
-        default-requeue-rejected: false
+        host: 10.40.254.59
+        port: 5672
+        username: admin
+        password: 123456
+        listener:
+          simple:
+            #消费次数如果大于重试上限是否丢弃消息
+            default-requeue-rejected: true
+            retry:
+              #重试次数
+              max-attempts: 3
+              #是否开启重试开关
+              enabled: true
+              #重试间隔
+              initial-interval: 3000
   redis:
       timeout: 3000
       host: 10.40.254.59

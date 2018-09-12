@@ -28,6 +28,7 @@ public class RabbitMqConfig {
         return new Queue(ORDER_QUEUE);
     }
 
+
     /**
      * 充值队列
      * @return
@@ -55,7 +56,7 @@ public class RabbitMqConfig {
      * @return
      */
     @Bean
-    Binding bindingExchangeMessageForCommentQueue(Queue orderQueue, DirectExchange exchange) {
+    Binding bindingExchangeMessageForOrderQueue(Queue orderQueue, DirectExchange exchange) {
         return BindingBuilder.bind(orderQueue).to(exchange).with(ORDER_QUEUE);
     }
 
@@ -67,7 +68,7 @@ public class RabbitMqConfig {
      * @return
      */
     @Bean
-    Binding bindingExchangeMessageBForHeadlineQueue(Queue chargeQueue, DirectExchange exchange) {
+    Binding bindingExchangeMessageBForChargeQueue(Queue chargeQueue, DirectExchange exchange) {
         return BindingBuilder.bind(chargeQueue).to(exchange).with(CHARGE_QUEUE);
     }
 

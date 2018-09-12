@@ -73,20 +73,36 @@ public class OrderService {
 
     @TxTransaction(isStart = true)
     @Transactional
-    public void distributedTransactionInserting(String json){
-        SkillUpdateModel skillUpdateModel = JSON.parseObject(json, SkillUpdateModel.class);
-        Order order = skillUpdateModel.getOrder();
-        GoodsUpdateMessage goodsUpdateMessage = skillUpdateModel.getGoodsUpdateMessage();
+    public void distributedTransactionInserting(GoodsUpdateMessage goodsUpdateMessage,Order order){
         Integer row1 = goodsFeignClient.updateGoodsStore(goodsUpdateMessage);
         Integer row2 = expMapper.concurrentInsertExp(order.getSid(), order.getUid(), order.getChangePrice().intValue(), DateUtil.getNowSecondIntTime());
         Integer row3 = walletMapper.reduceWalletBalance(order.getChangePrice(), order.getUid(), order.getSid());
-        Integer row4 = insert(order);
-        Integer row5 = pointInoutService.insertPointInoutOrder(order.getChangePrice(), order.getUid(), order.getOrderNo());
-        log.info("更新状态，{},{},{},{},{}",row1,row2,row3,row4,row5);
-        if(row1<=0|row2<=0|row3<=0|row4<=0&row5<=0){
+        Integer row4 = pointInoutService.insertPointInoutOrder(order.getChangePrice(), order.getUid(), order.getOrderNo());
+        log.info("更新状态，{},{},{},{}",row1,row2,row3,row4);
+        if(row1<=0|row2<=0|row3<=0|row4<=0){
             throw new RuntimeException("事务更新失败，回滚");
         }
-        //todo 插入错误数据表
+        //更新回订单状态为正常,如果此方法5条操作任何一个失败则回滚，订单停用状态不变，方便人工干预
+        order.setStatus(1);
+        int row5 = orderMapper.updateByPrimaryKeySelective(order);
+    }
+
+    public void preInserOrder(Order order) {
+        //将订单状态预先设置为停用，为了之后的事务抛出异常并且回滚之后有数据可以人工干预
+        order.setStatus(0);
+        Order query = query(order.getOrderNo(), order.getUid(), order.getSid());
+        if(query==null) {
+            Integer row =insert(order);
+        }
+    }
+
+    public Order query(String orderNo,Integer uid,Integer sid){
+        Order order = new Order();
+        order.setSid(sid);
+        order.setUid(uid);
+        order.setOrderNo(orderNo);
+        Order result = orderMapper.selectOne(order);
+        return result;
     }
 
     public void initRedisBuyerInfo(Integer uid) {
@@ -321,6 +337,11 @@ public class OrderService {
 
     //插入订单数据
     public int insert(Order order) {
+        return orderMapper.insertSelective(order);
+    }
+
+    //插入错误订单数据
+    public int insertErrorOrder(Order order) {
         return orderMapper.insertSelective(order);
     }
 

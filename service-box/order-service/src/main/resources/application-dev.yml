@@ -37,8 +37,9 @@ spring:
       simple:
             default-requeue-rejected: false
             retry:
-              max-attempts: 5
+              max-attempts: 3
               enabled: true
+              initial-interval: 3000
   zipkin:
     base-url: http://10.40.255.238:9411
   #链路追踪采样率，默认0.1 即10次请求只记录一次

@@ -114,6 +114,7 @@ public interface SysConstants {
      */
     String ORDER_QUEUE = "order-queue";
     String CHARGE_QUEUE = "charge-queue";
+    String ERROR_ORDER_QUEUE = "error-order-queue";
 
     /**
      * 订单系统交换机
