@@ -1,5 +1,7 @@
 package com.icecream.zuul.feign;
 
+import com.icecream.common.model.pojo.User;
+import com.icecream.common.model.pojo.UserStar;
 import com.icecream.common.util.res.ResultVO;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.stereotype.Component;
@@ -18,8 +20,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface UserTokenFeignClient {
 
     @RequestMapping(value = "user/token/star",method = RequestMethod.GET)
-    ResultVO checkStar(@RequestParam("token") String token);
+    UserStar checkStarByMysql(@RequestParam("uid") Integer uid);
 
     @RequestMapping(value = "user/token/consumer",method = RequestMethod.GET)
-    ResultVO checkConsumer(@RequestParam("token")String token);
+    User checkConsumerByMysql(@RequestParam("uid") Integer uid);
 }

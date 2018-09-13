@@ -1,21 +1,26 @@
 package com.icecream.user.controller.root;
 
+import com.alibaba.fastjson.JSON;
+import com.icecream.common.model.model.Password;
+import com.icecream.common.model.model.Phone;
+import com.icecream.common.model.model.SmsLoginOrRegisterParams;
 import com.icecream.common.model.pojo.User;
-import com.icecream.common.model.model.*;
+import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.config.login.AppIdConfig;
 import com.icecream.user.feignclients.CommentsClient;
-import com.icecream.common.util.res.ResultVO;
-import com.icecream.user.service.UserService;
 import com.icecream.user.feignclients.OrderFeignClient;
+import com.icecream.user.redis.RedisHandler;
+import com.icecream.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.repository.query.Param;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static com.icecream.common.util.constant.SysConstants.USER_HASH_PREFIX;
 
 /**
  * @version 2.0
@@ -40,7 +45,7 @@ UserController {
     private AppIdConfig appIdConfig;
 
     @Autowired
-    private RedisTemplate redisTemplate;
+    private RedisHandler redisHandler;
 
 /*    @RequestMapping("uid")
     public String selectCommentList(@RequestBody Map<String,Object> body) {
@@ -70,6 +75,13 @@ UserController {
         }
         return ResultUtil.error(null,ResultEnum.MYSQL_OPERATION_FAILED);
     }*/
+
+    @RequestMapping("loading")
+    public void loadingUserCache() {
+        userService.getList().stream().filter(user -> user != null & user.getId() != null)
+                .forEach(user -> redisHandler.addMap(USER_HASH_PREFIX,
+                        user.getId().toString(), JSON.toJSONString(user)));
+    }
 
     /**
      * 修改个人信息
@@ -109,9 +121,6 @@ UserController {
                                   @Param("specialTokenId") String specialTokenId) {
         return userService.isSetPassword(itucode, phone, specialTokenId);
     }
-
-
-
 
 
     @GetMapping("authCodes/{Code}/verify")
@@ -228,7 +237,7 @@ UserController {
 
 
     @GetMapping("getUserList")
-    public List<User> getUserList(){
+    public List<User> getUserList() {
         return userService.getList();
     }
 

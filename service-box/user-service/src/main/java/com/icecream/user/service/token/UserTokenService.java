@@ -11,8 +11,11 @@ import com.icecream.user.mapper.UserStarMapper;
 import com.icecream.user.utils.jwt.JwtHelper;
 import com.icecream.user.utils.jwt.JwtProperties;
 import com.icecream.user.utils.jwt.TokenBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.xml.transform.Result;
 
 /**
  * @author Mr_h
@@ -20,6 +23,7 @@ import org.springframework.stereotype.Service;
  * description:
  * create by Mr_h on 2018/7/17 0017
  */
+@Slf4j
 @Service
 @SuppressWarnings("all")
 public class UserTokenService {
@@ -36,34 +40,20 @@ public class UserTokenService {
     @Autowired
     private TokenBuilder tokenBuilder;
 
-    public ResultVO checkStar(String token){
-        if(token==null){return ResultUtil.error(null,ResultEnum.PARAMS_ERROR);}
-        TokenInfo tokenInfo = JwtHelper.parseJWT(token, jwtProperties.getStarSecret());
-        if(tokenInfo!=null){
-            UserStar userStar = new UserStar();
-            userStar.setId(Math.abs(tokenInfo.getUid()));
-            UserStar result = userStarMapper.selectOne(userStar);
-            if(result!=null){
-                return ResultUtil.success(tokenInfo);
-            }
-        }
-        return ResultUtil.error(null,ResultEnum.PARAMS_ERROR);
+
+    public UserStar checkStar(Integer uid) {
+        UserStar userStar = new UserStar();
+        userStar.setId(uid);
+        return userStarMapper.selectOne(userStar);
     }
 
-    public ResultVO checkConsumer(String token){
-        if(token==null){return ResultUtil.error(null,ResultEnum.PARAMS_ERROR);}
-        TokenInfo tokenInfo = JwtHelper.parseJWT(token, jwtProperties.getCustomerSecret());
-        if(tokenInfo!=null){
-            User user = new User();
-            user.setId(tokenInfo.getUid());
-            User result = userMapper.selectOne(user);
-            if(result!=null){
-                return ResultUtil.success(tokenInfo);
-            }
-        }
-        return ResultUtil.error(null,ResultEnum.PARAMS_ERROR);
+    public User checkConsumer(Integer uid) {
+        User user = new User();
+        user.setId(uid);
+        return userMapper.selectOne(user);
     }
-    public String getToken(Integer uid){
+
+    public String getToken(Integer uid) {
         User user = new User();
         user.setId(uid);
         User result = userMapper.selectOne(user);
@@ -71,7 +61,7 @@ public class UserTokenService {
         return token;
     }
 
-    public String getStarToken(Integer uid){
+    public String getStarToken(Integer uid) {
         UserStar userStar = new UserStar();
         userStar.setId(uid);
         UserStar result = userStarMapper.selectOne(userStar);

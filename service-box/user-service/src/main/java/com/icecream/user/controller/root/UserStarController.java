@@ -1,9 +1,12 @@
 package com.icecream.user.controller.root;
 
+import com.alibaba.fastjson.JSON;
 import com.icecream.common.model.pojo.UserStar;
 import com.icecream.common.model.model.PersonStatusInfo;
 import com.icecream.common.model.model.SimpleLogin;
 import com.icecream.common.util.res.ResultVO;
+import com.icecream.user.mapper.UserStarMapper;
+import com.icecream.user.redis.RedisHandler;
 import com.icecream.user.service.UserService;
 import com.icecream.user.service.UserStarService;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+import static com.icecream.common.util.constant.SysConstants.USER_HASH_PREFIX;
+import static com.icecream.common.util.constant.SysConstants.USER_STAR_HASH_PREFIX;
 
 /**
  * @author Mr_h
@@ -30,6 +38,17 @@ public class UserStarController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserStarMapper userStarMapper;
+
+
+    @RequestMapping("loading")
+    public void loadingUserCache() {
+        List<UserStar> userStars = userStarMapper.selectAll();
+        userStars.forEach(star -> {
+            RedisHandler.addMap(USER_STAR_HASH_PREFIX, star.getId().toString(), JSON.toJSONString(star));
+        });
+    }
 
     /**
      * 版主获取粉丝的信息

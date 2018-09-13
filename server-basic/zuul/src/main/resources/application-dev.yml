@@ -62,3 +62,8 @@ zuul:
 #order-api:
 #  ribbon:
 #    listOfServers: localhost,localhost
+token:
+  valid-time: 15778463000
+  refresh-time: 12000
+  star-secret: star
+  customer-secret: consumer

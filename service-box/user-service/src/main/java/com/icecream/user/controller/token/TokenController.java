@@ -1,5 +1,7 @@
 package com.icecream.user.controller.token;
 
+import com.icecream.common.model.pojo.User;
+import com.icecream.common.model.pojo.UserStar;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.service.token.UserTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,22 +24,22 @@ public class TokenController {
 
     /**
      * 版主端token验证
-     * @param token star开头的版主令牌
+     * @param uid star开头的版主令牌
      * @return ResultVo<T></>
      */
     @GetMapping("star")
-    public ResultVO checkStar(@RequestParam("token") String token){
-      return userTokenService.checkStar(token);
+    public UserStar checkStarByMysql(@RequestParam("uid") Integer uid){
+      return userTokenService.checkStar(uid);
     }
 
     /**
      * 粉丝端token验证
-     * @param token consumer开头的粉丝令牌
+     * @param uid consumer开头的粉丝令牌
      * @return ResultVo
      */
     @GetMapping("consumer")
-    public ResultVO checkConsumer(@RequestParam(value = "token")String token){
-        return userTokenService.checkConsumer(token);
+    public User checkConsumerByMysql(@RequestParam(value = "uid")Integer uid){
+        return userTokenService.checkConsumer(uid);
     }
 
     @GetMapping("getToken/{uid}")

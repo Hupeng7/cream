@@ -49,6 +49,7 @@ public interface SysConstants {
      * user系统的redis前缀
      */
     String USER_HASH_PREFIX = "users";
+    String USER_STAR_HASH_PREFIX = "stars";
 
     /**
      * 分割符号
