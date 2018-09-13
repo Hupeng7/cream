@@ -450,7 +450,7 @@ public class RedisHandler {
 
 
     public static void set(String key, Object value, Long expireTime) {
-        redisHandler.redisTemplate.boundValueOps(key).set(value, expireTime, TimeUnit.SECONDS);
+        redisHandler.redisTemplate.boundValueOps(key).set(value, expireTime);
     }
 
 

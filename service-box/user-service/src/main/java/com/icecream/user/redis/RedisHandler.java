@@ -450,12 +450,12 @@ public class RedisHandler {
 
 
     public static void set(String key, Object value, Long expireTime) {
-        redisHandler.redisTemplate.boundValueOps(key).set(value, expireTime, TimeUnit.SECONDS);
+        redisHandler.redisTemplate.boundValueOps(key).set(value, expireTime);
     }
 
 
     public static boolean setExpireTime(String key, long expireTime, TimeUnit timeUnit) {
-        return redisHandler.redisTemplate.expire(key, expireTime, TimeUnit.SECONDS);
+        return redisHandler.redisTemplate.expire(key, expireTime, timeUnit);
     }
 
 

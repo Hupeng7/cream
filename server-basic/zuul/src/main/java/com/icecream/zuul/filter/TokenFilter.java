@@ -33,8 +33,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
+import static com.icecream.common.util.constant.SysConstants.SYMBOL_COLON;
 import static com.icecream.common.util.constant.SysConstants.USER_HASH_PREFIX;
 import static com.icecream.common.util.constant.SysConstants.USER_STAR_HASH_PREFIX;
 import static com.netflix.zuul.context.RequestContext.getCurrentContext;
@@ -87,27 +89,26 @@ public class TokenFilter extends ZuulFilter {
     public ResultVO run() {
         RequestContext ctx = getCurrentContext();
         String token = ctx.getRequest().getParameter("access_token");
+        if (!requestLimit(token, ctx)) setToFastRequstResponse(ctx);
         if (!checkToken(ctx, token)) setBadAuthResponse(ctx);
         return null;
     }
 
     private boolean checkToken(RequestContext ctx, String token) {
         //token为空直接返回
-        boolean flag = false;
         if (token == null) return false;
 
         //解析token
         TokenInfo tokenInfo = tokenParser.parseToken(token);
         Integer uid = tokenInfo.getUid();
-
         if (uid > 0) {
             try {
                 Object mapField = RedisHandler.getMapField(USER_HASH_PREFIX, uid.toString());
                 User user = mapField != null ? JSON.parseObject(mapField.toString(), User.class)
-                                              : userTokenFeignClient.checkConsumerByMysql(uid);
+                        : userTokenFeignClient.checkConsumerByMysql(uid);
                 if (user != null) {
-                    flag = true;
                     setSuccessResponse(ctx, user.getId());
+                    return true;
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -117,17 +118,27 @@ public class TokenFilter extends ZuulFilter {
             try {
                 Object mapField = RedisHandler.getMapField(USER_STAR_HASH_PREFIX, uid.toString());
                 UserStar star = mapField != null ? JSON.parseObject(mapField.toString(), UserStar.class)
-                                                   : userTokenFeignClient.checkStarByMysql(uid);
+                        : userTokenFeignClient.checkStarByMysql(uid);
                 if (star != null) {
-                    flag = true;
                     setSuccessResponse(ctx, star.getId());
+                    return true;
                 }
             } catch (IOException e) {
                 e.printStackTrace();
                 return false;
             }
         }
-        return flag;
+        return false;
+    }
+
+    public boolean requestLimit(String token, RequestContext ctx) {
+        if (RedisHandler.get(token) != null) {
+            setBadAuthResponse(ctx);
+            return false;
+        }
+        RedisHandler.set(token, true);
+        RedisHandler.setExpireTime(token, 500, TimeUnit.MILLISECONDS);
+        return true;
     }
 
 
@@ -183,5 +194,16 @@ public class TokenFilter extends ZuulFilter {
         response.setCharacterEncoding("utf-8");
         context.setResponse(response);
         context.setResponseBody(JsonUtil.toJSONString(ResultUtil.error(null, ResultEnum.NOT_AUTH)));
+    }
+
+    //设置过滤器返回内容
+    private void setToFastRequstResponse(RequestContext context) {
+        context.setSendZuulResponse(false);
+        context.setResponseStatusCode(403);
+        HttpServletResponse response = context.getResponse();
+        response.setContentType("application/json;charset=utf-8");
+        response.setCharacterEncoding("utf-8");
+        context.setResponse(response);
+        context.setResponseBody(JsonUtil.toJSONString(ResultUtil.error(null, ResultEnum.REQUEST_TO_FAST)));
     }
 }

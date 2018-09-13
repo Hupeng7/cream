@@ -18,6 +18,7 @@ package com.icecream.common.util.res;
 public enum ResultEnum {
     NOT_AUTH(401,"您所在的用户组没有该权限"),
     NOT_FOUND(404, "不存在的映射路径"),
+    REQUEST_TO_FAST(403, "请求速度太快，歇会吧"),
     REQUEST_TYPE_TO_METHOD_NOT_ALLOW(405, "请求类型错误"),
     ERROR_UNKNOWN(500, "服务器跑路了呢.."),
     DATA_ERROR(1001,"数据转换错误"),
