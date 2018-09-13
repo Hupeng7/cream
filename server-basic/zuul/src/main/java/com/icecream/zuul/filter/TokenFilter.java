@@ -184,6 +184,4 @@ public class TokenFilter extends ZuulFilter {
         context.setResponse(response);
         context.setResponseBody(JsonUtil.toJSONString(ResultUtil.error(null, ResultEnum.NOT_AUTH)));
     }
-
-
 }

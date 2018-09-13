@@ -455,7 +455,7 @@ public class RedisHandler {
 
 
     public static boolean setExpireTime(String key, long expireTime, TimeUnit timeUnit) {
-        return redisHandler.redisTemplate.expire(key, expireTime, TimeUnit.SECONDS);
+        return redisHandler.redisTemplate.expire(key, expireTime, timeUnit);
     }
 
 

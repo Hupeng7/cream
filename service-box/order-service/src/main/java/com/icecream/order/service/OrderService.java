@@ -201,7 +201,7 @@ public class OrderService {
                 return ResultUtil.error("to fast request", ResultEnum.CREATE_ORDER_FAILED);
             } else {
                 RedisHandler.set(limitKey, true);
-                RedisHandler.setExpireTime(limitKey, 30, TimeUnit.SECONDS);
+                RedisHandler.setExpireTime(limitKey, 500, TimeUnit.MILLISECONDS);
             }
             if (null != createOrderModel.getSpecId()) {
                 String key = GOODS_STOCK_PREFIX + SYMBOL_COLON + createOrderModel.getGoodsSn() + SYMBOL_COLON + createOrderModel.getSpecId();
