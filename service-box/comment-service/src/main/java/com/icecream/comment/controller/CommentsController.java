@@ -1,18 +1,20 @@
 package com.icecream.comment.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.icecream.comment.feign.CallRemoteUrl;
 import com.icecream.comment.model.Address;
 import com.icecream.comment.model.User;
 import com.icecream.comment.rabbitmq.sender.Sender;
 import com.icecream.comment.redis.RedisHandler;
+import com.icecream.comment.service.CommentsService;
+import com.icecream.common.model.model.SendCode;
+import com.icecream.common.util.res.ResultVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.cache.RedisCachePrefix;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +37,8 @@ public class CommentsController {
     @Autowired
     private Sender sender;
 
+    @Autowired
+    private CommentsService commentsService;
 
     @RequestMapping("go")
     public String testRedis() {
@@ -68,6 +72,7 @@ public class CommentsController {
         return user;
     }
 
+
     private User getUser() {
         User user = new User();
         user.setName("mr_h");
@@ -85,6 +90,10 @@ public class CommentsController {
         return user;
     }
 
+    /**
+     * 队列发送与接收栗子
+     * @return
+     */
     @RequestMapping("queue")
     public String toQueue(){
         String msg1 = "hello,world,这里是评论系统，这条消息将发往评论主队列";
@@ -96,4 +105,28 @@ public class CommentsController {
         return "Send complete";
     }
 
+    /**
+     * feign调用外网api
+     * get请求栗子
+     * @return
+     */
+    @RequestMapping("url")
+    public String call(){
+        String token = "stareyJ0eXAiOiJqd3QiLCJhbGciOiJIUzI1NiJ9.eyJ1aWQiOi0yMDMsImV4cCI6MTU1MTk5MjI0NSwibmJmIjoxNTM2MjEzNzgyfQ.ZIE8kVDIi1FGsb5NEoGmV4jDeI5Rt-2s3NVggqqBcWU";
+        String call = commentsService.getCallData(token);
+        return call;
+    }
+
+    /**
+     * feign调用外网api
+     * 复杂post请求栗子
+     * @param sendCode
+     * @return
+     */
+    @PostMapping("url2")
+    public String call2(@RequestBody SendCode sendCode){
+        String token = "stareyJ0eXAiOiJqd3QiLCJhbGciOiJIUzI1NiJ9.eyJ1aWQiOi0yMDMsImV4cCI6MTU1MTk5MjI0NSwibmJmIjoxNTM2MjEzNzgyfQ.ZIE8kVDIi1FGsb5NEoGmV4jDeI5Rt-2s3NVggqqBcWU";
+        String call = commentsService.getCallData2(token,sendCode);
+        return call;
+    }
 }
