@@ -21,6 +21,16 @@
     </modules>
 
     <dependencies>
+        <!--参数校验-->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>5.3.1.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframwork.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
         <!--feign客户端依赖-->
         <dependency>
             <groupId>org.springframework.cloud</groupId>

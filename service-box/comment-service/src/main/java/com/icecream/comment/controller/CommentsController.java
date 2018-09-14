@@ -1,21 +1,19 @@
 package com.icecream.comment.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.icecream.comment.feign.CallRemoteUrl;
 import com.icecream.comment.model.Address;
 import com.icecream.comment.model.User;
 import com.icecream.comment.rabbitmq.sender.Sender;
 import com.icecream.comment.redis.RedisHandler;
 import com.icecream.comment.service.CommentsService;
 import com.icecream.common.model.model.SendCode;
-import com.icecream.common.util.res.ResultVO;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.redis.cache.RedisCachePrefix;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +26,7 @@ import static com.icecream.common.util.constant.SysConstants.*;
  */
 @Slf4j
 @RestController
+@Validated
 @RequestMapping("comment")
 public class CommentsController {
 
@@ -45,16 +44,16 @@ public class CommentsController {
         String key = "mr_h";
         redisHandler.set(key, 1);
         Object o = redisHandler.get(key);
-        if(o!=null)
+        if (o != null)
             log.info(o.toString());
         User user = getUser();
         String hsshKey = "hash";
         String fieldKey = "field";
-        redisHandler.addMap(hsshKey,fieldKey,JSON.toJSONString(user));
+        redisHandler.addMap(hsshKey, fieldKey, JSON.toJSONString(user));
         Object mapField = redisHandler.getMapField(hsshKey, fieldKey);
-        if(mapField!=null){
+        if (mapField != null) {
             User result = JSON.parseObject(mapField.toString(), User.class);
-            log.info("取出hash的值----{}",result);
+            log.info("取出hash的值----{}", result);
         }
         return "ok";
     }
@@ -91,27 +90,31 @@ public class CommentsController {
     }
 
     /**
+     *
      * 队列发送与接收栗子
+     *
      * @return
      */
     @RequestMapping("queue")
-    public String toQueue(){
+    public String toQueue() {
         String msg1 = "hello,world,这里是评论系统，这条消息将发往评论主队列";
         String msg2 = "hello,world,这里是评论系统，这条消息将发往评论频道队列";
         String msg3 = "hello,world,这里是评论系统，这条消息将发往评论头条队列";
-        sender.send(COMMENT_EXCHANGE,COMMENT_QUEUE,msg1);
-        sender.send(COMMENT_EXCHANGE,COMMENT_CHANNEL_QUEUE,msg2);
-        sender.send(COMMENT_EXCHANGE,COMMENT_HEADLINE_QUEUE,msg3);
+        sender.send(COMMENT_EXCHANGE, COMMENT_QUEUE, msg1);
+        sender.send(COMMENT_EXCHANGE, COMMENT_CHANNEL_QUEUE, msg2);
+        sender.send(COMMENT_EXCHANGE, COMMENT_HEADLINE_QUEUE, msg3);
         return "Send complete";
     }
 
     /**
      * feign调用外网api
      * get请求栗子
+     *
+     *
      * @return
      */
-    @RequestMapping("url")
-    public String call(){
+    @GetMapping("url")
+    public String call() {
         String token = "stareyJ0eXAiOiJqd3QiLCJhbGciOiJIUzI1NiJ9.eyJ1aWQiOi0yMDMsImV4cCI6MTU1MTk5MjI0NSwibmJmIjoxNTM2MjEzNzgyfQ.ZIE8kVDIi1FGsb5NEoGmV4jDeI5Rt-2s3NVggqqBcWU";
         String call = commentsService.getCallData(token);
         return call;
@@ -120,13 +123,28 @@ public class CommentsController {
     /**
      * feign调用外网api
      * 复杂post请求栗子
+     *
      * @param sendCode
      * @return
      */
     @PostMapping("url2")
-    public String call2(@RequestBody SendCode sendCode){
+    public String call2(@RequestBody SendCode sendCode) {
         String token = "stareyJ0eXAiOiJqd3QiLCJhbGciOiJIUzI1NiJ9.eyJ1aWQiOi0yMDMsImV4cCI6MTU1MTk5MjI0NSwibmJmIjoxNTM2MjEzNzgyfQ.ZIE8kVDIi1FGsb5NEoGmV4jDeI5Rt-2s3NVggqqBcWU";
-        String call = commentsService.getCallData2(token,sendCode);
+        String call = commentsService.getCallData2(token, sendCode);
         return call;
+    }
+
+
+    /**
+     * 参数校验
+     */
+    @GetMapping("verify")
+    public String verify(@NotBlank(message = "count参数不能为空") String count,
+                         @NotBlank(message = "comments参数不能为空")String comments,
+                         //@NotNull(message = "start参数不能为空")@AssertTrue(message = "非法开关1")Boolean start,
+                         @NotNull(message = "max参数不能为空") @Max(value = 10,message = "不能超过最大值")Integer max,
+                         @NotNull(message = "min参数不能为空")@Min(value = 1,message = "不能小于最小值")Integer min,
+                         @NotBlank(message = "手机号为空")@Pattern(regexp = "^\\d{11}$", message = "手机号码格式错误")String phone){
+        return "ok"+count+comments+max+min;
     }
 }

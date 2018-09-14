@@ -9,7 +9,9 @@ import org.springframework.cloud.client.SpringCloudApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.hystrix.EnableHystrix;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 
 /**
  *评论服务
@@ -21,4 +23,10 @@ public class CommentApplication {
     public static void main(String[] args) {
         SpringApplication.run(CommentApplication.class);
     }
+
+    @Bean
+    public MethodValidationPostProcessor methodValidationPostProcessor(){
+        return new MethodValidationPostProcessor();
+    }
+
 }
