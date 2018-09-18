@@ -8,5 +8,5 @@ spring:
     port: 5672
     username: admin
     password: 123456
-    host: 10.40.254.35
+    host: 10.40.254.59
 
