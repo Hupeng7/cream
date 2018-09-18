@@ -35,7 +35,7 @@ public class ChargeNotifyController {
         return aliPayNotifyService.aliNotify(request);
     }
 
-    @RequestMapping("wx")
+    @PostMapping("wx")
     public String handlerWxNotifyPayMessage(HttpServletRequest request, HttpServletResponse response) {
         return wxPayNotifyService.wxNotify(request,response);
     }

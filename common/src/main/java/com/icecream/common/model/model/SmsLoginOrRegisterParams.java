@@ -19,7 +19,6 @@ public class SmsLoginOrRegisterParams extends LoginBaseParams {
     @NotBlank(message = "手机号不能为空")
     private String phone;
 
-    @NotNull(message = "验证码不能为空")
     private Integer code;
 
     private String password;

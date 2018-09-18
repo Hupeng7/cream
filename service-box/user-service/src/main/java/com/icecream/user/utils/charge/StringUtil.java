@@ -128,12 +128,5 @@ public class StringUtil {
         return sb.toString();
     }
 
-    public static void main(String[] args){
-        //String a = StringUtil.supplementZeroGenerateThirteen(1000);
-        double a = 32.;
-        System.out.println(StringUtil.isNumeric("32."));
-        System.out.println(a);
-    }
-
 }
 

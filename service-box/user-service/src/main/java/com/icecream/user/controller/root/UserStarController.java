@@ -42,13 +42,13 @@ public class UserStarController {
     private UserStarMapper userStarMapper;
 
 
-    @RequestMapping("loading")
+    /*@RequestMapping("loading")
     public void loadingUserCache() {
         List<UserStar> userStars = userStarMapper.selectAll();
         userStars.forEach(star -> {
             RedisHandler.addMap(USER_STAR_HASH_PREFIX, star.getId().toString(), JSON.toJSONString(star));
         });
-    }
+    }*/
 
     /**
      * 版主获取粉丝的信息

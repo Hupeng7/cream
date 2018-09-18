@@ -10,6 +10,7 @@ import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.config.login.AppIdConfig;
 import com.icecream.user.service.UserService;
+import com.icecream.user.service.login.AbstractLoginSupport;
 import com.icecream.user.service.login.SuperLogin;
 import com.icecream.user.service.register.UserRegisterService;
 import com.icecream.user.utils.jwt.TokenBuilder;
@@ -24,7 +25,7 @@ import java.util.Map;
  */
 @Service
 @SuppressWarnings("all")
-public class WbLoginService implements SuperLogin<WbLoginParams> {
+public class WbLoginService extends AbstractLoginSupport implements SuperLogin<WbLoginParams> {
 
     @Autowired
     private AppIdConfig appIdConfig;
@@ -43,16 +44,14 @@ public class WbLoginService implements SuperLogin<WbLoginParams> {
 
     @Override
     public ResultVO login(WbLoginParams wbLoginParams) {
-        UserAuth record = userRegisterService.isHaveBeenRegistered(wbLoginParams.getOpenId(),
-                wbLoginParams.getType());
+        UserAuth record = userRegisterService.isHaveBeenRegistered(wbLoginParams.getOpenId(), wbLoginParams.getType());
         if (null == record) {
             ThirdPartUserInfo thirdPartUserInfo = callRemoteInterFaceForWxLogin(wbLoginParams);
             LoginReturn loginReturn = userRegisterService.toRegister(thirdPartUserInfo, wbLoginParams);
             return ResultUtil.success(loginReturn);
         }
         User user = userService.getUserInfoByUid(record.getUid());
-        String token = tokenBuilder.createToken(user);
-        return ResultUtil.success(new LoginReturn<>(user, token));
+        return ResultUtil.success(buildLoginSuccessReturn(user));
     }
 
 

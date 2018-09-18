@@ -6,7 +6,9 @@ import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.user.utils.factory.LoginFactory;
 import com.icecream.user.utils.factory.builder.FactoryBuilder;
+import com.icecream.user.utils.paramutils.ParamUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -19,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Optional;
 
 import static com.icecream.user.constants.Constants.LOGIN;
 
@@ -38,27 +41,34 @@ public class LoginAspect {
 
     @Around("loginParamsAop()")
     public Object doAround(ProceedingJoinPoint proceedingJoinPoint) throws IOException {
-        Object[] args = proceedingJoinPoint.getArgs();
-        LoginParamContainer loginParamContainer = new LoginParamContainer();
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        BufferedReader streamReader = new BufferedReader(new InputStreamReader(request.getInputStream(), "UTF-8"));
-        StringBuilder responseStrBuilder = new StringBuilder();
-        String inputStr;
-        while ((inputStr = streamReader.readLine()) != null)
-            responseStrBuilder.append(inputStr);
-        streamReader.close();
         try {
-            JSONObject jsonObject = JSONObject.parseObject(responseStrBuilder.toString());
+            //准备工作
+            LoginParamContainer loginParamContainer = new LoginParamContainer();
+            Object[] args = proceedingJoinPoint.getArgs();
+
+            //从请求中获取参数信息并验证
+            JSONObject jsonObject = ParamUtils.transitionParamsToJSONObject();
+            Optional.ofNullable(jsonObject).orElseThrow(Throwable::new);
             String type = jsonObject.getString("type");
             String body = jsonObject.getString("body");
-            loginParamContainer.setBody(body);
-            loginParamContainer.setType(Integer.parseInt(type));
-            LoginParamContainer result = ((LoginFactory)FactoryBuilder.build(LOGIN)).getObject(loginParamContainer);
+            Optional.ofNullable(jsonObject.getString("type")).orElseThrow(Throwable::new);
+            Optional.ofNullable(jsonObject.getString("body")).orElseThrow(Throwable::new);
+
+            //设置容器属性
+            loginParamContainer.setBody(jsonObject.getString("type")!=null?jsonObject.getString("type"):"");
+            loginParamContainer.setType(Integer.parseInt(jsonObject.getString("body")!=null?jsonObject.getString("body"):""));
+            LoginParamContainer result = ((LoginFactory) FactoryBuilder.build(LOGIN))
+                                                                       .getObject(loginParamContainer);
+            //将原来的参数结构替换掉
             args[0] = result;
+
             log.info("超级登录已部署");
+            //执行登录函数
             return proceedingJoinPoint.proceed(args);
         } catch (Throwable throwable) {
-            return ResultUtil.error(null,ResultEnum.PARAMS_ERROR);
+            log.error("登录失败,请检查参数");
+            throwable.printStackTrace();
+            return ResultUtil.error(null, ResultEnum.PARAMS_ERROR);
         }
     }
 }

@@ -9,7 +9,9 @@ import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.mapper.UserAuthMapper;
 import com.icecream.user.redis.RedisHandler;
+import com.icecream.user.service.code.CodeHandler;
 import com.icecream.user.service.code.chuanglan.ChuanglanSender;
+import com.icecream.user.service.login.AbstractLoginSupport;
 import com.icecream.user.service.register.UserRegisterService;
 import com.icecream.user.service.UserService;
 import com.icecream.user.service.login.SuperLogin;
@@ -25,7 +27,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @SuppressWarnings("all")
-public class SmsLoginService implements SuperLogin<SmsLoginOrRegisterParams> {
+public class SmsLoginService extends AbstractLoginSupport implements SuperLogin<SmsLoginOrRegisterParams> {
 
     @Autowired
     private UserAuthMapper userAuthMapper;
@@ -37,37 +39,39 @@ public class SmsLoginService implements SuperLogin<SmsLoginOrRegisterParams> {
     private UserService userService;
 
     @Autowired
-    private TokenBuilder tokenBuilder;
-
-    @Autowired
     private ChuanglanSender chuanglanSender;
 
     @Autowired
     private RedisHandler redisHandler;
 
+    @Autowired
+    private CodeHandler codeHandler;
+
 
     /**
-     * 手机验证码登录（有密码或者无密码）
+     * 手机验证码登录
+     * 1 有密码为手机号+密码登录
+     * 2 无密码为手机号+验证码快速登录
      * @param smsLoginOrRegisterParams 手机登录相关参数
      * @return
      */
     @Override
     public ResultVO login(SmsLoginOrRegisterParams smsLoginOrRegisterParams) {
-        LoginReturn loginReturn = new LoginReturn();
         String key = smsLoginOrRegisterParams.getItucode() + smsLoginOrRegisterParams.getPhone();
-        int mirror = Integer.parseInt(redisHandler.get(key).toString());
-        UserAuth record = userRegisterService.isHaveBeenRegistered(key, smsLoginOrRegisterParams.getType());
+        String value = redisHandler.get(key) == null ? "" : redisHandler.get(key).toString();
+        Boolean mirror = codeHandler.check(key, Integer.parseInt(value));
         //验证码不正确
-        if (mirror != smsLoginOrRegisterParams.getCode()) {
+        if (!mirror) {
             return ResultUtil.error(null, ResultEnum.CODE_AUTHENTICATION_FAILED);
         }
+        UserAuth record = userRegisterService.isHaveBeenRegistered(key, smsLoginOrRegisterParams.getType());
         //授权库存在登进记录
         if (record != null) {
             User user = userService.getUserInfoByUid(record.getUid());
-            return ResultUtil.success(new LoginReturn<>(user, tokenBuilder.createToken(user)));
+            return ResultUtil.success(buildLoginSuccessReturn(user));
         }
         //验证码正确且授权库没有记录，第一次注册
-        loginReturn = userRegisterService.toRegister(smsLoginOrRegisterParams);
+        LoginReturn loginReturn = userRegisterService.toRegister(smsLoginOrRegisterParams);
         return ResultUtil.success(loginReturn);
     }
 

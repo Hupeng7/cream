@@ -11,5 +11,5 @@ public interface UserStarMapper extends tk.mybatis.mapper.common.Mapper<UserStar
 
     @Select("select id,smallavatar,avatar,driver,role,status,sex,birthday,exp from user_star where id=#{uid}")
     @ResultType(UserStar.class)
-    UserStar getCache(Integer uid);
+    UserStar getUserStarBriefInfo(Integer uid);
 }

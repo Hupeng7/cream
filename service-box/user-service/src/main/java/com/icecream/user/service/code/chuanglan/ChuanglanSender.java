@@ -65,7 +65,7 @@ public class ChuanglanSender implements CodeHandler {
 
     @Override
     public Boolean check(String key,Integer code) {
-        int mirror = Integer.parseInt(redisHandler.get(key).toString());
+        int mirror =RedisHandler.get(key)!=null?Integer.parseInt(RedisHandler.get(key).toString()):0;
         if(mirror==code)
             return true;
         return false;

@@ -53,7 +53,7 @@ public class UserStarService {
             e.printStackTrace();
             log.error("从redis中取数据出错,开始从mysql中取得数据,错误{}", e.getStackTrace());
             try {
-                UserStar cache = userStarMapper.getCache(uid);
+                UserStar cache = userStarMapper.getUserStarBriefInfo(uid);
                 if (cache != null)
                     return ResultUtil.success(cache);
                 return ResultUtil.error(null, ResultEnum.QUERY_RESULT_IS_NULL);
@@ -71,7 +71,7 @@ public class UserStarService {
         userStar.setUsername(simpleLogin.getAccount());
         UserStar result = userStarMapper.selectOne(userStar);
         if(result.getPassword().equals(simpleLogin.getPassword())){
-            UserStar cache = userStarMapper.getCache(result.getId());
+            UserStar cache = userStarMapper.getUserStarBriefInfo(result.getId());
             setUserStarInfoToRedis(cache);
             LoginReturn loginReturn = new LoginReturn();
             loginReturn.setAdmin(result);

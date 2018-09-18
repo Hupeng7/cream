@@ -25,6 +25,16 @@ public class LoginController {
     private LoginService loginService;
 
 
+    /**
+     * 用户登录支持
+     * 粉丝端登录方式：
+     * 1.手机验证码快速登录
+     * 2.手机密码登录
+     * 3.第三方登录(qq,微信,微博)
+     * 版主端登录方式：账号密码登录
+     * @param loginParamContainer 前端传递的参数容器
+     * @return ResultVo<LoginReturn>
+     */
     @LoginHandler
     @PostMapping("superLogin")
     public ResultVO<LoginReturn> superLogin(LoginParamContainer loginParamContainer){

@@ -59,6 +59,7 @@ public class UserRegisterService {
         User user = cover(thirdPartUserInfo, qqLoginParams);
         User register = register(qqLoginParams.getType(), user);
         if (register!=null) {
+            redisHandler.set(register.getId(), register);
             return new LoginReturn(register, tokenBuilder.createToken(user));
         }
         return null;
@@ -69,6 +70,7 @@ public class UserRegisterService {
         User user = cover(thirdPartUserInfo, wbLoginParams);
         User register = register(wbLoginParams.getType(), user);
         if (register!=null) {
+            redisHandler.set(register.getId(), register);
             return new LoginReturn(register, tokenBuilder.createToken(user));
         }
         return null;
@@ -79,6 +81,7 @@ public class UserRegisterService {
         User user = cover(thirdPartUserInfo, wxLoginParams);
         User register = register(wxLoginParams.getType(), user);
         if (register!=null) {
+            redisHandler.set(register.getId(), register);
             return new LoginReturn(register, tokenBuilder.createToken(user));
         }
         return null;
@@ -123,6 +126,10 @@ public class UserRegisterService {
         user.setRegister(qqLoginParams.getRegister());
         user.setRegisterType(qqLoginParams.getRegisterType());
         user.setOpenid(qqLoginParams.getOpenId());
+        int time = (int) LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
+        user.setCtime(time);
+        user.setLastlogintime(time);
+        user.setMtime(0);
         return user;
     }
 
@@ -151,6 +158,10 @@ public class UserRegisterService {
         user.setRegister(wxLoginParams.getRegister());
         user.setRegisterType(wxLoginParams.getRegisterType());
         user.setOpenid(wxLoginParams.getCode());
+        int time = (int) LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
+        user.setCtime(time);
+        user.setLastlogintime(time);
+        user.setMtime(0);
         return user;
     }
 
@@ -163,13 +174,16 @@ public class UserRegisterService {
         user.setRegister(wbLoginParams.getRegister());
         user.setRegisterType(wbLoginParams.getRegisterType());
         user.setOpenid(wbLoginParams.getOpenId());
+        int time = (int) LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
+        user.setCtime(time);
+        user.setLastlogintime(time);
+        user.setMtime(0);
         return user;
     }
 
     private User register(Integer type, User args) {
         int userCount = userMapper.insertSelective(args);
         User userInfo = userMapper.getCache(args.getId());
-        redisHandler.set(userInfo.getId(), userInfo);
         int userAuthCount = userAuthService.insertUserAuthByType(args, type);
         int userRegisterCount = userPushService.insertUserPushByUserId(args);
         if (userAuthCount > 0 && userRegisterCount > 0)

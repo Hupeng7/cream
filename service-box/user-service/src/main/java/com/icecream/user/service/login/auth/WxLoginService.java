@@ -13,6 +13,7 @@ import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.config.login.AppIdConfig;
 import com.icecream.user.service.UserService;
+import com.icecream.user.service.login.AbstractLoginSupport;
 import com.icecream.user.service.login.SuperLogin;
 import com.icecream.user.service.register.UserRegisterService;
 import com.icecream.user.utils.jwt.TokenBuilder;
@@ -29,7 +30,7 @@ import java.util.Map;
  */
 @Service
 @SuppressWarnings("all")
-public class WxLoginService implements SuperLogin<WxLoginParams> {
+public class WxLoginService extends AbstractLoginSupport implements SuperLogin<WxLoginParams> {
 
     @Autowired
     private AppIdConfig appIdConfig;
@@ -49,19 +50,16 @@ public class WxLoginService implements SuperLogin<WxLoginParams> {
     @Override
     public ResultVO login(WxLoginParams wxLoginParams) {
         List<String> strings = callRemoteInterFaceForWxLoginStepOne(wxLoginParams);
-        UserAuth record = userRegisterService.isHaveBeenRegistered(strings.get(0),
-                wxLoginParams.getType());
+        UserAuth record = userRegisterService.isHaveBeenRegistered(strings.get(0), wxLoginParams.getType());
         if (null == record) {
             ThirdPartUserInfo thirdPartUserInfo = callRemoteInterFaceForWxLoginStepTwo(strings, wxLoginParams);
             LoginReturn loginReturn = userRegisterService.toRegister(thirdPartUserInfo, wxLoginParams);
             if (loginReturn != null) {
                 return ResultUtil.success(loginReturn);
             }
-        }
-        User user = userService.getUserInfoByUid(record.getUid());
-        String token = tokenBuilder.createToken(user);
-        if (user != null) {
-            return ResultUtil.success(new LoginReturn<>(user, token));
+        }else {
+            User user = userService.getUserInfoByUid(record.getUid());
+            return ResultUtil.success(buildLoginSuccessReturn(user));
         }
         return ResultUtil.error("登录失败", ResultEnum.PARAMS_ERROR);
     }

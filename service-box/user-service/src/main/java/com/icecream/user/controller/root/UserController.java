@@ -1,6 +1,5 @@
 package com.icecream.user.controller.root;
 
-import com.alibaba.fastjson.JSON;
 import com.icecream.common.model.model.Password;
 import com.icecream.common.model.model.Phone;
 import com.icecream.common.model.model.SmsLoginOrRegisterParams;
@@ -11,6 +10,8 @@ import com.icecream.user.feignclients.CommentsClient;
 import com.icecream.user.feignclients.OrderFeignClient;
 import com.icecream.user.redis.RedisHandler;
 import com.icecream.user.service.UserService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +21,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.icecream.common.util.constant.SysConstants.USER_HASH_PREFIX;
-
 /**
  * @version 2.0
  */
 @Slf4j
 @RestController
+@Api(value = "用户接口",description = "用户操作",tags ="user-root-api")
 @RequestMapping("user")
 @SuppressWarnings("all")
 public class
@@ -47,41 +47,13 @@ UserController {
     @Autowired
     private RedisHandler redisHandler;
 
-/*    @RequestMapping("uid")
-    public String selectCommentList(@RequestBody Map<String,Object> body) {
-        return commentsClient.backComments();
-    }
 
-    @RequestMapping("user-order/{orderNo}")
-    public ResultVO<Order> selectOrderByUserId(@NonNull @PathVariable("orderNo") String orderNo) {
-        try {
-            Order order = orderFeignClient.getOrderByOrderNo(orderNo);
-            if (order != null) return ResultUtil.success(order);
-        } catch (Exception e) {
-            log.error("查询失败,错误原因是{}", e.getMessage());
-            return ResultUtil.error(null,ResultEnum.PARAMS_ERROR);
-        }
-        return ResultUtil.error(null,ResultEnum.QUERY_RESULT_IS_NULL);
-    }
-
-    @RequestMapping("tx")
-    public ResultVO<Integer> insert() {
-
-        try {
-            Integer count = userService.insert();
-            if (count > 0) return ResultUtil.success(count);
-        } catch (Exception e) {
-            log.error("插入失败，原因为{}", e.getMessage());
-        }
-        return ResultUtil.error(null,ResultEnum.MYSQL_OPERATION_FAILED);
-    }*/
-
-    @RequestMapping("loading")
+   /* @GetMapping("loading")
     public void loadingUserCache() {
         userService.getList().stream().filter(user -> user != null & user.getId() != null)
                 .forEach(user -> redisHandler.addMap(USER_HASH_PREFIX,
                         user.getId().toString(), JSON.toJSONString(user)));
-    }
+    }*/
 
     /**
      * 修改个人信息
@@ -90,8 +62,9 @@ UserController {
      * @param request 从该对象中解析token获取uid
      * @return ResultVO<T>
      */
+    @ApiOperation(value = "【需要粉丝端token】修改个人信息")
     @PatchMapping(value = "update")
-    public ResultVO updateUserInfo(@RequestBody User user, @Param("specialTokenId") String specialTokenId) {
+    public ResultVO updateUserInfo(@RequestBody User user, @RequestParam("specialTokenId") String specialTokenId) {
         return userService.update(user, specialTokenId);
     }
 
@@ -137,7 +110,7 @@ UserController {
      * @return resultVO<T></>
      */
     @GetMapping("consumerInfo")
-    public ResultVO<Object> getRedisInfo(@Param("specialTokenId") String specialTokenId) {
+    public ResultVO<Object> getRedisInfo(@RequestParam("specialTokenId") String specialTokenId) {
         return userService.getUserInfo(specialTokenId);
     }
 

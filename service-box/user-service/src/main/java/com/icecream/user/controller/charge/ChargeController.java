@@ -6,6 +6,7 @@ import com.icecream.user.aspect.annotation.Pay;
 import com.icecream.user.service.charge.ChargeMealService;
 import com.icecream.user.service.charge.ChargeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,7 +40,7 @@ public class ChargeController {
     }
 
 
-    @RequestMapping("meal")
+    @GetMapping("meal")
     public ResultVO getMeal(){
         return chargeMealService.get();
     }

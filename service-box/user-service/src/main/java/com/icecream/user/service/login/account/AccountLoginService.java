@@ -9,6 +9,7 @@ import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.mapper.UserStarMapper;
 import com.icecream.user.redis.RedisHandler;
+import com.icecream.user.service.login.AbstractLoginSupport;
 import com.icecream.user.service.login.SuperLogin;
 import com.icecream.user.utils.jwt.TokenBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +24,7 @@ import org.springframework.validation.annotation.Validated;
 @Slf4j
 @Service
 @SuppressWarnings("all")
-public class AccountLoginService implements SuperLogin<AccountLoginParams> {
+public class AccountLoginService extends AbstractLoginSupport implements SuperLogin<AccountLoginParams>{
 
     @Autowired
     private UserStarMapper userStarMapper;
@@ -36,30 +37,20 @@ public class AccountLoginService implements SuperLogin<AccountLoginParams> {
 
     @Override
     public ResultVO login(@Validated AccountLoginParams accountLoginParams) {
-        log.info("account---登陆。。。");
-        UserStar userStar = new UserStar();
-        userStar.setUsername(accountLoginParams.getAccount());
-        userStar.setPassword(accountLoginParams.getPassword());
-        UserStar result = userStarMapper.selectOne(userStar);
-        if(result.getPassword().equals(accountLoginParams.getPassword())){
-            UserStar cache = userStarMapper.getCache(result.getId());
-            redisHandler.set(cache.getId(),cache);
-            LoginReturn loginReturn = new LoginReturn();
-            loginReturn.setAdmin(result);
-            loginReturn.setToken(tokenBuilder.createToken(result));
-            return ResultUtil.success(loginReturn);
+        log.info("账号密码登录准备就绪...");
+        UserStar result = userStarMapper.selectOne(buildUserStar(accountLoginParams));
+        if(result!=null&result.getPassword()!=null&result.getPassword().equals(accountLoginParams.getPassword())){
+            UserStar userStarBriefInfoInfo = userStarMapper.getUserStarBriefInfo(result.getId());
+            redisHandler.set(userStarBriefInfoInfo.getId()*(-1),userStarBriefInfoInfo);
+            return ResultUtil.success(buildLoginSuccessReturn(userStarBriefInfoInfo));
         }
         return null;
     }
 
-
-    private void setUserStarInfoToRedis(UserStar userStar) {
-        try {
-            JSONObject jsonObject = (JSONObject) JSON.toJSON(userStar);
-            redisHandler.set(userStar.getId()*(-1), jsonObject);
-        } catch (Exception e) {
-            log.error("用户信息存入redis时失败");
-            e.printStackTrace();
-        }
+    private UserStar buildUserStar(AccountLoginParams accountLoginParams){
+        UserStar userStar = new UserStar();
+        userStar.setUsername(accountLoginParams.getAccount());
+        userStar.setPassword(accountLoginParams.getPassword());
+        return userStar;
     }
 }

@@ -144,7 +144,8 @@ public class CommentsController {
                          //@NotNull(message = "start参数不能为空")@AssertTrue(message = "非法开关1")Boolean start,
                          @NotNull(message = "max参数不能为空") @Max(value = 10,message = "不能超过最大值")Integer max,
                          @NotNull(message = "min参数不能为空")@Min(value = 1,message = "不能小于最小值")Integer min,
-                         @NotBlank(message = "手机号为空")@Pattern(regexp = "^\\d{11}$", message = "手机号码格式错误")String phone){
+                         @NotBlank(message = "手机号为空")@Pattern(regexp = "^\\d" +
+                                 "{11}$", message = "手机号码格式错误")String phone){
         return "ok"+count+comments+max+min;
     }
 }

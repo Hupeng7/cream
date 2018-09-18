@@ -10,6 +10,8 @@ import com.icecream.common.util.json.JsonUtil;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.config.login.AppIdConfig;
+import com.icecream.user.redis.RedisHandler;
+import com.icecream.user.service.login.AbstractLoginSupport;
 import com.icecream.user.service.register.UserRegisterService;
 import com.icecream.user.service.UserService;
 import com.icecream.user.service.login.SuperLogin;
@@ -25,7 +27,7 @@ import java.util.Map;
  */
 @Service
 @SuppressWarnings("all")
-public class QQLoginService implements SuperLogin<QQLoginParams> {
+public class QQLoginService extends AbstractLoginSupport implements SuperLogin<QQLoginParams> {
 
 
     @Autowired
@@ -53,8 +55,8 @@ public class QQLoginService implements SuperLogin<QQLoginParams> {
             return ResultUtil.success(loginReturn);
         }
         User user = userService.getUserInfoByUid(record.getUid());
-        String token = tokenBuilder.createToken(user);
-        return ResultUtil.success(new LoginReturn<>(user, token));
+        RedisHandler.set(record.getUid(),user);
+        return ResultUtil.success(buildLoginSuccessReturn(user));
     }
 
     private ThirdPartUserInfo callRemoteInterFaceForQQLogin(QQLoginParams qqLoginParams) {

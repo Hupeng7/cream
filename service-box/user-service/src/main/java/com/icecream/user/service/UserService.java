@@ -13,7 +13,6 @@ import com.icecream.user.redis.RedisHandler;
 import com.icecream.user.service.binding.UserAuthService;
 import com.icecream.user.service.code.CodeHandler;
 import com.icecream.user.service.push.UserPushService;
-import com.icecream.user.utils.UserBuilder;
 import com.icecream.user.utils.jwt.TokenBuilder;
 import com.icecream.user.mapper.UserAuthMapper;
 import com.icecream.user.mapper.UserPushMapper;
@@ -77,7 +76,7 @@ public class UserService {
     @Autowired
     private TokenBuilder tokenBuilder;
 
-    @TxTransaction(isStart = true)
+  /*  @TxTransaction(isStart = true)
     @Transactional
     public Integer insert() {
         int count1 = userMapper.insert(UserBuilder.buildUser());
@@ -89,7 +88,7 @@ public class UserService {
             log.error("插入失败");
             return 0;
         }
-    }
+    }*/
 
     public User getUserInfoByUid(Integer uid) {
         User user = new User();

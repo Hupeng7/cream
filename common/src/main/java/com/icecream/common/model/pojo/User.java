@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import javax.persistence.*;
-
 @Data
 @Table(name = "user")
 @JsonInclude(JsonInclude.Include.NON_NULL)
