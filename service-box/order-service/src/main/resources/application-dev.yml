@@ -41,7 +41,7 @@ spring:
               enabled: true
               initial-interval: 3000
   zipkin:
-    base-url: http://10.40.255.238:9411
+    base-url: http://10.40.255.90:9411
   #链路追踪采样率，默认0.1 即10次请求只记录一次
   sleuth:
     sampler:
@@ -50,7 +50,7 @@ spring:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://10.40.255.238:2000/eureka
+      defaultZone: http://10.40.255.90:2000/eureka
 
 #logback相关配置
 logging:
@@ -83,6 +83,6 @@ ribbon:
   MaxAutoRetriesNextServer: 0
 
 tm:
-  manager.url: http://10.40.255.238:8899/tx/manager/
+  manager.url: http://10.40.255.90:8899/tx/manager/
 server:
   port: 2001

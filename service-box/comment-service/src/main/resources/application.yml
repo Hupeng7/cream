@@ -60,11 +60,11 @@ spring:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://10.40.255.238:2000/eureka
+      defaultZone: http://10.40.255.90:2000/eureka
   instance:
     #是否使用IP注册
     prefer-ip-address: true
-    hostname: 10.40.255.238
+    hostname: 10.40.255.90
     instance-id: ${spring.cloud.client.ipAddress}:${server.port}:${spring.application.name}
 
 #LCN相关配置
@@ -73,5 +73,5 @@ ribbon:
   NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
   MaxAutoRetriesNextServer: 0
 tm:
-  manager.url: http://10.40.255.238:8899/tx/manager/
+  manager.url: http://10.40.255.90:8899/tx/manager/
 

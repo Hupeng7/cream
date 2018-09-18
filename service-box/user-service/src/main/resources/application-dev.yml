@@ -3,7 +3,7 @@ server:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://10.40.255.238:2000/eureka/
+      defaultZone: http://10.40.255.90:2000/eureka/
   instance:
     prefer-ip-address: true
 spring:
@@ -51,7 +51,7 @@ spring:
       validationQuery: SELECT 'x'
       time-between-eviction-runs-millis: 60000
   zipkin:
-    base-url: http://10.40.255.238:9411
+    base-url: http://10.40.255.90:9411
   sleuth:
     sampler:
       percentage: 1.0
@@ -85,7 +85,7 @@ ribbon:
 
 tm:
   manager:
-    url: http://10.40.255.238:8899/tx/manager/
+    url: http://10.40.255.90:8899/tx/manager/
 
 #配置【QQ/微信/微博】的appId与secret
 login:
