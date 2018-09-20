@@ -86,23 +86,28 @@ public class UserRegisterService extends AbstractLoginSupport {
      */
     @Transactional(rollbackFor = Exception.class)
     public ResultVO register(SmsLoginOrRegisterParams smsLoginOrRegisterParams) {
-        String key = smsLoginOrRegisterParams.getItucode() + smsLoginOrRegisterParams.getPhone();
-        Boolean right = codeHandler.check(key, smsLoginOrRegisterParams.getCode());
-        String vaild = vaild(smsLoginOrRegisterParams);
-        if (!right) {
-            return ResultUtil.error("验证码失效或者不正确", ResultEnum.PARAMS_ERROR);
-        }
-        if (StringUtils.isNotBlank(vaild(smsLoginOrRegisterParams))) {
-            return ResultUtil.error(vaild, ResultEnum.PARAMS_ERROR);
-        }
-        User user = cover(smsLoginOrRegisterParams);
-        Integer isRegister = registerForFans(user, smsLoginOrRegisterParams.getItucode() + smsLoginOrRegisterParams.getPhone(),
-                smsLoginOrRegisterParams.getType());
-        if (isRegister > 0) {
-            LoginReturn loginReturn = buildLoginSuccessReturn(user);
-            return ResultUtil.success(loginReturn);
-        } else {
-            return ResultUtil.error(null, ResultEnum.DATA_ERROR);
+        UserAuth userAuth = userAuthService.get(smsLoginOrRegisterParams.getItucode() + smsLoginOrRegisterParams.getPhone(), smsLoginOrRegisterParams.getType());
+        if(userAuth==null) {
+            String key = smsLoginOrRegisterParams.getItucode() + smsLoginOrRegisterParams.getPhone();
+            Boolean right = codeHandler.check(key, smsLoginOrRegisterParams.getCode());
+            String vaild = vaild(smsLoginOrRegisterParams);
+            if (!right) {
+                return ResultUtil.error("验证码失效或者不正确", ResultEnum.WRONG_CODE);
+            }
+            if (StringUtils.isNotBlank(vaild(smsLoginOrRegisterParams))) {
+                return ResultUtil.error(vaild, ResultEnum.PARAMS_ERROR);
+            }
+            User user = cover(smsLoginOrRegisterParams);
+            Integer isRegister = registerForFans(user, smsLoginOrRegisterParams.getItucode() + smsLoginOrRegisterParams.getPhone(),
+                    smsLoginOrRegisterParams.getType());
+            if (isRegister > 0) {
+                LoginReturn loginReturn = buildLoginSuccessReturn(user);
+                return ResultUtil.success(loginReturn);
+            } else {
+                return ResultUtil.error(null, ResultEnum.MYSQL_OPERATION_FAILED);
+            }
+        }else {
+            return ResultUtil.error("请不要重复注册",ResultEnum.REQUEST_TO_FAST);
         }
     }
 
