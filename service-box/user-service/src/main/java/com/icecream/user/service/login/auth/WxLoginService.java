@@ -13,10 +13,12 @@ import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.config.login.AppIdConfig;
 import com.icecream.user.service.UserService;
+import com.icecream.user.service.binding.UserAuthService;
 import com.icecream.user.service.login.AbstractLoginSupport;
 import com.icecream.user.service.login.SuperLogin;
 import com.icecream.user.service.register.UserRegisterService;
 import com.icecream.user.utils.jwt.TokenBuilder;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -26,6 +28,8 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static com.icecream.user.constants.Constants.TYPE_AUTH_WX;
 
 /**
  * @version 2.0
@@ -49,23 +53,31 @@ public class WxLoginService extends AbstractLoginSupport implements SuperLogin<W
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserAuthService userAuthService;
+
     @Override
     public ResultVO login(WxLoginParams wxLoginParams) {
-        List<String> strings = callRemoteInterFaceForWxLoginStepOne(wxLoginParams);
-        UserAuth record = userRegisterService.isHaveBeenRegistered(strings.get(0), wxLoginParams.getType());
-        if (null == record) {
-            ThirdPartUserInfo thirdPartUserInfo = callRemoteInterFaceForWxLoginStepTwo(strings, wxLoginParams);
-            User user = cover(thirdPartUserInfo, wxLoginParams);
-            Integer integer = userRegisterService.registerForFans(user, wxLoginParams.getCode(), wxLoginParams.getType());
-            if (integer > 0) {
-                LoginReturn loginReturn = buildLoginSuccessReturn(user);
-                return ResultUtil.success(loginReturn);
+        String msg = vaild(wxLoginParams);
+        if(StringUtils.isBlank(msg)) {
+            List<String> strings = callRemoteInterFaceForWxLoginStepOne(wxLoginParams);
+            UserAuth record = userRegisterService.isHaveBeenRegistered(strings.get(0), wxLoginParams.getType());
+            if (null == record) {
+                ThirdPartUserInfo thirdPartUserInfo = callRemoteInterFaceForWxLoginStepTwo(strings, wxLoginParams);
+                User user = cover(thirdPartUserInfo, wxLoginParams, strings.get(0));
+                Integer integer = userRegisterService.registerForFans(user, user.getOpenid(), wxLoginParams.getType());
+                if (integer > 0) {
+                    LoginReturn loginReturn = buildLoginSuccessReturn(user);
+                    return ResultUtil.success(loginReturn);
+                } else {
+                    return ResultUtil.error(null, ResultEnum.MYSQL_OPERATION_FAILED);
+                }
             } else {
-                return ResultUtil.error(null, ResultEnum.DATA_ERROR);
+                User user = userService.getUserInfoByUid(record.getUid());
+                return ResultUtil.success(buildLoginSuccessReturn(user));
             }
-        } else {
-            User user = userService.getUserInfoByUid(record.getUid());
-            return ResultUtil.success(buildLoginSuccessReturn(user));
+        }else {
+            return ResultUtil.error(msg,ResultEnum.PARAMS_ERROR);
         }
     }
 
@@ -80,11 +92,11 @@ public class WxLoginService extends AbstractLoginSupport implements SuperLogin<W
         //微信用access_token和openid获取用户信息的url
         String wxOpenApiUrl2 = appIdConfig.getWxOpenApiUrl2();
         String getAccessTokenUrl = wxOpenApiUrl + "?appid=" + wechatAppId + "&secret=" + wechatSecret
-                + "&code=" + wxLoginParams.getCode() + "&grant_type" + wechatGrantType;
-        String str = restTemplate.getForObject(getAccessTokenUrl, JSONObject.class, String.class).toString();
+                + "&code=" + wxLoginParams.getCode() + "&grant_type=" + wechatGrantType;
+        String str = restTemplate.getForObject(getAccessTokenUrl, String.class, String.class).toString();
         Map map = JsonUtil.jsonToMap(str);
         String openId = map.get("openid") != null ? map.get("openid").toString() : "";
-        String accessToken = map.get("access_token") != null ? map.get("").toString() : "";
+        String accessToken = map.get("access_token") != null ? map.get("access_token").toString() : "";
         resultList.add(openId);
         resultList.add(accessToken);
         return resultList;
@@ -94,26 +106,37 @@ public class WxLoginService extends AbstractLoginSupport implements SuperLogin<W
         ThirdPartUserInfo thirdPartUserInfo = new ThirdPartUserInfo();
         String wxOpenApiUrl2 = appIdConfig.getWxOpenApiUrl2();
         String getInfoUrl = wxOpenApiUrl2 + "?access_token=" + list.get(1) + "&openid=" + list.get(0);
-        String result = restTemplate.getForObject(getInfoUrl, JSONObject.class, String.class).toString();
+        String result = restTemplate.getForObject(getInfoUrl, String.class, String.class).toString();
         Map resultMap = JsonUtil.jsonToMap(result);
         thirdPartUserInfo.setName(resultMap.get("nickname") != null ? resultMap.get("nickname").toString() : "");
         thirdPartUserInfo.setUrl(resultMap.get("headimgurl") != null ? resultMap.get("headimgurl").toString() : "");
         return thirdPartUserInfo;
     }
 
-    private User cover(ThirdPartUserInfo thirdPartUserInfo, WxLoginParams wxLoginParams) {
+    private User cover(ThirdPartUserInfo thirdPartUserInfo, WxLoginParams wxLoginParams,String openId) {
         User user = new User();
         user.setNickname(thirdPartUserInfo.getName());
         user.setAvatar(thirdPartUserInfo.getUrl());
         user.setPhonemodel(wxLoginParams.getPhoneModel());
         user.setRegister(wxLoginParams.getRegister());
         user.setRegisterType(wxLoginParams.getRegisterType());
-        user.setOpenid(wxLoginParams.getCode());
+        user.setOpenid(openId);
         int time = (int) LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
         user.setCtime(time);
         user.setLastlogintime(time);
         user.setMtime(0);
         return user;
     }
+
+    private String vaild(WxLoginParams wxLoginParams){
+        if(StringUtils.isBlank(wxLoginParams.getCode())) return "code不能为空";
+        if(wxLoginParams.getType()!=TYPE_AUTH_WX) return "登录类型不符合";
+        if(StringUtils.isBlank(wxLoginParams.getPhoneType())) return "phoneType不能为空";
+        if(StringUtils.isBlank(wxLoginParams.getRegister())) return "register不能为空";
+        if(null==wxLoginParams.getRegisterType()) return "registerType不能为空";
+        if(null==wxLoginParams.getPhoneModel()) return "phoneModel不能为空";
+        return "";
+    }
+
 
 }

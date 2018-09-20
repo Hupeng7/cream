@@ -98,7 +98,7 @@ login:
      WeiboSecret: 6ef467d04e49ac00b694e829a60fd0cc
      weibo-open-api-url: https://api.weibo.com/2/users/show.json
      wx-open-api-url: https://api.weixin.qq.com/sns/oauth2/access_token
-     wx-open-api-url2: https://api.weixin.qq.com/sns/auth
+     wx-open-api-url2: https://api.weixin.qq.com/sns/userinfo
      qq-open-api-url: https://graph.qq.com/oauth2/me?access_token
      qq-open-api-url2: https://graph.qq.com/user/get_user_info
 
