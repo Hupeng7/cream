@@ -59,8 +59,9 @@ public class WxLoginService extends AbstractLoginSupport implements SuperLogin<W
     @Override
     public ResultVO login(WxLoginParams wxLoginParams) {
         String msg = vaild(wxLoginParams);
-        if(StringUtils.isBlank(msg)) {
+        if (StringUtils.isBlank(msg)) {
             List<String> strings = callRemoteInterFaceForWxLoginStepOne(wxLoginParams);
+            if (strings == null) return ResultUtil.error(null, ResultEnum.PARAMS_ERROR);
             UserAuth record = userRegisterService.isHaveBeenRegistered(strings.get(0), wxLoginParams.getType());
             if (null == record) {
                 ThirdPartUserInfo thirdPartUserInfo = callRemoteInterFaceForWxLoginStepTwo(strings, wxLoginParams);
@@ -76,8 +77,8 @@ public class WxLoginService extends AbstractLoginSupport implements SuperLogin<W
                 User user = userService.getUserInfoByUid(record.getUid());
                 return ResultUtil.success(buildLoginSuccessReturn(user));
             }
-        }else {
-            return ResultUtil.error(msg,ResultEnum.PARAMS_ERROR);
+        } else {
+            return ResultUtil.error(msg, ResultEnum.PARAMS_ERROR);
         }
     }
 
@@ -97,8 +98,10 @@ public class WxLoginService extends AbstractLoginSupport implements SuperLogin<W
         Map map = JsonUtil.jsonToMap(str);
         String openId = map.get("openid") != null ? map.get("openid").toString() : "";
         String accessToken = map.get("access_token") != null ? map.get("access_token").toString() : "";
-        resultList.add(openId);
-        resultList.add(accessToken);
+        if (StringUtils.isNotBlank(openId) & StringUtils.isNotBlank(accessToken)) {
+            resultList.add(openId);
+            resultList.add(accessToken);
+        }
         return resultList;
     }
 
@@ -113,7 +116,7 @@ public class WxLoginService extends AbstractLoginSupport implements SuperLogin<W
         return thirdPartUserInfo;
     }
 
-    private User cover(ThirdPartUserInfo thirdPartUserInfo, WxLoginParams wxLoginParams,String openId) {
+    private User cover(ThirdPartUserInfo thirdPartUserInfo, WxLoginParams wxLoginParams, String openId) {
         User user = new User();
         user.setNickname(thirdPartUserInfo.getName());
         user.setAvatar(thirdPartUserInfo.getUrl());
@@ -128,13 +131,13 @@ public class WxLoginService extends AbstractLoginSupport implements SuperLogin<W
         return user;
     }
 
-    private String vaild(WxLoginParams wxLoginParams){
-        if(StringUtils.isBlank(wxLoginParams.getCode())) return "code不能为空";
-        if(wxLoginParams.getType()!=TYPE_AUTH_WX) return "登录类型不符合";
-        if(StringUtils.isBlank(wxLoginParams.getPhoneType())) return "phoneType不能为空";
-        if(StringUtils.isBlank(wxLoginParams.getRegister())) return "register不能为空";
-        if(null==wxLoginParams.getRegisterType()) return "registerType不能为空";
-        if(null==wxLoginParams.getPhoneModel()) return "phoneModel不能为空";
+    private String vaild(WxLoginParams wxLoginParams) {
+        if (StringUtils.isBlank(wxLoginParams.getCode())) return "code不能为空";
+        if (wxLoginParams.getType() != TYPE_AUTH_WX) return "登录类型不符合";
+        if (StringUtils.isBlank(wxLoginParams.getPhoneType())) return "phoneType不能为空";
+        if (StringUtils.isBlank(wxLoginParams.getRegister())) return "register不能为空";
+        if (null == wxLoginParams.getRegisterType()) return "registerType不能为空";
+        if (null == wxLoginParams.getPhoneModel()) return "phoneModel不能为空";
         return "";
     }
 
