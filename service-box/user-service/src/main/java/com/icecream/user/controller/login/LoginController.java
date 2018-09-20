@@ -6,6 +6,8 @@ import com.icecream.common.model.model.LoginReturn;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.aspect.annotation.LoginHandler;
 import com.icecream.user.service.login.LoginService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author mr_h
  * @version 2.0
  */
+@Api(description = "登录")
 @RestController
 @RequestMapping("user")
 @SuppressWarnings("all")
@@ -37,6 +40,7 @@ public class LoginController {
      */
     @LoginHandler
     @PostMapping("superLogin")
+    @ApiOperation(value = "用户登录")
     public ResultVO<LoginReturn> superLogin(LoginParamContainer loginParamContainer){
         return loginService.superLogin(loginParamContainer);
     }

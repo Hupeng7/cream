@@ -84,10 +84,10 @@ public class UserAuthService {
             if (count > 0) {
                 return ResultUtil.success();
             } else {
-                return ResultUtil.error("null", ResultEnum.DATA_ERROR);
+                return ResultUtil.error("null", ResultEnum.PARAMS_ERROR);
             }
         } else {
-            return ResultUtil.error(null, ResultEnum.DATA_ERROR);
+            return ResultUtil.error(null, ResultEnum.PARAMS_ERROR);
         }
     }
 
@@ -114,11 +114,11 @@ public class UserAuthService {
      * @param type 登录方式
      * @return
      */
-    public Integer insertUserAuthByType(User user, Integer type) {
+    public Integer insertUserAuthByType(User user,String identifier,Integer type) {
         UserAuth userAuth = new UserAuth();
         userAuth.setUid(user.getId());
         userAuth.setIdentityType(type);
-        userAuth.setIdentifier(user.getItucode() + user.getPhone());
+        userAuth.setIdentifier(identifier);
         userAuth.setCredential(user.getPassword());
         return userAuthMapper.insertSelective(userAuth);
     }

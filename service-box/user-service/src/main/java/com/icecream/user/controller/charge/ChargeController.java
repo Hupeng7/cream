@@ -5,6 +5,11 @@ import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.aspect.annotation.Pay;
 import com.icecream.user.service.charge.ChargeMealService;
 import com.icecream.user.service.charge.ChargeService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
  * description: 用户充值
  * create by Mr_h on 2018/7/26 0026
  */
+@Api(description = "用户充值")
 @RestController
 @RequestMapping("charge")
 public class ChargeController {
@@ -33,6 +39,7 @@ public class ChargeController {
      */
     @Pay
     @PostMapping("do")
+    @ApiOperation(value = "【需要粉丝端token】用户充值")
     public ResultVO toCharge(ChargeParamContainer chargeParamContainer) {
         return ((ChargeService) chargeParamContainer
                                 .getService())
@@ -41,6 +48,7 @@ public class ChargeController {
 
 
     @GetMapping("meal")
+    @ApiOperation(value = "【需要粉丝端token】获取充值套餐列表")
     public ResultVO getMeal(){
         return chargeMealService.get();
     }

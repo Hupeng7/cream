@@ -33,8 +33,9 @@ public enum ResultEnum {
     ERROR_PHONE(2004,"手机号与用户id不符合"),
     SMS_CODE_SEND_FAILED(2005,"验证码发送失败"),
     EXIST_BINDING(2006,"该手机号已绑定其他雪糕群账号"),
-    CODE_AUTHENTICATION_FAILED(2007,"验证码授权失败"),
+    CODE_AUTHENTICATION_FAILED(2007,"手机验证码错误"),
     WRONG_CODE(2008,"验证码输入错误"),
+    EXIST_PHONE(2009,"手机号已注册过，请登录"),
     SIGN_IN_REPETITION(4002,"重复签到"),
     PRE_ORDER_ERROR(4003,"预下单失败"),
     CREATE_ORDER_FAILED(4004,"创建订单失败");

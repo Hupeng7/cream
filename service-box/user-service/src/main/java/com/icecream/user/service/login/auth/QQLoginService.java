@@ -1,5 +1,6 @@
 package com.icecream.user.service.login.auth;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.icecream.common.model.pojo.User;
 import com.icecream.common.model.pojo.UserAuth;
@@ -7,6 +8,7 @@ import com.icecream.common.model.model.LoginReturn;
 import com.icecream.common.model.model.QQLoginParams;
 import com.icecream.common.model.model.ThirdPartUserInfo;
 import com.icecream.common.util.json.JsonUtil;
+import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.config.login.AppIdConfig;
@@ -20,7 +22,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Map;
+
+import static com.icecream.common.util.constant.SysConstants.USER_HASH_PREFIX;
 
 /**
  * @version 2.0
@@ -51,13 +57,21 @@ public class QQLoginService extends AbstractLoginSupport implements SuperLogin<Q
                 qqLoginParams.getType());
         if (null == record) {
             ThirdPartUserInfo thirdPartUserInfo = callRemoteInterFaceForQQLogin(qqLoginParams);
-            LoginReturn loginReturn = userRegisterService.toRegister(thirdPartUserInfo, qqLoginParams);
-            return ResultUtil.success(loginReturn);
+            User user = cover(thirdPartUserInfo, qqLoginParams);
+            Integer isRegiser = userRegisterService.registerForFans(user, qqLoginParams.getOpenId(), qqLoginParams.getType());
+            if(isRegiser>0) {
+                LoginReturn loginReturn = buildLoginSuccessReturn(user);
+                RedisHandler.addMap(USER_HASH_PREFIX, user.getId().toString(),JSON.toJSONString(user));
+                return ResultUtil.success(loginReturn);
+            }else{
+                return ResultUtil.error(null,ResultEnum.DATA_ERROR);
+            }
         }
         User user = userService.getUserInfoByUid(record.getUid());
-        RedisHandler.set(record.getUid(),user);
+        RedisHandler.addMap(USER_HASH_PREFIX, user.getId().toString(),JSON.toJSONString(user));
         return ResultUtil.success(buildLoginSuccessReturn(user));
     }
+
 
     private ThirdPartUserInfo callRemoteInterFaceForQQLogin(QQLoginParams qqLoginParams) {
         ThirdPartUserInfo thirdPartUserInfo = new ThirdPartUserInfo();
@@ -75,5 +89,19 @@ public class QQLoginService extends AbstractLoginSupport implements SuperLogin<Q
         thirdPartUserInfo.setName(map.get("nickname") != null ? map.get("nickname").toString() : "");
         thirdPartUserInfo.setUrl(map.get("figureurl_qq_1") != null ? map.get("figureurl_qq_1").toString() : "");
         return thirdPartUserInfo;
+    }
+    private User cover(ThirdPartUserInfo thirdPartUserInfo, QQLoginParams qqLoginParams) {
+        User user = new User();
+        user.setNickname(thirdPartUserInfo.getName());
+        user.setAvatar(thirdPartUserInfo.getUrl());
+        user.setPhonemodel(qqLoginParams.getPhoneModel());
+        user.setRegister(qqLoginParams.getRegister());
+        user.setRegisterType(qqLoginParams.getRegisterType());
+        user.setOpenid(qqLoginParams.getOpenId());
+        int time = (int) LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
+        user.setCtime(time);
+        user.setLastlogintime(time);
+        user.setMtime(0);
+        return user;
     }
 }

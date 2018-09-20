@@ -25,4 +25,12 @@ public interface CodeHandler {
      * 上一个方法的具象化
      */
     Boolean check(SmsLoginOrRegisterParams smsLoginOrRegisterParams);
+
+
+    /**
+     * 发送短信时验证手机号是否被注册过
+     * @return json字符串
+     */
+    Boolean check(String itucode, String phone);
+
 }

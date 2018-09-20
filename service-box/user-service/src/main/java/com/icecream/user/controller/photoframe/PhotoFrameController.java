@@ -5,6 +5,7 @@ import com.icecream.common.model.model.CreateSysPhotoFrameModel;
 import com.icecream.common.util.aspect.annotation.Operator;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.service.photoframe.PhotoFrameService;
+import io.swagger.annotations.Api;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
  * @description: 头像框相关
  * @date: 16:33 2018/9/4 0004
  */
+@Api(description = "头像框")
 @RestController
 @RequestMapping("photoframe")
 public class PhotoFrameController {

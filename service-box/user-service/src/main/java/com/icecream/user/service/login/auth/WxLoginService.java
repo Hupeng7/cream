@@ -21,6 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -53,15 +55,18 @@ public class WxLoginService extends AbstractLoginSupport implements SuperLogin<W
         UserAuth record = userRegisterService.isHaveBeenRegistered(strings.get(0), wxLoginParams.getType());
         if (null == record) {
             ThirdPartUserInfo thirdPartUserInfo = callRemoteInterFaceForWxLoginStepTwo(strings, wxLoginParams);
-            LoginReturn loginReturn = userRegisterService.toRegister(thirdPartUserInfo, wxLoginParams);
-            if (loginReturn != null) {
+            User user = cover(thirdPartUserInfo, wxLoginParams);
+            Integer integer = userRegisterService.registerForFans(user, wxLoginParams.getCode(), wxLoginParams.getType());
+            if (integer > 0) {
+                LoginReturn loginReturn = buildLoginSuccessReturn(user);
                 return ResultUtil.success(loginReturn);
+            } else {
+                return ResultUtil.error(null, ResultEnum.DATA_ERROR);
             }
-        }else {
+        } else {
             User user = userService.getUserInfoByUid(record.getUid());
             return ResultUtil.success(buildLoginSuccessReturn(user));
         }
-        return ResultUtil.error("登录失败", ResultEnum.PARAMS_ERROR);
     }
 
 
@@ -95,4 +100,20 @@ public class WxLoginService extends AbstractLoginSupport implements SuperLogin<W
         thirdPartUserInfo.setUrl(resultMap.get("headimgurl") != null ? resultMap.get("headimgurl").toString() : "");
         return thirdPartUserInfo;
     }
+
+    private User cover(ThirdPartUserInfo thirdPartUserInfo, WxLoginParams wxLoginParams) {
+        User user = new User();
+        user.setNickname(thirdPartUserInfo.getName());
+        user.setAvatar(thirdPartUserInfo.getUrl());
+        user.setPhonemodel(wxLoginParams.getPhoneModel());
+        user.setRegister(wxLoginParams.getRegister());
+        user.setRegisterType(wxLoginParams.getRegisterType());
+        user.setOpenid(wxLoginParams.getCode());
+        int time = (int) LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"));
+        user.setCtime(time);
+        user.setLastlogintime(time);
+        user.setMtime(0);
+        return user;
+    }
+
 }

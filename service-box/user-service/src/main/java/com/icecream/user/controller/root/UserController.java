@@ -26,7 +26,7 @@ import java.util.List;
  */
 @Slf4j
 @RestController
-@Api(value = "用户接口",description = "用户操作",tags ="user-root-api")
+@Api(value = "用户接口",description = "粉丝操作",tags ="user-root-api")
 @RequestMapping("user")
 @SuppressWarnings("all")
 public class
@@ -76,6 +76,7 @@ UserController {
      * @return ResultVo
      */
     @GetMapping(value = "{consumerId}")
+    @ApiOperation(value = "【需要粉丝端token】根据id查询用户")
     public ResultVO getUserInfo(@PathVariable("consumerId") Integer uid) {
         return userService.get(uid);
     }
@@ -89,15 +90,23 @@ UserController {
      * @return ResultVo<T></>
      */
     @GetMapping("{itucode}/{phone}/existpwd")
+    @ApiOperation(value = "【需要粉丝端token】查询用户是否设置了密码")
     public ResultVO isSetPassword(@PathVariable("itucode") String itucode,
                                   @PathVariable("phone") String phone,
-                                  @Param("specialTokenId") String specialTokenId) {
+                                  @RequestParam("specialTokenId") String specialTokenId) {
         return userService.isSetPassword(itucode, phone, specialTokenId);
     }
 
 
+    /**
+     * 验证手机码
+     * @param specialTokenId
+     * @param code
+     * @return
+     */
     @GetMapping("authCodes/{Code}/verify")
-    public ResultVO checkCode(@Param("specialTokenId") String specialTokenId,
+    @ApiOperation(value = "【需要粉丝端token】查询用户是否设置了密码")
+    public ResultVO checkCode(@RequestParam("specialTokenId") String specialTokenId,
                               @PathVariable("Code") Integer code) {
         return userService.checkCode(specialTokenId, code);
     }
@@ -123,9 +132,10 @@ UserController {
      * @return
      */
     @PutMapping("ituphone/{itucode}/{phone}")
+    @ApiOperation(value = "【需要粉丝端token】更改手机号")
     public ResultVO updatePhone(@PathVariable("itucode") @NotBlank String itucode,
                                 @PathVariable("phone") @NotBlank String phone,
-                                @NotBlank @Param("specialTokenId") String specialTokenId) {
+                                @NotBlank @RequestParam("specialTokenId") String specialTokenId) {
         return userService.updatePhone(specialTokenId, itucode, phone);
     }
 
@@ -137,8 +147,9 @@ UserController {
      * @return
      */
     @PostMapping("pwdModifier")
+    @ApiOperation(value = "【需要粉丝端token】修改密码")
     public ResultVO updatePassword(@Validated @RequestBody Password password,
-                                   @NotBlank @Param("specialTokenId") String specialTokenId) {
+                                   @NotBlank @RequestParam("specialTokenId") String specialTokenId) {
         return userService.updatePassword(password, specialTokenId);
     }
 
@@ -150,8 +161,9 @@ UserController {
      * @return
      */
     @PostMapping("pwdModifierByPhone")
+    @ApiOperation(value = "【需要粉丝端token】验证验证码，并修改密码")
     public ResultVO updateByCodeAndPasswrod(@Validated @RequestBody SmsLoginOrRegisterParams smsLoginOrRegisterParams,
-                                            @NotBlank @Param("specialTokenId") String specialTokenId) {
+                                            @NotBlank @RequestParam("specialTokenId") String specialTokenId) {
         return userService.updateByCodeAndPasswrod(smsLoginOrRegisterParams, specialTokenId);
     }
 
@@ -164,22 +176,24 @@ UserController {
      * @return
      */
     @PostMapping("verifyphone/{itucode}/{phone}")
+    @ApiOperation(value = "【需要粉丝端token】判断手机是否存在")
     public ResultVO ifExistPhone(@PathVariable("itucode") @NotBlank String itucode,
                                  @PathVariable("phone") @NotBlank String phone,
-                                 @NotBlank @Param("specialTokenId") String specialTokenId) {
+                                 @NotBlank @RequestParam("specialTokenId") String specialTokenId) {
         return userService.ifExistPhone(itucode + phone, specialTokenId);
     }
 
     /**
-     * 验证手机号是否存在
+     * 验证手机号
      *
      * @param phone
      * @param request
      * @return
      */
     @PostMapping("checkPhoneInfo")
+    @ApiOperation(value = "【需要粉丝端token】验证手机号")
     public ResultVO checkNewPhoneInfo(@Validated @RequestBody Phone phone,
-                                      @NotBlank @Param("specialTokenId") String specialTokenId) {
+                                      @NotBlank @RequestParam("specialTokenId") String specialTokenId) {
         return userService.checkPhoneInfo(phone, specialTokenId);
     }
 
@@ -191,8 +205,9 @@ UserController {
      * @return
      */
     @PostMapping("checkPassword")
+    @ApiOperation(value = "【需要粉丝端token】验证手机号对应的密码是否存在")
     public ResultVO checkPassword(@Validated @RequestBody Phone phone,
-                                  @NotBlank @Param("specialTokenId") String specialTokenId) {
+                                  @NotBlank @RequestParam("specialTokenId") String specialTokenId) {
         return userService.checkPassword(phone, specialTokenId);
     }
 
@@ -203,13 +218,19 @@ UserController {
      * @return
      */
     @PostMapping("phones")
+    @ApiOperation(value = "【需要粉丝端token】更换手机号")
     public ResultVO changePhones(@Validated @RequestBody SmsLoginOrRegisterParams smsLoginOrRegisterParams,
-                                 @NotBlank @Param("specialTokenId") String specialTokenId) {
+                                 @NotBlank @RequestParam("specialTokenId") String specialTokenId) {
         return userService.changePhones(smsLoginOrRegisterParams, specialTokenId);
     }
 
 
+    /**
+     * 获取用户列表
+     * @return
+     */
     @GetMapping("getUserList")
+    @ApiOperation(value = "【需要粉丝端token】获取用户列表")
     public List<User> getUserList() {
         return userService.getList();
     }

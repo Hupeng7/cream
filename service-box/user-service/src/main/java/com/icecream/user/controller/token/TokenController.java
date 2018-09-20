@@ -4,6 +4,8 @@ import com.icecream.common.model.pojo.User;
 import com.icecream.common.model.pojo.UserStar;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.service.token.UserTokenService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +17,7 @@ import javax.validation.constraints.NotNull;
  * description: token相关接口
  * create by Mr_h on 2018/7/17 0017
  */
+@Api(description = "令牌")
 @RestController
 @RequestMapping("user/token")
 public class TokenController {
@@ -28,6 +31,7 @@ public class TokenController {
      * @return ResultVo<T></>
      */
     @GetMapping("star")
+    @ApiOperation(value = "内部调用查询版主信息")
     public UserStar checkStarByMysql(@RequestParam("uid") Integer uid){
       return userTokenService.checkStar(uid);
     }
@@ -38,16 +42,19 @@ public class TokenController {
      * @return ResultVo
      */
     @GetMapping("consumer")
+    @ApiOperation(value = "内部调用查询粉丝信息")
     public User checkConsumerByMysql(@RequestParam(value = "uid")Integer uid){
         return userTokenService.checkConsumer(uid);
     }
 
     @GetMapping("getToken/{uid}")
+    @ApiOperation(value = "获取粉丝token")
     public String getToken(@PathVariable("uid") Integer uid){
        return userTokenService.getToken(uid);
     }
 
     @GetMapping("getStarToken/{uid}")
+    @ApiOperation(value = "获取版主token")
     public String getStarToken(@PathVariable("uid") Integer uid){
         return userTokenService.getStarToken(uid);
     }

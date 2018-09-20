@@ -19,7 +19,7 @@ public class LoginBaseParams {
     @NotNull(message = "手机系统类型不能为空")
     private Integer phoneModel;
     @NotNull(message = "推送注册标识不能为空")
-    @NotBlank(message = "推送注册标识不能为null")
+    @NotBlank(message = "推送注册标识不能为空")
     private String register;
     @NotNull(message = "推送注册类型不能为空")
     private Integer registerType;

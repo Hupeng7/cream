@@ -55,8 +55,8 @@ public class LoginAspect {
             Optional.ofNullable(jsonObject.getString("body")).orElseThrow(Throwable::new);
 
             //设置容器属性
-            loginParamContainer.setBody(jsonObject.getString("type")!=null?jsonObject.getString("type"):"");
-            loginParamContainer.setType(Integer.parseInt(jsonObject.getString("body")!=null?jsonObject.getString("body"):""));
+            loginParamContainer.setBody(jsonObject.getString("body")!=null?jsonObject.getString("body"):"");
+            loginParamContainer.setType(Integer.parseInt(jsonObject.getString("type")!=null?jsonObject.getString("type"):""));
             LoginParamContainer result = ((LoginFactory) FactoryBuilder.build(LOGIN))
                                                                        .getObject(loginParamContainer);
             //将原来的参数结构替换掉

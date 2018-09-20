@@ -3,8 +3,13 @@ package com.icecream.user.service.code.chuanglan;
 import com.icecream.common.model.model.SmsLoginOrRegisterParams;
 import com.icecream.common.model.model.SmsOpenApiResponse;
 import com.icecream.common.model.model.SmsSendEntity;
+import com.icecream.common.model.pojo.UserAuth;
 import com.icecream.common.util.constant.SysConstants;
 import com.icecream.common.util.json.JsonUtil;
+import com.icecream.common.util.res.ResultEnum;
+import com.icecream.common.util.res.ResultUtil;
+import com.icecream.common.util.res.ResultVO;
+import com.icecream.user.mapper.UserAuthMapper;
 import com.icecream.user.redis.RedisHandler;
 import com.icecream.user.service.code.CodeHandler;
 import com.icecream.user.utils.random.RandomCreator;
@@ -17,6 +22,8 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.concurrent.TimeUnit;
+
 
 /**
  * @author Mr_h
@@ -26,6 +33,7 @@ import org.springframework.web.client.RestTemplate;
  */
 @Slf4j
 @Component
+@SuppressWarnings("all")
 public class ChuanglanSender implements CodeHandler {
 
     @Autowired
@@ -36,6 +44,9 @@ public class ChuanglanSender implements CodeHandler {
 
     @Autowired
     private RedisHandler redisHandler;
+
+    @Autowired
+    private UserAuthMapper userAuthMapper;
 
     @Override
     public String send(String itucode, String phone) {
@@ -56,11 +67,17 @@ public class ChuanglanSender implements CodeHandler {
         SmsOpenApiResponse response = restTemplate.postForObject(url, formEntity, SmsOpenApiResponse.class);
         if("0".equals(response.getCode())){
             //向redis中存验证码，过期时间为10分钟
-            redisHandler.set(itucode+phone,authCode.toString(),
+            RedisHandler.set(itucode+phone,authCode.toString(),
                     Long.valueOf(environment.getProperty(SysConstants.SMS_CHUANGLAN_CODE_TIMEOUT)));
+            RedisHandler.setExpireTime(itucode+phone,600,TimeUnit.SECONDS);
             return response.getCode();
         }
         return "";
+    }
+
+    public ResultVO sendAndCheck(String itucode, String phone){
+        return check(itucode,phone)?ResultUtil.success(send(itucode,phone)):
+                ResultUtil.error(null,ResultEnum.EXIST_PHONE);
     }
 
     @Override
@@ -75,5 +92,14 @@ public class ChuanglanSender implements CodeHandler {
     public Boolean check(SmsLoginOrRegisterParams smsLoginOrRegisterParams) {
         String key = smsLoginOrRegisterParams.getItucode() + smsLoginOrRegisterParams.getPhone();
         return check(key, smsLoginOrRegisterParams.getCode());
+    }
+
+    @Override
+    public Boolean check(String itucode, String phone) {
+        UserAuth userAuth = new UserAuth();
+        userAuth.setIdentityType(1);//手机号注册的类型为1
+        userAuth.setIdentifier(itucode+phone);
+        UserAuth result = userAuthMapper.selectOne(userAuth);
+        return result==null?true:false;
     }
 }

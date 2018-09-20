@@ -5,6 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.SpringCloudApplication;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
+import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.client.RestTemplate;
@@ -16,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
  */
 @EnableFeignClients//开启feign客户端远程调用
 @SpringCloudApplication
+@EnableHystrix
 @EnableConfigurationProperties//开启自定义配置属性扫描
 @ComponentScan(basePackages = {"com.icecream.common","com.icecream.user"})//托管类扫描路径
 public class UserServiceApplication {

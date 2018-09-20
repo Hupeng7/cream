@@ -20,6 +20,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+
 
 /**
  * @version 2.0
@@ -58,7 +61,7 @@ public class SmsLoginService extends AbstractLoginSupport implements SuperLogin<
     @Override
     public ResultVO login(SmsLoginOrRegisterParams smsLoginOrRegisterParams) {
         String key = smsLoginOrRegisterParams.getItucode() + smsLoginOrRegisterParams.getPhone();
-        String value = redisHandler.get(key) == null ? "" : redisHandler.get(key).toString();
+        String value = redisHandler.get(key) == null ? "-1" : redisHandler.get(key).toString();
         Boolean mirror = codeHandler.check(key, Integer.parseInt(value));
         //验证码不正确
         if (!mirror) {
@@ -74,5 +77,6 @@ public class SmsLoginService extends AbstractLoginSupport implements SuperLogin<
         LoginReturn loginReturn = userRegisterService.toRegister(smsLoginOrRegisterParams);
         return ResultUtil.success(loginReturn);
     }
+
 
 }
