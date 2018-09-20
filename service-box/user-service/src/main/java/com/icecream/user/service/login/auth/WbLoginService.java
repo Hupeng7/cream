@@ -17,8 +17,11 @@ import com.icecream.user.service.login.AbstractLoginSupport;
 import com.icecream.user.service.login.SuperLogin;
 import com.icecream.user.service.register.UserRegisterService;
 import com.icecream.user.utils.jwt.TokenBuilder;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
@@ -26,6 +29,7 @@ import java.time.ZoneOffset;
 import java.util.Map;
 
 import static com.icecream.common.util.constant.SysConstants.USER_HASH_PREFIX;
+import static com.icecream.user.constants.Constants.TYPE_AUTH_WB;
 
 /**
  * @version 2.0
@@ -52,24 +56,28 @@ public class WbLoginService extends AbstractLoginSupport implements SuperLogin<W
 
     @Override
     public ResultVO login(WbLoginParams wbLoginParams) {
-        UserAuth record = userRegisterService.isHaveBeenRegistered(wbLoginParams.getOpenId(), wbLoginParams.getType());
-        if (null == record) {
-            ThirdPartUserInfo thirdPartUserInfo = callRemoteInterFaceForWxLogin(wbLoginParams);
-            User user = cover(thirdPartUserInfo, wbLoginParams);
-            Integer isRegister = userRegisterService.registerForFans(user, wbLoginParams.getOpenId(), wbLoginParams.getType());
-            if (isRegister > 0) {
-                RedisHandler.addMap(USER_HASH_PREFIX, user.getId().toString(),JSON.toJSONString(user));
-                LoginReturn loginReturn = buildLoginSuccessReturn(user);
-                return ResultUtil.success(loginReturn);
-            }else {
-                return ResultUtil.error(null,ResultEnum.DATA_ERROR);
+        String msg = vaild(wbLoginParams);
+        if(StringUtils.isBlank(msg)) {
+            UserAuth record = userRegisterService.isHaveBeenRegistered(wbLoginParams.getOpenId(), wbLoginParams.getType());
+            if (null == record) {
+                ThirdPartUserInfo thirdPartUserInfo = callRemoteInterFaceForWxLogin(wbLoginParams);
+                User user = cover(thirdPartUserInfo, wbLoginParams);
+                Integer isRegister = userRegisterService.registerForFans(user, wbLoginParams.getOpenId(), wbLoginParams.getType());
+                if (isRegister > 0) {
+                    RedisHandler.addMap(USER_HASH_PREFIX, user.getId().toString(), JSON.toJSONString(user));
+                    LoginReturn loginReturn = buildLoginSuccessReturn(user);
+                    return ResultUtil.success(loginReturn);
+                } else {
+                    return ResultUtil.error(null, ResultEnum.DATA_ERROR);
+                }
             }
+            User user = userService.getUserInfoByUid(record.getUid());
+            RedisHandler.addMap(USER_HASH_PREFIX, user.getId().toString(), JSON.toJSONString(user));
+            return ResultUtil.success(buildLoginSuccessReturn(user));
+        }else {
+            return ResultUtil.error(msg,ResultEnum.PARAMS_ERROR);
         }
-        User user = userService.getUserInfoByUid(record.getUid());
-        RedisHandler.addMap(USER_HASH_PREFIX, user.getId().toString(),JSON.toJSONString(user));
-        return ResultUtil.success(buildLoginSuccessReturn(user));
     }
-
 
     //调用远程接口
     private ThirdPartUserInfo callRemoteInterFaceForWxLogin(WbLoginParams wbLoginParams) {
@@ -96,5 +104,16 @@ public class WbLoginService extends AbstractLoginSupport implements SuperLogin<W
         user.setLastlogintime(time);
         user.setMtime(0);
         return user;
+    }
+
+    private String vaild(WbLoginParams wbLoginParams){
+        if(StringUtils.isBlank(wbLoginParams.getOpenId())) return "openId不能为空";
+        if(StringUtils.isBlank(wbLoginParams.getAccessToken())) return "accessToken不能为空";
+        if(wbLoginParams.getType()!=TYPE_AUTH_WB) return "登录类型不符合";
+        if(StringUtils.isBlank(wbLoginParams.getPhoneType())) return "phoneType不能为空";
+        if(StringUtils.isBlank(wbLoginParams.getRegister())) return "register不能为空";
+        if(null==wbLoginParams.getRegisterType()) return "registerType不能为空";
+        if(null==wbLoginParams.getPhoneModel()) return "phoneModel不能为空";
+        return "";
     }
 }

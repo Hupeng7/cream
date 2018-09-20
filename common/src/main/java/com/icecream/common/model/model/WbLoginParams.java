@@ -11,12 +11,9 @@ import org.hibernate.validator.constraints.NotBlank;
 @Data
 public class WbLoginParams extends LoginBaseParams{
 
-    @NotBlank(message ="微博登录时，uid不能为空")
     @JSONField(name="uid")
     private String openId;
 
-
-    @NotBlank(message = "accessToken不能为空")
     private String accessToken;
 
     private Integer type;
