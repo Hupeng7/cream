@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -61,7 +62,9 @@ public class WxLoginService extends AbstractLoginSupport implements SuperLogin<W
         String msg = vaild(wxLoginParams);
         if (StringUtils.isBlank(msg)) {
             List<String> strings = callRemoteInterFaceForWxLoginStepOne(wxLoginParams);
-            if (strings == null) return ResultUtil.error(null, ResultEnum.PARAMS_ERROR);
+            if (strings.size()<=0) {
+                return ResultUtil.error(null, ResultEnum.PARAMS_ERROR);
+            }
             UserAuth record = userRegisterService.isHaveBeenRegistered(strings.get(0), wxLoginParams.getType());
             if (null == record) {
                 ThirdPartUserInfo thirdPartUserInfo = callRemoteInterFaceForWxLoginStepTwo(strings, wxLoginParams);
@@ -111,7 +114,11 @@ public class WxLoginService extends AbstractLoginSupport implements SuperLogin<W
         String getInfoUrl = wxOpenApiUrl2 + "?access_token=" + list.get(1) + "&openid=" + list.get(0);
         String result = restTemplate.getForObject(getInfoUrl, String.class, String.class).toString();
         Map resultMap = JsonUtil.jsonToMap(result);
-        thirdPartUserInfo.setName(resultMap.get("nickname") != null ? resultMap.get("nickname").toString() : "");
+        try {
+            thirdPartUserInfo.setName(resultMap.get("nickname") != null ? new String((resultMap.get("nickname").toString()).getBytes("ISO-8859-1"),"utf-8") : "");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         thirdPartUserInfo.setUrl(resultMap.get("headimgurl") != null ? resultMap.get("headimgurl").toString() : "");
         return thirdPartUserInfo;
     }
