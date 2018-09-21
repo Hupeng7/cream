@@ -94,7 +94,7 @@ public class QQLoginService extends AbstractLoginSupport implements SuperLogin<Q
         /*String getInfoUrl = String.format("%s?access_token=%s&oauth_consumer_key=%s&openid=%s",
                 qqOpenApiUrl2, qqLoginParams.getAccessToken(), qqAppId, qqLoginParams.getOpenId());*/
 
-        String str = restTemplate.getForObject(getInfoUrl, JSONObject.class, String.class).toString();
+        String str = restTemplate.getForObject(getInfoUrl, String.class, String.class).toString();
         Map map = JsonUtil.jsonToMap(str);
         thirdPartUserInfo.setName(map.get("nickname") != null ? map.get("nickname").toString() : "");
         thirdPartUserInfo.setUrl(map.get("figureurl_qq_1") != null ? map.get("figureurl_qq_1").toString() : "");
