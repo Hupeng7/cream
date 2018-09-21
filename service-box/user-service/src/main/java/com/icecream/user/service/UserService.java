@@ -106,14 +106,14 @@ public class UserService {
         }
     }
 
-    public List<User> getList(){
+    public List<User> getList() {
         return userMapper.selectAll();
     }
 
-    public ResultVO update(User user,String uid) {
+    public ResultVO update(User user, String uid) {
         Integer id = Integer.parseInt(uid);
         Boolean vaild = Checker.checkUpateUser(user);
-        if(!vaild) return ResultUtil.success();
+        if (!vaild) return ResultUtil.success();
         //此步操作是为了判断user中是否只有id有值，如果是这种情况，不允许更新操作
         User result = getUserInfoByUid(id);
         if (result != null) {
@@ -126,7 +126,7 @@ public class UserService {
             int count = userMapper.updateByPrimaryKeySelective(user);
             if (count > 0) {
                 User u = getUserInfoByUid(id);
-                redisHandler.set(u.getId(),u);
+                redisHandler.set(u.getId(), u);
                 return ResultUtil.success(u);
             }
         }
@@ -134,7 +134,7 @@ public class UserService {
     }
 
     public ResultVO isSetPassword(String itucode, String phone, String uid) {
-        if(uid.equals("")) return ResultUtil.error(null,ResultEnum.TOKEN_INFO_ERROR);
+        if (uid.equals("")) return ResultUtil.error(null, ResultEnum.TOKEN_INFO_ERROR);
         User user = getUserInfoByUid(Integer.valueOf(uid));
         if (user != null) {
             UserAuth userAuth = new UserAuth();
@@ -154,7 +154,7 @@ public class UserService {
 
     public ResultVO<Object> getUserInfo(String uid) {
         try {
-            if(uid==null||uid.equals("")) return ResultUtil.error(null,ResultEnum.TOKEN_INFO_ERROR);
+            if (uid == null || uid.equals("")) return ResultUtil.error(null, ResultEnum.TOKEN_INFO_ERROR);
             Object o = redisHandler.get(uid);
             if (o != null)
                 return ResultUtil.success(o);
@@ -177,7 +177,7 @@ public class UserService {
 
     @Transactional(rollbackFor = Exception.class)
     public ResultVO updatePhone(String tid, String itucode, String phone) {
-        if(tid==null||tid.equals("")) return ResultUtil.error(null,ResultEnum.TOKEN_INFO_ERROR);
+        if (tid == null || tid.equals("")) return ResultUtil.error(null, ResultEnum.TOKEN_INFO_ERROR);
         Integer uid = Integer.parseInt(tid);
         User user = new User();
         user.setId(uid);
@@ -201,7 +201,7 @@ public class UserService {
         }
     }
 
-    public ResultVO updatePassword(Password password,String uid) {
+    public ResultVO updatePassword(Password password, String uid) {
         UserAuth result = userAuthService.get(Integer.parseInt(uid), password.getOldPassword());
         if (result != null) {
             result.setCredential(password.getNewPassword());
@@ -234,13 +234,13 @@ public class UserService {
                         return ResultUtil.success(count);
                     }
                 }
+                return ResultUtil.error("该手机未绑定，无法修改密码", ResultEnum.PARAMS_ERROR);
             } else {
                 return ResultUtil.error(null, ResultEnum.ERROR_PHONE);
             }
         } else {
             return ResultUtil.error(null, ResultEnum.DATA_ERROR);
         }
-        return ResultUtil.error(null, ResultEnum.ERROR_UNKNOWN);
     }
 
     public ResultVO ifExistPhone(String phone, String uid) {
@@ -252,7 +252,7 @@ public class UserService {
         }
     }
 
-    public ResultVO checkPhoneInfo(Phone phone,String tid) {
+    public ResultVO checkPhoneInfo(Phone phone, String tid) {
         Integer uid = Integer.parseInt(tid);
         UserAuth userAuth = userAuthService.getByIdentifer(uid, phone.getItucode() + phone.getPhone());
         if (userAuth != null) {
@@ -266,7 +266,7 @@ public class UserService {
         }
     }
 
-    public ResultVO checkPassword(Phone phone,String uid) {
+    public ResultVO checkPassword(Phone phone, String uid) {
         UserAuth userAuth = userAuthService.getByIdentifer(Integer.parseInt(uid), phone.getItucode() + phone.getPhone());
         SmsSendResult smsSendResult = new SmsSendResult();
         if (userAuth != null) {
@@ -290,33 +290,33 @@ public class UserService {
     public ResultVO changePhones(SmsLoginOrRegisterParams smsLoginOrRegisterParams, String tid) {
         Integer uid = Integer.parseInt(tid);
         String phone = smsLoginOrRegisterParams.getItucode() + smsLoginOrRegisterParams.getPhone();
-            User user = getUserInfoByUid(uid);
-            if (user != null) {
-                User args = new User();
-                args.setItucode(smsLoginOrRegisterParams.getItucode());
-                args.setPhone(smsLoginOrRegisterParams.getPhone());
-                args.setId(user.getId());
-                int userUpdate = userMapper.updateByPrimaryKeySelective(args);
-                UserAuth record = userAuthService.getByType(uid, TYPE_SMS);
-                record.setIdentifier(phone);
-                int userAuthUpdate = userAuthMapper.updateByPrimaryKeySelective(record);
-                UserPush userPush = userPushService.get(uid, TYPE_SMS);
-                userPush.setRegister(smsLoginOrRegisterParams.getRegister());
-                int registerUpdate = userPushMapper.updateByPrimaryKeySelective(userPush);
-                if (userUpdate > 0 & userAuthUpdate > 0 & registerUpdate > 0) {
-                    LoginReturn loginReturn = new LoginReturn();
-                    loginReturn.setToken(tokenBuilder.createToken(user));
-                    loginReturn.setAdmin(getUserInfoByUid(uid));
-                    User userInfo = userMapper.getCache(user.getId());
-                    redisHandler.set(uid, userInfo);
-                    return ResultUtil.success(loginReturn);
-                }
+        User user = getUserInfoByUid(uid);
+        if (user != null) {
+            User args = new User();
+            args.setItucode(smsLoginOrRegisterParams.getItucode());
+            args.setPhone(smsLoginOrRegisterParams.getPhone());
+            args.setId(user.getId());
+            int userUpdate = userMapper.updateByPrimaryKeySelective(args);
+            UserAuth record = userAuthService.getByType(uid, TYPE_SMS);
+            record.setIdentifier(phone);
+            int userAuthUpdate = userAuthMapper.updateByPrimaryKeySelective(record);
+            UserPush userPush = userPushService.get(uid, TYPE_SMS);
+            userPush.setRegister(smsLoginOrRegisterParams.getRegister());
+            int registerUpdate = userPushMapper.updateByPrimaryKeySelective(userPush);
+            if (userUpdate > 0 & userAuthUpdate > 0 & registerUpdate > 0) {
+                LoginReturn loginReturn = new LoginReturn();
+                loginReturn.setToken(tokenBuilder.createToken(user));
+                loginReturn.setAdmin(getUserInfoByUid(uid));
+                User userInfo = userMapper.getCache(user.getId());
+                redisHandler.set(uid, userInfo);
+                return ResultUtil.success(loginReturn);
             }
+        }
         return null;
     }
 
     public ResultVO checkCode(String uid, Integer code) {
-        if(uid==null||uid.equals("")) return ResultUtil.error(null,ResultEnum.TOKEN_INFO_ERROR);
+        if (uid == null || uid.equals("")) return ResultUtil.error(null, ResultEnum.TOKEN_INFO_ERROR);
         User user = getUserInfoByUid(Integer.parseInt(uid));
         if (user != null) {
             Boolean mirror = codeHandler.check(user.getItucode() + user.getPhone(), code);

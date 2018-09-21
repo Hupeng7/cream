@@ -51,7 +51,7 @@ public class PayAspect {
         ChargeParamContainer chargeParamContainer =new ChargeParamContainer();
         chargeParamContainer.setType(jsonObject.getInteger("type"));
         chargeParamContainer.setPrice(jsonObject.getBigDecimal("price"));
-        chargeParamContainer.setUid(jsonObject.getString("specialTokenId"));
+        chargeParamContainer.setUid(request.getParameter("specialTokenId"));
         chargeParamContainer = ChargeFactory.getServiceHandler(chargeParamContainer);
         Object[] obj=new Object[1];
         obj[0]=chargeParamContainer;

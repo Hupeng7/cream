@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -60,7 +61,7 @@ public class WxPayChargeServiceImpl implements ChargeService {
 
 
     @Override
-    public ResultVO charge(@Param("specialTokenId")String uid, BigDecimal price) {
+    public ResultVO charge(@RequestParam("specialTokenId")String uid, BigDecimal price) {
         log.info("开始微信支付。用户id{},充值金额{}", uid, price);
         //生成唯一订单号
         String trade_no = LocalDate.now().toString().replace("-", "") + String.valueOf(snowflakeGlobalIdFactory.create().nextId());
