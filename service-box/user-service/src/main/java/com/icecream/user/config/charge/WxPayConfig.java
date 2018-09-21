@@ -16,22 +16,22 @@ public class WxPayConfig {
     /**
      * 商户APPID
      */
-    public static final String  AppId = "wx98460a75fbd4b6c0";
+    public static final String  AppId = "wxd66944659074d7f4";
 
     /**
      * 商户账户 获取支付能力后，从邮件中得到
      */
-    public static final String  MchId = "1493054912";
+    public static final String  MchId = "1515061721";
 
     /**
      * 商户秘钥  32位，在微信商户平台中设置
      */
-    public static final String  AppSercret = "715fab3d2a5a03f16cacb56deabc8081";
+    public static final String  AppSercret = "b3a7487ecfca681b5cdb3584bfaa5e8e";
 
     /**
      * 服务器异步通知页面路径
      */
-    public static String notify_url = "www.baidu.com";
+    public static String notify_url = "http://b5vi2e.natappfree.cc/notify/wx";
 
     /**
      * 调用api的秘钥

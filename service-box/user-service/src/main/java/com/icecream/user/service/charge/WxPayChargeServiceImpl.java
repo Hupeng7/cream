@@ -76,6 +76,7 @@ public class WxPayChargeServiceImpl implements ChargeService {
         try {
             //rsa加密
             String RsaDecode = getDecodeStr(prePay);
+            RsaDecode = RsaDecode.replace("\r\n","");
             return ResultUtil.success(Optional.ofNullable(RsaDecode).orElse(""));
         } catch (Exception e) {
             e.printStackTrace();

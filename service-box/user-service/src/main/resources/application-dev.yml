@@ -3,7 +3,7 @@ server:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://10.40.254.96:2000/eureka/
+      defaultZone: http://10.40.255.90:2000/eureka/
   instance:
     prefer-ip-address: true
 spring:
@@ -51,7 +51,7 @@ spring:
       validationQuery: SELECT 'x'
       time-between-eviction-runs-millis: 60000
   zipkin:
-    base-url: http://10.40.254.96:9411
+    base-url: http://10.40.255.90:9411
   sleuth:
     sampler:
       percentage: 1.0
@@ -85,14 +85,14 @@ ribbon:
 
 tm:
   manager:
-    url: http://10.40.254.96:8899/tx/manager/
+    url: http://10.40.255.90:8899/tx/manager/
 
 #配置【QQ/微信/微博】的appId与secret
 login:
      QQappId: 1106041043
      QQsecret: jReqWlUw3105tGBZ
-     WechatAppId: wxe0341da5922122cb
-     WechatSecret: 97ccc6b8eb73638550137a2f74e5de94
+     WechatAppId: wxd66944659074d7f4
+     WechatSecret: b3a7487ecfca681b5cdb3584bfaa5e8e
      WechatGrantType: authorization_code
      WeiboAppId: 1528767946
      WeiboSecret: 6ef467d04e49ac00b694e829a60fd0cc
