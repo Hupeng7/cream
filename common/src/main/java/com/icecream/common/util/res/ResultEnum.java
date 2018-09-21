@@ -36,7 +36,7 @@ public enum ResultEnum {
     CODE_AUTHENTICATION_FAILED(2007,"手机验证码错误"),
     WRONG_CODE(2008,"验证码输入错误"),
     EXIST_PHONE(2009,"手机号已注册过，请登录"),
-    ERROR_PASSWORD(2010,"密码输入不正确"),
+    ERROR_ACCOUNT_OR_PASSWORD(2011,"不存在的用户名或密码输入不正确"),
     SIGN_IN_REPETITION(4002,"重复签到"),
     PRE_ORDER_ERROR(4003,"预下单失败"),
     CREATE_ORDER_FAILED(4004,"创建订单失败");

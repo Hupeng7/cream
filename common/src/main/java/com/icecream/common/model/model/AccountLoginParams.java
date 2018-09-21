@@ -13,12 +13,8 @@ import org.hibernate.validator.constraints.NotBlank;
 @Data
 public class AccountLoginParams{
 
-    @NonNull
-    @NotBlank(message = "密码不能为空")
     private String account;
 
-    @NonNull
-    @NotBlank(message = "密码不能为空")
     private String password;
 
     private Integer type;

@@ -82,7 +82,7 @@ public class SmsLoginService extends AbstractLoginSupport implements SuperLogin<
             if (record != null) {
                 if (smsLoginOrRegisterParams.getPassword() != null) {
                     if (record.getCredential() != smsLoginOrRegisterParams.getPassword()) {
-                        return ResultUtil.error("密码不正确", ResultEnum.ERROR_PASSWORD);
+                        return ResultUtil.error("密码不正确", ResultEnum.ERROR_ACCOUNT_OR_PASSWORD);
                     }
                 }
                 User user = userService.getUserInfoByUid(record.getUid());
