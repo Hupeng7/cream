@@ -93,33 +93,23 @@ public class WxPayChargeServiceImpl implements ChargeService {
         PrivateKey privateKey = RSAUtil.string2PrivateKey(private_key);
         byte[] base642Byte = RSAUtil.base642Byte(byte2Base64);
         byte[] privateDecrypt = RSAUtil.privateDecrypt(base642Byte, privateKey);
-        log.info("解密后的密文为{}" + privateDecrypt);
+        log.info("解密后的密文为{}" + new String(privateDecrypt,"utf-8"));
         return byte2Base64;
     }
 
     private SortedMap<String, Object> buildCallRemoteInterfaceParams(Map<String, String> map) {
-        SortedMap<String, Object> finalpackage = new TreeMap<String, Object>();
-        //应用ID
-        finalpackage.put("appid", AppId);
-        //商户号
-        finalpackage.put("partnerid", MchId);
-        Long time = (System.currentTimeMillis() / 1000);
-        //时间戳
-        finalpackage.put("timestamp", time.toString());
-        //随机字符串
-        finalpackage.put("noncestr", map.get("nonce_str"));
-        //预支付交易会话ID
-        finalpackage.put("prepayid", map.get("prepay_id"));
-        //扩展字段
-        finalpackage.put("package", "Sign=WXPay");
         SortedMap<String, Object> prePay = new TreeMap<String, Object>();
+        //扩展字段
+        String packageName = "Sign=WXPay";
+        Long time = System.currentTimeMillis()/1000;
         prePay.put("appid", AppId);
         prePay.put("partnerid", MchId);
         prePay.put("prepayid", map.get("prepay_id"));
-        prePay.put("sign", map.get("sign"));
-        prePay.put("package", "Sign=WXPay");
+        prePay.put("package", packageName);
         prePay.put("noncestr", getRandomString(32));
-        prePay.put("timestamp", System.currentTimeMillis() / 1000);
+        prePay.put("timestamp", time);
+        String sign = PayCommonUtil.createSign("UTF-8", prePay);
+        prePay.put("sign", sign);
         return prePay;
     }
 
@@ -148,7 +138,7 @@ public class WxPayChargeServiceImpl implements ChargeService {
         parameterMap.put("body", "雪糕群星星");
         parameterMap.put("out_trade_no", trade_no);
         parameterMap.put("fee_type", "CNY");
-        parameterMap.put("total_fee", totalAmount.toString());
+        parameterMap.put("total_fee",totalAmount.multiply(new BigDecimal(100)).intValue());
         parameterMap.put("spbill_create_ip", PayCommonUtil.getRemoteHost());
         parameterMap.put("notify_url", WxPayConfig.notify_url);
         parameterMap.put("trade_type", "APP");

@@ -1,6 +1,7 @@
 package com.icecream.user.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alipay.api.domain.Person;
 import com.icecream.common.model.pojo.User;
 import com.icecream.common.model.pojo.UserAuth;
 import com.icecream.common.model.pojo.UserPush;
@@ -111,9 +112,30 @@ public class UserService {
         }
     }
 
-    public List<User> getList() {
-        return userMapper.selectAll();
+    /**
+     * 获取用户列表并根据注册时间排序
+     * @return
+     */
+    public ResultVO getList() {
+        Map<String, Object> map = RedisHandler.getMap(SysConstants.USER_HASH_PREFIX);
+        if(map!=null){
+            List<Object> mapValueList = new ArrayList<Object>((map.values()));
+            mapValueList.forEach(o->{
+                User u = (User)o;
+            });
+            return ResultUtil.success(mapValueList);
+        }else {
+            List<User> users = userMapper.selectAll();
+            if(users!=null){
+                users.stream().forEach(u->RedisHandler.addMap(SysConstants.USER_HASH_PREFIX,""+u.getId()
+                        ,JSON.toJSONString(u)));
+                return ResultUtil.success(users);
+            }else {
+                return ResultUtil.error("获取用户列表为空",ResultEnum.QUERY_RESULT_IS_NULL);
+            }
+        }
     }
+
 
     public ResultVO update(User user, String uid) {
         Integer id = Integer.parseInt(uid);

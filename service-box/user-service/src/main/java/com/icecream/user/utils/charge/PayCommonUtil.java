@@ -33,7 +33,12 @@ public class PayCommonUtil {
         while(it.hasNext()) {
             Map.Entry entry = (Map.Entry)it.next();
             String key = (String)entry.getKey();
-            String value = (String)entry.getValue();
+            String value="";
+            if(key.equals("total_fee")){
+                value = ""+entry.getValue();
+            }else {
+                value = (String) entry.getValue();
+            }
             if ("attach".equalsIgnoreCase(key)||"body".equalsIgnoreCase(key)||"sign".equalsIgnoreCase(key)) {
                 sb.append("<"+key+">"+"<![CDATA["+value+"]]></"+key+">");
             }else {

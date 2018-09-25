@@ -4,6 +4,7 @@ import com.icecream.common.model.model.Password;
 import com.icecream.common.model.model.Phone;
 import com.icecream.common.model.model.SmsLoginOrRegisterParams;
 import com.icecream.common.model.pojo.User;
+import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.config.login.AppIdConfig;
 import com.icecream.user.feignclients.CommentsClient;
@@ -226,7 +227,7 @@ UserController {
      */
     @GetMapping("getUserList")
     @ApiOperation(value = "【需要粉丝端token】获取用户列表")
-    public List<User> getUserList() {
+    public ResultVO getUserList() {
         return userService.getList();
     }
 

@@ -31,11 +31,11 @@ public class WxPayConfig {
     /**
      * 服务器异步通知页面路径
      */
-    public static String notify_url = "http://b5vi2e.natappfree.cc/notify/wx";
+    public static String notify_url = "b5vi2e.natappfree.cc/notify/wx";
 
     /**
      * 调用api的秘钥
      */
-    public static String api_key = "XfPRXUoOgXl6KWHb3CJw59V96ovUGqiV";
+    public static String api_key = "Tu8snOi8sdsaGSeyUncbsAo26gSyuiWb";
 
 }
