@@ -20,6 +20,7 @@ public enum ResultEnum {
     NOT_FOUND(404, "不存在的映射路径"),
     REQUEST_TO_FAST(403, "请求速度太快，歇会吧"),
     REQUEST_TYPE_TO_METHOD_NOT_ALLOW(405, "请求类型错误"),
+    UNSUPPORTED_MEDIA_TYPE(415, "错误的请求方式"),
     ERROR_UNKNOWN(500, "服务器跑路了呢.."),
     DATA_ERROR(1001,"数据转换错误"),
     MYSQL_OPERATION_FAILED(1002,"数据库sql操作失败"),

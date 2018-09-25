@@ -1,10 +1,11 @@
 package com.icecream.user.service;
 
-import com.codingapi.tx.annotation.TxTransaction;
+import com.alibaba.fastjson.JSON;
 import com.icecream.common.model.pojo.User;
 import com.icecream.common.model.pojo.UserAuth;
 import com.icecream.common.model.pojo.UserPush;
 import com.icecream.common.model.model.*;
+import com.icecream.common.util.constant.SysConstants;
 import com.icecream.user.config.login.AppIdConfig;
 import com.icecream.user.feignclients.OrderFeignClient;
 import com.icecream.user.mapper.UserMapper;
@@ -76,33 +77,37 @@ public class UserService {
     @Autowired
     private TokenBuilder tokenBuilder;
 
-  /*  @TxTransaction(isStart = true)
-    @Transactional
-    public Integer insert() {
-        int count1 = userMapper.insert(UserBuilder.buildUser());
-        int count2 = 1;
-        if (count1 > 0 && count2 > 0) {
-            log.info("插入成功");
-            return 1;
-        } else {
-            log.error("插入失败");
-            return 0;
-        }
-    }*/
 
+    /**
+     * 根据粉丝id获取粉丝信息
+     *
+     * @param uid
+     * @return
+     */
     public User getUserInfoByUid(Integer uid) {
         User user = new User();
         user.setId(uid);
-        User result = userMapper.selectOne(user);
-        return result;
+        return userMapper.selectOne(user);
     }
 
+    /**
+     * 封装成ResultVO的获取粉丝信息
+     *
+     * @param uid
+     * @return {@link ResultVO}
+     */
     public ResultVO get(Integer uid) {
-        User result = getUserInfoByUid(uid);
-        if (result != null) {
-            return ResultUtil.success(result);
+        Object mapField = RedisHandler.getMapField(SysConstants.USER_HASH_PREFIX, uid.toString());
+        if (mapField != null) {
+            return ResultUtil.success(JSON.parseObject(mapField.toString(),User.class));
         } else {
-            return ResultUtil.error(null, ResultEnum.PARAMS_ERROR);
+            User result = getUserInfoByUid(uid);
+            if (result != null) {
+                RedisHandler.addMap(SysConstants.USER_HASH_PREFIX, ""+uid, JSON.toJSONString(result));
+                return ResultUtil.success(result);
+            } else {
+                return ResultUtil.error("无此用户", ResultEnum.QUERY_RESULT_IS_NULL);
+            }
         }
     }
 
@@ -112,7 +117,7 @@ public class UserService {
 
     public ResultVO update(User user, String uid) {
         Integer id = Integer.parseInt(uid);
-        Boolean vaild = Checker.checkUpateUser(user);
+        Boolean vaild = Checker.checkUpdateUser(user);
         if (!vaild) return ResultUtil.success();
         //此步操作是为了判断user中是否只有id有值，如果是这种情况，不允许更新操作
         User result = getUserInfoByUid(id);

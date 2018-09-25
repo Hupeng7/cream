@@ -18,12 +18,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
  * @version 2.0
  */
 @Slf4j
+@Validated
 @RestController
 @Api(value = "用户接口",description = "粉丝操作",tags ="user-root-api")
 @RequestMapping("user")
@@ -47,12 +49,6 @@ UserController {
     private RedisHandler redisHandler;
 
 
-   /* @GetMapping("loading")
-    public void loadingUserCache() {
-        userService.getList().stream().filter(user -> user != null & user.getId() != null)
-                .forEach(user -> redisHandler.addMap(USER_HASH_PREFIX,
-                        user.getId().toString(), JSON.toJSONString(user)));
-    }*/
 
     /**
      * 修改个人信息
@@ -76,7 +72,7 @@ UserController {
      */
     @GetMapping(value = "{consumerId}")
     @ApiOperation(value = "【需要粉丝端token】根据id查询用户")
-    public ResultVO getUserInfo(@PathVariable("consumerId") Integer uid) {
+    public ResultVO getUserInfo(@NotNull(message ="uid不能为空") @PathVariable("consumerId") Integer uid) {
         return userService.get(uid);
     }
 

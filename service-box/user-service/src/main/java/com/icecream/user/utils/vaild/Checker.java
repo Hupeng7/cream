@@ -10,7 +10,7 @@ import com.icecream.common.model.pojo.User;
  */
 public class Checker {
 
-    public static Boolean checkUpateUser(User user){
+    public static Boolean checkUpdateUser(User user){
         if(user.getNickname()==null&user.getAvatar()==null&
            user.getSmallavatar()==null&user.getSex()==null&
            user.getBirthday()==null&user.getProfessional()==null&

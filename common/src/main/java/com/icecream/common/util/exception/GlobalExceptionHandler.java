@@ -5,6 +5,7 @@ import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.binding.BindingException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -39,6 +40,12 @@ public class GlobalExceptionHandler {
 
     }
 
+    @ExceptionHandler(value = HttpRequestMethodNotSupportedException.class)
+    public ResultVO HttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException httpRequestMethodNotSupportedException){
+        return ResultUtil.error("请检查请求方式是否正确",ResultEnum.UNSUPPORTED_MEDIA_TYPE);
+    }
+
+
     /**
      * 校验的异常处理
      *
@@ -53,6 +60,8 @@ public class GlobalExceptionHandler {
                 .getDefaultMessage(), ResultEnum.PARAMS_ERROR);
 
     }
+
+
 
     /**
      * 校验的异常处理

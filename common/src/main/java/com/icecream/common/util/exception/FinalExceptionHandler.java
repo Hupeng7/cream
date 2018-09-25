@@ -35,9 +35,11 @@ public class FinalExceptionHandler implements ErrorController {
         log.error("http状态码--->{}",code);
         switch (code){
             case HttpServletResponse.SC_METHOD_NOT_ALLOWED:
-                return ResultUtil.error(null,ResultEnum.REQUEST_TYPE_TO_METHOD_NOT_ALLOW);
+                return ResultUtil.error("请检查请求类型是否正确",ResultEnum.REQUEST_TYPE_TO_METHOD_NOT_ALLOW);
             case HttpServletResponse.SC_NOT_FOUND:
-                return ResultUtil.error(null,ResultEnum.NOT_FOUND);
+                return ResultUtil.error("请检查url是否输入正确",ResultEnum.NOT_FOUND);
+            case HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE:
+                return ResultUtil.error("请检查",ResultEnum.UNSUPPORTED_MEDIA_TYPE);
             default:
                 return ResultUtil.error(resp.getStatus(),"请求失败，请检查请求路径或请求参数");
         }

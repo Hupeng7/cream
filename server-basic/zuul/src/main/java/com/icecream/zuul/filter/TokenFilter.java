@@ -100,32 +100,34 @@ public class TokenFilter extends ZuulFilter {
 
         //解析token
         TokenInfo tokenInfo = tokenParser.parseToken(token);
-        Integer uid = tokenInfo.getUid();
-        if (uid > 0) {
-            try {
-                Object mapField = RedisHandler.getMapField(USER_HASH_PREFIX, uid.toString());
-                User user = mapField != null ? JSON.parseObject(mapField.toString(), User.class)
-                        : userTokenFeignClient.checkConsumerByMysql(uid);
-                if (user != null) {
-                    setSuccessResponse(ctx, user.getId());
-                    return true;
+        if(tokenInfo!=null) {
+            Integer uid = tokenInfo.getUid();
+            if (uid > 0) {
+                try {
+                    Object mapField = RedisHandler.getMapField(USER_HASH_PREFIX, uid.toString());
+                    User user = mapField != null ? JSON.parseObject(mapField.toString(), User.class)
+                            : userTokenFeignClient.checkConsumerByMysql(uid);
+                    if (user != null) {
+                        setSuccessResponse(ctx, user.getId());
+                        return true;
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return false;
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-            }
-        } else if (uid < 0) {
-            try {
-                Object mapField = RedisHandler.getMapField(USER_STAR_HASH_PREFIX, uid.toString());
-                UserStar star = mapField != null ? JSON.parseObject(mapField.toString(), UserStar.class)
-                        : userTokenFeignClient.checkStarByMysql(uid);
-                if (star != null) {
-                    setSuccessResponse(ctx, star.getId());
-                    return true;
+            } else if (uid < 0) {
+                try {
+                    Object mapField = RedisHandler.getMapField(USER_STAR_HASH_PREFIX, uid.toString());
+                    UserStar star = mapField != null ? JSON.parseObject(mapField.toString(), UserStar.class)
+                            : userTokenFeignClient.checkStarByMysql(uid);
+                    if (star != null) {
+                        setSuccessResponse(ctx, star.getId());
+                        return true;
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return false;
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
             }
         }
         return false;
