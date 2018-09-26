@@ -68,7 +68,7 @@ public class WbLoginService extends AbstractLoginSupport implements SuperLogin<W
                     LoginReturn loginReturn = buildLoginSuccessReturn(user);
                     return ResultUtil.success(loginReturn);
                 } else {
-                    return ResultUtil.error(null, ResultEnum.DATA_ERROR);
+                    return ResultUtil.error(null, ResultEnum.MYSQL_OPERATION_FAILED);
                 }
             }
             User user = userService.getUserInfoByUid(record.getUid());

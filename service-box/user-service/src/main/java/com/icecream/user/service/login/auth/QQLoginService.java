@@ -71,7 +71,7 @@ public class QQLoginService extends AbstractLoginSupport implements SuperLogin<Q
                     RedisHandler.addMap(USER_HASH_PREFIX, user.getId().toString(), JSON.toJSONString(user));
                     return ResultUtil.success(loginReturn);
                 } else {
-                    return ResultUtil.error(null, ResultEnum.DATA_ERROR);
+                    return ResultUtil.error(null, ResultEnum.MYSQL_OPERATION_FAILED);
                 }
             }
             User user = userService.getUserInfoByUid(record.getUid());

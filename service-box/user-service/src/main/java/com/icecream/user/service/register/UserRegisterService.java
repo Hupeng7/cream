@@ -92,7 +92,7 @@ public class UserRegisterService extends AbstractLoginSupport {
             Boolean right = codeHandler.check(key, smsLoginOrRegisterParams.getCode());
             String vaild = vaild(smsLoginOrRegisterParams);
             if (!right) {
-                return ResultUtil.error("验证码失效或者不正确", ResultEnum.WRONG_CODE);
+                return ResultUtil.error("验证码失效或者不正确", ResultEnum.CODE_AUTHENTICATION_FAILED);
             }
             if (StringUtils.isNotBlank(vaild(smsLoginOrRegisterParams))) {
                 return ResultUtil.error(vaild, ResultEnum.PARAMS_ERROR);
