@@ -35,8 +35,9 @@ public class OrderFeignFallBack implements OrderFeignClient {
     }
 
     @Override
-    public String insertWxChargeRecord(WechatpayNotifyRecord wechatpayNotifyRecord) {
-        return null;
+    public Integer insertWxChargeRecord(WechatpayNotifyRecord wechatpayNotifyRecord) {
+        log.error("微信回调进入回退方法，服务不可用");
+        return 0;
     }
 
     @Override

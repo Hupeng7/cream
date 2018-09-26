@@ -169,7 +169,7 @@ public class WxPayChargeServiceImpl implements ChargeService {
         order.setReportType(1);//充值账单
         order.setAmount(new BigDecimal(1));
         order.setChangeTime(0);//变动时间
-        order.setChangePrice(order.getGoodsPrice());
+        order.setChangePrice(rule.getPrice().multiply(new BigDecimal(-1)));
         order.setGoodsId(rule.getCode());
         order.setGoodsPrice(rule.getPrice());
         order.setCtime(DateUtil.getNowSecondIntTime());

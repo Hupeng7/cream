@@ -59,7 +59,7 @@ public class WechatpayNotifyRecord {
     private String time_end;
 
     @NotNull
-    @Range(min = 500, max = 50000, message = "total_fee最低500,最高50000")
+    //@Range(min = 500, max = 50000, message = "total_fee最低500,最高50000")
     private Integer total_fee;
 
     @NotBlank(message = "交易类型不能为空")

@@ -33,7 +33,7 @@ public interface OrderFeignClient {
     String insertAliChargeErrorRecord(AlipayNotifyRecordErrorLog alipayNotifyRecordErrorLog);
 
     @RequestMapping(value = "charge/insertWxChargeRecord",method = RequestMethod.POST)
-    String insertWxChargeRecord(WechatpayNotifyRecord wechatpayNotifyRecord);
+    Integer insertWxChargeRecord(@RequestBody WechatpayNotifyRecord wechatpayNotifyRecord);
 
     @RequestMapping(value = "charge/meal/get",method = RequestMethod.GET)
     ResultVO getMeal();

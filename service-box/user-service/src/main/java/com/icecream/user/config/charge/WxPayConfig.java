@@ -1,5 +1,8 @@
 package com.icecream.user.config.charge;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+
 /**
  * @author Mr_h
  * @version 1.0
@@ -31,7 +34,7 @@ public class WxPayConfig {
     /**
      * 服务器异步通知页面路径
      */
-    public static String notify_url = "b5vi2e.natappfree.cc/notify/wx";
+    public static String notify_url = "y2j6gs.natappfree.cc/notify/wx";
 
     /**
      * 调用api的秘钥

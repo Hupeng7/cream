@@ -121,7 +121,7 @@ public class StringUtil {
         sb.append("<xml>");
         for (Map.Entry<String,String> entry : param.entrySet()) {
             sb.append("<"+ entry.getKey() +">");
-            sb.append(entry.getValue());
+            sb.append("<![CDATA["+entry.getValue()+"]]");
             sb.append("</"+ entry.getKey() +">");
         }
         sb.append("</xml>");

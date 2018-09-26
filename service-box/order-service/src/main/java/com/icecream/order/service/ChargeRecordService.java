@@ -73,13 +73,20 @@ public class ChargeRecordService {
 
 
     @Transactional(rollbackFor = Exception.class)
-    public void insert(WechatpayNotifyRecord wechatpayNotifyRecord) {
+    public Integer insert(WechatpayNotifyRecord wechatpayNotifyRecord) {
         Order order = orderService.getOrderByOrderNo(1,wechatpayNotifyRecord.getOut_trade_no());
+        //如果订单已经支付
+        if(order.getIsPay()==1)return 0;
         BigDecimal goodsPrice = order.getGoodsPrice();
-        orderService.updateOrderForCharge(buildOrder(wechatpayNotifyRecord, order.getPaymentType()));
-        wechatpayNotifyRecordMapper.insertSelective(wechatpayNotifyRecord);
-        pointInoutMapper.insertSelective(caseToPointOut(wechatpayNotifyRecord, goodsPrice, order.getPaymentType()));
-        walletService.insertOrUpateHandler(wechatpayNotifyRecord.getUid(), goodsPrice);
+        int row1 = orderService.updateOrderForCharge(buildOrder(wechatpayNotifyRecord, order.getPaymentType()));
+        //微信重复发通知
+        int row2 = wechatpayNotifyRecordMapper.insertSelective(wechatpayNotifyRecord);
+        int row3 = pointInoutMapper.insertSelective(caseToPointOut(wechatpayNotifyRecord, goodsPrice, order.getPaymentType()));
+        int row4 = walletService.insertOrUpateHandler(wechatpayNotifyRecord.getUid(), goodsPrice);
+        if(row1>0&row2>0&row3>0&row4>0){
+            return 1;
+        }
+        return 0;
     }
 
     private AlipayNotifyRecordErrorLog caseToAlipayNotifyRecordErrorLog(
