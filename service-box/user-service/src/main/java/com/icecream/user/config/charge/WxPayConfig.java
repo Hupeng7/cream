@@ -1,8 +1,5 @@
 package com.icecream.user.config.charge;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-
 /**
  * @author Mr_h
  * @version 1.0

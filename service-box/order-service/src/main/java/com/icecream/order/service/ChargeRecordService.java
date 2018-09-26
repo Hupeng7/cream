@@ -1,9 +1,12 @@
 package com.icecream.order.service;
 
+import com.alibaba.fastjson.JSON;
 import com.icecream.common.model.pojo.*;
+import com.icecream.common.util.constant.SysConstants;
 import com.icecream.common.util.time.DateUtil;
 import com.icecream.common.util.uuid.UUIDFactory;
 import com.icecream.order.mapper.*;
+import com.icecream.order.redis.RedisHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import static com.icecream.common.util.constant.SysConstants.ORDER_ZSET_PREFIX;
+import static com.icecream.common.util.constant.SysConstants.SYMBOL_COLON;
+import static com.icecream.common.util.constant.SysConstants.USER_WALLET_PREFIX;
 import static com.icecream.order.contants.Contants.ADD;
 import static com.icecream.order.contants.Contants.TYPE_CHARGE;
 
@@ -84,6 +90,10 @@ public class ChargeRecordService {
         int row3 = pointInoutMapper.insertSelective(caseToPointOut(wechatpayNotifyRecord, goodsPrice, order.getPaymentType()));
         int row4 = walletService.insertOrUpateHandler(wechatpayNotifyRecord.getUid(), goodsPrice);
         if(row1>0&row2>0&row3>0&row4>0){
+            Wallet wallet = walletService.get(wechatpayNotifyRecord.getUid());
+            RedisHandler.addMap(SysConstants.ORDER_HASH_PREFIX,order.getOrderNo(), JSON.toJSONString(order));
+            RedisHandler.addZSet(ORDER_ZSET_PREFIX, order.getCtime(), order.getOrderNo());
+            RedisHandler.set(USER_WALLET_PREFIX + SYMBOL_COLON + wechatpayNotifyRecord.getUid(),wallet.getBalance());
             return 1;
         }
         return 0;
