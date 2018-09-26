@@ -16,7 +16,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -34,16 +36,34 @@ public class WxPayNotifyService {
     @Autowired
     private OrderFeignClient orderFeignClient;
 
-    public String wxNotify(HttpServletRequest request, HttpServletResponse response) {
+    public synchronized String wxNotify(HttpServletRequest request, HttpServletResponse response) {
         log.info("微信回调开始...");
+        String xml = "";
+        PrintWriter writer = null;
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("text/html;charset=UTF-8");
+        response.setHeader("Access-Control-Allow-Origin", "*");
         Map<String, String> params = getMapFromWxNotify(request);
-        return !PayCommonUtil.isTenpaySign(params) ? signError() : signSuccess(params);
+        xml= !PayCommonUtil.isTenpaySign(params) ? signError() : signSuccess(params);
+        try {
+            writer = response.getWriter();
+            writer.print(xml);
+            writer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+            log.error("进入了流处理方法");
+        }finally {
+            if(writer!=null){
+                writer.close();
+            }
+        }
+        return null;
     }
 
     //认证签名成功
     private String signSuccess(Map<String, String> params) {
-        Map<String, String> return_data = new HashMap<String, String>();
-        log.info("===============付款成功==============");
+        Map<String, String> return_data = new LinkedHashMap<>();
+        log.info("===============收到微信通知==============");
         //获取交易状态码
         String result_code = params.get("result_code");
         wxNotifyNormalRecord(params);
@@ -54,7 +74,7 @@ public class WxPayNotifyService {
 
     //认证签名失败
     private String signError() {
-        Map<String, String> return_data = new HashMap<String, String>();
+        Map<String, String> return_data = new LinkedHashMap<String, String>();
         log.error("非法的支付签名");
         return_data.put("return_code", "FAIL");
         return_data.put("return_msg", "return_code不正确");
@@ -103,7 +123,7 @@ public class WxPayNotifyService {
         wechatpayNotifyRecord.setUid(Integer.parseInt(wechatpayNotifyRecord.getAttach()));
         wechatpayNotifyRecord.setCtime(DateUtil.getNowTimeBySecond());
         Integer result = orderFeignClient.insertWxChargeRecord(wechatpayNotifyRecord);
-        log.info(""+result);
+        log.info("" + result);
     }
 }
 

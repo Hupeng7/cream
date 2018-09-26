@@ -31,7 +31,7 @@ public class WxPayConfig {
     /**
      * 服务器异步通知页面路径
      */
-    public static String notify_url = "y2j6gs.natappfree.cc/notify/wx";
+    public static String notify_url = "3tyba5.natappfree.cc/notify/wx";
 
     /**
      * 调用api的秘钥
