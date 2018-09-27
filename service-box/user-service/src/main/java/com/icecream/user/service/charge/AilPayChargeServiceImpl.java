@@ -14,6 +14,7 @@ import com.icecream.common.util.idbuilder.staticfactroy.SnowflakeGlobalIdFactory
 import com.icecream.common.util.res.ResultEnum;
 import com.icecream.common.util.res.ResultUtil;
 import com.icecream.common.util.res.ResultVO;
+import com.icecream.common.util.time.DateUtil;
 import com.icecream.user.feignclients.OrderFeignClient;
 import com.icecream.user.rabbitmq.sender.Sender;
 import lombok.extern.slf4j.Slf4j;
@@ -47,18 +48,15 @@ public class AilPayChargeServiceImpl implements ChargeService {
     @Autowired
     private OrderFeignClient orderFeignClient;
 
-    @Autowired
-    private Sender sender;
-
     @Override
     public ResultVO charge(@Param("specialTokenId")String uid, BigDecimal price) {
         String trade_no = LocalDate.now().toString().replace("-", "") + String.valueOf(snowflakeGlobalIdFactory.create().nextId());
         log.info("收到金额数据------>{},准备请求支付宝接口", price);
-        String result = callAliPayOpenApi(uid,price);
+        rabbitSender.send(ORDER_EXCHANGE,CHARGE_QUEUE,JSON.toJSONString(buildPreOrder(uid, trade_no, price)));
+        String result = callAliPayOpenApi(uid,price,trade_no);
         if(StringUtils.areNotEmpty(result)){
             return ResultUtil.success(result);
         }
-        sender.send(ORDER_EXCHANGE,CHARGE_QUEUE,JSON.toJSONString(buildPreOrder(uid, trade_no, price)));
         return ResultUtil.error("支付宝预下单请求失败",ResultEnum.PARAMS_ERROR);
     }
 
@@ -66,20 +64,29 @@ public class AilPayChargeServiceImpl implements ChargeService {
     public Order buildPreOrder(String uid, String orderNo, BigDecimal price) {
         ScoreRule rule = orderFeignClient.getRuleForCreateOrder(6, price, 1);
         Order order = new Order();
+        order.setSid(1);//粉丝端
         order.setPayPrice(price);
         order.setUid(Integer.parseInt(uid));
         order.setOrderNo(orderNo);
+        order.setAccount("-1");
         order.setPaymentType(1); //支付类型支付宝
         order.setStatus(1); //状态为正常
         order.setOrderStatus(0);//订单状态为待付款
         order.setIsDigital(1);//虚拟商品
         order.setIsPay(0);//未支付
+        order.setPayTime(0);//支付时间(预下单时还没有支付)
+        order.setChangeTime(0);//变动时间
+        order.setOrderType(1);//平台交易
+        order.setReportType(1);//充值账单
+        order.setAmount(new BigDecimal(1));
+        order.setChangePrice(rule.getPrice());
         order.setGoodsId(rule.getCode());
         order.setGoodsPrice(rule.getPrice());
+        order.setCtime(DateUtil.getNowSecondIntTime());
         return order;
     }
 
-    public String callAliPayOpenApi(String uid,BigDecimal price) {
+    public String callAliPayOpenApi(String uid,BigDecimal price,String tradeNo) {
         AlipayClient alipayClient = new DefaultAlipayClient(
                 "https://openapi.alipay.com/gateway.do",
                 "2018092661539460",
@@ -92,14 +99,14 @@ public class AilPayChargeServiceImpl implements ChargeService {
         AlipayTradeAppPayRequest request = new AlipayTradeAppPayRequest();
         //SDK已经封装掉了公共参数，这里只需要传入业务参数。以下方法为sdk的model入参方式(model和biz_content同时存在的情况下取biz_content)。
         AlipayTradeAppPayModel model = new AlipayTradeAppPayModel();
-        model.setSubject("雪糕群");
-        model.setOutTradeNo(String.valueOf(snowflakeGlobalIdFactory.create().nextId()));
+        model.setSubject("雪糕群星星");
+        model.setOutTradeNo(tradeNo);
         model.setTimeoutExpress("30m");
         model.setTotalAmount(price.toString());
         model.setProductCode("QUICK_MSECURITY_PAY");
         model.setBody(uid);
         request.setBizModel(model);
-        request.setNotifyUrl("http://icecream.natapp1.cc/notify/ali");
+        request.setNotifyUrl("http://eeezne.natappfree.cc/notify/ali");
         try {
             AlipayTradeAppPayResponse response = alipayClient.sdkExecute(request);
             return response.getBody();

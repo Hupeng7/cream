@@ -27,10 +27,10 @@ public interface OrderFeignClient {
     int insert(Order order);
 
     @RequestMapping(value = "charge/insertAliChargeRecord",method = RequestMethod.POST)
-    String insertAliChargeRecord(AlipayNotifyRecord alipayNotifyRecord);
+    String insertAliChargeRecord(@RequestBody AlipayNotifyRecord alipayNotifyRecord);
 
     @RequestMapping(value = "charge/insertAliChargeErrorRecord",method = RequestMethod.POST)
-    String insertAliChargeErrorRecord(AlipayNotifyRecordErrorLog alipayNotifyRecordErrorLog);
+    String insertAliChargeErrorRecord(@RequestBody AlipayNotifyRecordErrorLog alipayNotifyRecordErrorLog);
 
     @RequestMapping(value = "charge/insertWxChargeRecord",method = RequestMethod.POST)
     Integer insertWxChargeRecord(@RequestBody WechatpayNotifyRecord wechatpayNotifyRecord);

@@ -67,23 +67,23 @@ public class AlipayNotifyRecord {
     private String trade_status;
 
     @NotNull
-    @Range(min = 5,max = 500,message ="不在充值区间内")
+    //@Range(min = 5,max = 500,message ="不在充值区间内")
     private BigDecimal total_amount;
 
     @NotNull
-    @Range(min = 5,max = 500,message ="不在充值区间内")
+    // @Range(min = 5,max = 500,message ="不在充值区间内")
     private BigDecimal receipt_amount;
 
     @NotNull
-    @Range(min = 5,max = 500,message ="不在充值区间内")
+    //@Range(min = 5,max = 500,message ="不在充值区间内")
     private BigDecimal invoice_amount;
 
     @NotNull
-    @Range(min = 5,max = 500,message ="不在充值区间内")
+    //@Range(min = 5,max = 500,message ="不在充值区间内")
     private BigDecimal buyer_pay_amount;
 
     @NotNull
-    @Range(min = 5,max = 500,message ="不在充值区间内")
+    //@Range(min = 5,max = 500,message ="不在充值区间内")
     private BigDecimal point_amount;
 
     private BigDecimal refund_fee;

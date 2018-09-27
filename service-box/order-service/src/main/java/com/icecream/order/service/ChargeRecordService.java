@@ -57,6 +57,7 @@ public class ChargeRecordService {
     public String insert(AlipayNotifyRecord alipayNotifyRecord) {
         try {
             Order order = orderService.getOrderByOrderNo(1,alipayNotifyRecord.getOut_tradeNo());
+            if(order.getIsPay()==1) return "";
             BigDecimal goodsPrice = order.getGoodsPrice();
             orderService.updateOrderForCharge(buildOrder(alipayNotifyRecord, order.getPaymentType()));
             alipayNotifyRecordMapper.insertSelective(alipayNotifyRecord);
@@ -110,6 +111,8 @@ public class ChargeRecordService {
         alipayNotifyRecordErrorLog.setOutTradeNo(alipayNotifyRecord.getOut_tradeNo());
         alipayNotifyRecordErrorLog.setNotifyType(alipayNotifyRecord.getNotify_type());
         alipayNotifyRecordErrorLog.setSign(alipayNotifyRecord.getSign());
+        alipayNotifyRecordErrorLog.setSignType(alipayNotifyRecord.getSign_type());
+        alipayNotifyRecordErrorLog.setVersion(alipayNotifyRecord.getVersion());
         alipayNotifyRecordErrorLog.setTradeNo(alipayNotifyRecord.getTradeNo());
         alipayNotifyRecordErrorLog.setOutTradeNo(alipayNotifyRecord.getOut_tradeNo());
         alipayNotifyRecordErrorLog.setCtime(Integer.parseInt(DateUtil.getNowSecond()));
@@ -141,8 +144,9 @@ public class ChargeRecordService {
     private Order buildOrder(Object o, Integer paymentType) {
         Order order = new Order();
         order.setIsPay(1);
-        order.setPaymentType(2);
+        order.setPaymentType(4);
         order.setOrderStatus(4);
+        order.setChangeType(4);
         order.setPayTime(DateUtil.getNowSecondIntTime());
         order.setMtime(DateUtil.getNowSecondIntTime());
         if (paymentType == 1) {

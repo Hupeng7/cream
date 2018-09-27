@@ -350,11 +350,7 @@ public class OrderService {
         Example example = new Example(Order.class);
         Example.Criteria criteria = example.createCriteria();
         criteria.andEqualTo("uid", order.getUid());
-        criteria.andEqualTo("isPay", 0);
-        criteria.andEqualTo("status", 1);
-        criteria.andEqualTo("orderStatus", 0);
-        criteria.andEqualTo("paymentType", 2);
-        criteria.andEqualTo("isDigital", 1);
+        criteria.andEqualTo("orderNo", order.getOrderNo());
         return orderMapper.updateByExampleSelective(order, example);
     }
 
