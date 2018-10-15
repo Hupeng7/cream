@@ -3,7 +3,6 @@ package com.icecream.order.utils.math;
 import com.icecream.common.util.idbuilder.staticfactroy.SnowflakeGlobalIdFactory;
 
 import java.time.LocalDate;
-import java.util.Random;
 
 /**
  * @author Mr_h

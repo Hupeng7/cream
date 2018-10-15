@@ -12,8 +12,13 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.*;
+import javax.validation.constraints.Pattern;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -148,4 +153,10 @@ public class CommentsController {
                                  "{11}$", message = "手机号码格式错误")String phone){
         return "ok"+count+comments+max+min;
     }
+    @GetMapping("test/{name}")
+    public String checkParam(@Pattern(regexp = "^[a-zA-Z_]\\w{4,19}$", message = "用户名必须以字母下划线开头，可由字母数字下划线组成") @PathVariable("name") String name) {
+        log.info("进来了");
+        return name;
+    }
+
 }

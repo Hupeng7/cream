@@ -1,23 +1,15 @@
 package com.icecream.order.rabbitmq.receiver;
 
 import com.alibaba.fastjson.JSON;
-import com.codingapi.tx.annotation.TxTransaction;
-import com.icecream.common.model.pojo.Order;
 import com.icecream.common.model.model.GoodsUpdateMessage;
 import com.icecream.common.model.model.SkillUpdateModel;
-import com.icecream.common.util.constant.SysConstants;
-import com.icecream.common.util.time.DateUtil;
-import com.icecream.order.feignclient.GoodsFeignClient;
-import com.icecream.order.mapper.ExpMapper;
-import com.icecream.order.mapper.WalletMapper;
+import com.icecream.common.model.pojo.Order;
 import com.icecream.order.service.OrderService;
-import com.icecream.order.service.PointInoutService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import static com.icecream.common.util.constant.SysConstants.ORDER_QUEUE;
 

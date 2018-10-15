@@ -8,19 +8,13 @@ import com.icecream.user.utils.factory.LoginFactory;
 import com.icecream.user.utils.factory.builder.FactoryBuilder;
 import com.icecream.user.utils.paramutils.ParamUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Optional;
 
 import static com.icecream.user.constants.Constants.LOGIN;

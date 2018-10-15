@@ -307,8 +307,8 @@ public class PhotoFrameService {
     public ResultVO saveUserPhotoFrame(String specialTokenId, String frameId) {
         /**
          * 过程：
-         * 1.判断头像框是否存在 不存在跳出3003 存在继续  判断等级够不够 不够则跳出 够则继续
-         * 2.判断用户是否佩戴 已佩戴跳出2000  否则继续
+         * 1.判断头像框是否存在 不存在跳出存在继续  判断等级够不够 不够则跳出 够则继续
+         * 2.判断用户是否佩戴 已佩戴跳出 否则继续
          * 3.未佩戴  若是price==0
          *   判断用户是否拥有该图像框，已有 则佩戴
          *   没有则插入， 佩戴

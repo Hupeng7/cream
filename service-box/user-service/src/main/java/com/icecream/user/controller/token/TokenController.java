@@ -2,14 +2,11 @@ package com.icecream.user.controller.token;
 
 import com.icecream.common.model.pojo.User;
 import com.icecream.common.model.pojo.UserStar;
-import com.icecream.common.util.res.ResultVO;
 import com.icecream.user.service.token.UserTokenService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.constraints.NotNull;
 
 /**
  * @author Mr_h

@@ -40,5 +40,10 @@ public class Constants {
      */
     public static final Integer MONTH_TO_SECOND = 2592000;
 
+    /**
+     * 用户个人频道展示排序
+     */
+    public static final String USER_CHANNELDISPLAY_SORT = "user_channeldisplay_sort";
+
 
 }
